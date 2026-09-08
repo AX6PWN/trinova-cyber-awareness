@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive 360° cybersecurity awareness training simulator. Explore a realistic office environment and learn about phishing, passwords, MFA, social engineering, safe browsing, and USB security.">
+  <title>CyberSafe 360° — Cybersecurity Awareness Training</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- A-Frame 1.8.0 -->
+  <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ====================================================
+       WELCOME SCREEN
+       ==================================================== -->
+  <div id="welcome-screen">
+    <div class="welcome-card">
+      <div class="welcome-icon">🛡️</div>
+      <h1>CyberSafe 360°</h1>
+      <p class="subtitle">
+        Step into a realistic office environment and discover the cybersecurity
+        threats hiding in everyday workplace objects. Explore, learn, and test
+        your awareness in this interactive 360° training experience.
+      </p>
+      <div class="welcome-features">
+        <div class="welcome-feature">
+          <span class="feat-icon">🔍</span>
+          <span>360° Office Exploration</span>
+        </div>
+        <div class="welcome-feature">
+          <span class="feat-icon">🎯</span>
+          <span>6 Security Topics</span>
+        </div>
+        <div class="welcome-feature">
+          <span class="feat-icon">⚡</span>
+          <span>Interactive Scenarios</span>
+        </div>
+        <div class="welcome-feature">
+          <span class="feat-icon">📝</span>
+          <span>Knowledge Quiz</span>
+        </div>
+      </div>
+      <button id="btn-enter-training" class="btn-primary">
+        Enter Training →
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       HUD (Top bar during exploration)
+       ==================================================== -->
+  <div id="hud">
+    <div class="hud-left">
+      <span class="hud-title">🛡️ CyberSafe 360°</span>
+      <div class="hud-progress">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <span id="progress-text">0/6 Topics</span>
+      </div>
+    </div>
+    <div class="hud-right">
+      <button id="btn-start-quiz" class="hud-btn" style="display: none; background: linear-gradient(135deg, var(--accent), #3a6fd8); color: #fff; border-color: transparent;">
+        <span class="btn-icon">📝</span>
+        Start Quiz
+      </button>
+      <button id="btn-reset-camera" class="hud-btn" title="Reset camera orientation (R)">
+        <span class="btn-icon">🧭</span>
+        Reset View
+      </button>
+      <button id="btn-fullscreen" class="hud-btn" title="Toggle fullscreen (F)">
+        <span class="btn-icon">⛶</span>
+        Fullscreen
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       HOTSPOT TOOLTIP (positioned dynamically)
+       ==================================================== -->
+  <div id="hotspot-tooltip">
+    <div class="tooltip-header">
+      <span class="tooltip-icon"></span>
+      <span class="tooltip-title"></span>
+    </div>
+    <div class="tooltip-desc"></div>
+  </div>
+
+  <!-- ====================================================
+       EXPLORE HINT (bottom center)
+       ==================================================== -->
+  <div id="explore-hint">
+    <span class="hint-icon">👆</span>
+    <span>Click and drag to look around — find the interactive hotspots</span>
+  </div>
+
+  <!-- ====================================================
+       A-FRAME 360° SCENE
+       ==================================================== -->
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    loading-screen="enabled: false"
+    renderer="antialias: true; colorManagement: true;"
+    cursor="rayOrigin: mouse; fuse: false"
+    raycaster="objects: .clickable"
+  >
+    <!-- Assets -->
+    <a-assets timeout="20000">
+      <a-asset-item id="room-model" src="assets/bed_room_laptop_setup/scene.gltf"></a-asset-item>
+    </a-assets>
+
+    <!-- Subtle Ambient Sky Background -->
+    <a-sky color="#0a0f1d"></a-sky>
+
+    <!-- 3D Room Model (Sketchfab Bedroom Laptop Setup) -->
+    <a-entity id="bedroom-scene" gltf-model="#room-model" position="0 0 0"></a-entity>
+
+    <!-- Room Lighting for realistic interior illumination -->
+    <a-light type="ambient" color="#ffffff" intensity="1.05"></a-light>
+    <a-light type="point" color="#fffbf0" intensity="1.1" position="0 1.6 0" distance="7"></a-light>
+    <a-light type="point" color="#bae6fd" intensity="0.85" position="-1.1 0.4 -1.3" distance="3"></a-light>
+    <a-light type="directional" color="#fef3c7" intensity="0.6" position="-1.5 1.5 0.5"></a-light>
+
+    <!-- Realistic 3D USB Prop on Desk -->
+    <a-entity id="usb-stick-prop" position="-0.68 -0.69 -1.35" rotation="0 25 0">
+      <!-- USB Body -->
+      <a-box width="0.035" height="0.012" depth="0.065" color="#1e293b" material="metalness: 0.6; roughness: 0.3"></a-box>
+      <!-- USB Metal Connector -->
+      <a-box width="0.022" height="0.008" depth="0.025" position="0 0 -0.045" color="#cbd5e1" material="metalness: 0.9; roughness: 0.2"></a-box>
+      <!-- Activity LED -->
+      <a-sphere radius="0.003" position="0 0.007 0.015" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 2"></a-sphere>
+      <!-- Lanyard Loop -->
+      <a-torus radius="0.008" radius-tubular="0.002" position="0 0 0.038" rotation="90 0 0" color="#94a3b8" material="metalness: 0.8; roughness: 0.2"></a-torus>
+    </a-entity>
+
+    <!-- Camera positioned inside room at realistic human standing eye height with clear view of desk setup -->
+    <a-entity id="camera-rig" position="-0.30 0.15 -0.45">
+      <a-camera
+        id="main-camera"
+        look-controls="pointerLockEnabled: false; touchEnabled: true"
+        wasd-controls-enabled="false"
+        fov="72"
+        position="0 0 0"
+      >
+      </a-camera>
+    </a-entity>
+
+    <!-- Hotspots are added dynamically by js/hotspots.js -->
+  </a-scene>
+
+  <!-- ====================================================
+       TOPIC INFORMATION PANEL
+       ==================================================== -->
+  <div id="topic-panel-overlay"></div>
+  <div id="topic-panel">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="panel-topic-icon">✉️</div>
+        <div>
+          <div class="panel-topic-title">Phishing</div>
+          <div class="panel-topic-subtitle">Email & Message Threats</div>
+        </div>
+      </div>
+      <button class="panel-close-btn" title="Close (Esc)">✕</button>
+    </div>
+    <div class="panel-body">
+      <!-- What Is It -->
+      <div class="panel-section">
+        <div class="panel-section-title">What Is It?</div>
+        <p id="panel-what-is-it"></p>
+      </div>
+
+      <!-- Red Flags -->
+      <div class="panel-section">
+        <div class="panel-section-title">Red Flags to Watch For</div>
+        <ul class="red-flags-list" id="panel-red-flags"></ul>
+      </div>
+
+      <!-- Scenario -->
+      <div class="panel-section">
+        <div class="scenario-box">
+          <div class="scenario-label">📋 Scenario</div>
+          <div class="scenario-text" id="panel-scenario-text"></div>
+          <div class="panel-section-title" style="margin-top: 12px;" id="panel-scenario-question"></div>
+          <div class="scenario-options" id="panel-scenario-options"></div>
+          <div class="scenario-feedback" id="panel-scenario-feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-actions">
+      <button id="btn-mark-complete" class="btn-complete">✓ Mark Complete</button>
+      <button id="btn-close-panel" class="btn-close-panel">Close</button>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       QUIZ SCREEN
+       ==================================================== -->
+  <div id="quiz-screen">
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h2>🎯 Cybersecurity Knowledge Quiz</h2>
+        <div class="quiz-progress">
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill"></div>
+          </div>
+          <span id="quiz-progress-text">Question 1 of 12</span>
+        </div>
+      </div>
+      <div class="quiz-question-box">
+        <div class="quiz-question-number">Question 1</div>
+        <div class="quiz-question-text"></div>
+      </div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="quiz-actions">
+        <button id="btn-quiz-next" class="btn-quiz-next" disabled>Next Question →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       RESULTS SCREEN
+       ==================================================== -->
+  <div id="results-screen">
+    <div class="results-container">
+      <div class="results-score-circle pass">
+        <span class="score-number">0%</span>
+        <span class="score-label">0 / 12 correct</span>
+      </div>
+      <div class="results-message">🎉 Excellent Work!</div>
+      <div class="results-subtitle">You demonstrated strong cybersecurity awareness.</div>
+      <div class="results-breakdown"></div>
+      <div class="results-actions">
+        <button id="btn-retake-quiz" class="btn-primary">Retake Quiz</button>
+        <button id="btn-return-training" class="btn-secondary">Return to Training</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
+       TOAST NOTIFICATION
+       ==================================================== -->
+  <div id="toast"></div>
+
+  <!-- ====================================================
+       DEBUG OVERLAY (enabled via ?debug=true)
+       ==================================================== -->
+  <div id="debug-overlay"></div>
+
+  <!-- ====================================================
+       APPLICATION SCRIPTS (ES Modules)
+       ==================================================== -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

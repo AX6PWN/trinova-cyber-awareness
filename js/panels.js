@@ -1,0 +1,185 @@
+/* ============================================================
+   PANELS MODULE — Topic information panels with scenarios
+   ============================================================ */
+
+import { markCompleted, isCompleted, getCompletedCount } from './hotspots.js';
+
+let currentTopicId = null;
+let isPanelOpen = false;
+
+/**
+ * Open the topic panel for a given hotspot data object.
+ */
+export function openPanel(data) {
+  if (isPanelOpen) return;
+
+  currentTopicId = data.id;
+  isPanelOpen = true;
+
+  const overlay = document.getElementById('topic-panel-overlay');
+  const panel = document.getElementById('topic-panel');
+
+  // Populate panel content
+  populatePanel(data);
+
+  // Show
+  overlay.classList.add('visible');
+  // Small delay to trigger CSS transition
+  requestAnimationFrame(() => {
+    panel.classList.add('visible');
+  });
+
+  // Close handlers
+  overlay.onclick = () => closePanel();
+}
+
+/**
+ * Close the currently open topic panel.
+ */
+export function closePanel() {
+  if (!isPanelOpen) return;
+
+  const overlay = document.getElementById('topic-panel-overlay');
+  const panel = document.getElementById('topic-panel');
+
+  panel.classList.remove('visible');
+  setTimeout(() => {
+    overlay.classList.remove('visible');
+    isPanelOpen = false;
+    currentTopicId = null;
+  }, 350);
+}
+
+/**
+ * Check if panel is currently open.
+ */
+export function isPanelVisible() {
+  return isPanelOpen;
+}
+
+// --- Internal ---
+
+function populatePanel(data) {
+  const topic = data.topic;
+  const completed = isCompleted(data.id);
+
+  // Header
+  const iconEl = document.querySelector('.panel-topic-icon');
+  iconEl.className = `panel-topic-icon ${data.cssClass}`;
+  iconEl.textContent = data.icon;
+
+  document.querySelector('.panel-topic-title').textContent = data.title;
+  document.querySelector('.panel-topic-subtitle').textContent = topic.subtitle;
+
+  // Close button
+  document.querySelector('.panel-close-btn').onclick = () => closePanel();
+
+  // Body — What is it
+  document.getElementById('panel-what-is-it').textContent = topic.whatIsIt;
+
+  // Red flags
+  const flagsList = document.getElementById('panel-red-flags');
+  flagsList.innerHTML = '';
+  topic.redFlags.forEach(flag => {
+    const li = document.createElement('li');
+    li.textContent = flag;
+    flagsList.appendChild(li);
+  });
+
+  // Scenario
+  document.getElementById('panel-scenario-text').textContent = topic.scenario.text;
+  document.getElementById('panel-scenario-question').textContent = topic.scenario.question;
+
+  // Scenario options
+  const optionsContainer = document.getElementById('panel-scenario-options');
+  optionsContainer.innerHTML = '';
+
+  const feedbackEl = document.getElementById('panel-scenario-feedback');
+  feedbackEl.className = 'scenario-feedback';
+  feedbackEl.textContent = '';
+
+  let scenarioAnswered = false;
+
+  topic.scenario.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-option-btn';
+    btn.textContent = `${String.fromCharCode(65 + i)}. ${opt.text}`;
+    btn.setAttribute('data-correct', opt.correct);
+
+    btn.onclick = () => {
+      if (scenarioAnswered) return;
+      scenarioAnswered = true;
+
+      // Disable all buttons
+      optionsContainer.querySelectorAll('.scenario-option-btn').forEach(b => {
+        b.disabled = true;
+        if (b.getAttribute('data-correct') === 'true') {
+          b.classList.add('correct');
+        }
+      });
+
+      if (opt.correct) {
+        btn.classList.add('correct');
+        feedbackEl.className = 'scenario-feedback visible correct';
+        feedbackEl.textContent = topic.scenario.correctFeedback;
+      } else {
+        btn.classList.add('incorrect');
+        feedbackEl.className = 'scenario-feedback visible incorrect';
+        feedbackEl.textContent = topic.scenario.incorrectFeedback;
+      }
+    };
+
+    optionsContainer.appendChild(btn);
+  });
+
+  // Mark complete button
+  const completeBtn = document.getElementById('btn-mark-complete');
+  if (completed) {
+    completeBtn.className = 'btn-complete completed';
+    completeBtn.innerHTML = '✓ Completed';
+    completeBtn.onclick = null;
+  } else {
+    completeBtn.className = 'btn-complete';
+    completeBtn.innerHTML = '✓ Mark Complete';
+    completeBtn.onclick = () => {
+      markCompleted(data.id);
+      completeBtn.className = 'btn-complete completed';
+      completeBtn.innerHTML = '✓ Completed';
+      completeBtn.onclick = null;
+
+      // Update HUD
+      updateProgress();
+
+      // Toast
+      showToast(`${data.title} — marked complete! (${getCompletedCount()}/6)`);
+    };
+  }
+
+  // Close panel button at bottom
+  document.getElementById('btn-close-panel').onclick = () => closePanel();
+}
+
+function updateProgress() {
+  const count = getCompletedCount();
+  const fill = document.querySelector('.progress-fill');
+  const text = document.getElementById('progress-text');
+  if (fill) fill.style.width = `${(count / 6) * 100}%`;
+  if (text) text.textContent = `${count}/6 Topics`;
+
+  // Show quiz button when all done
+  const quizBtn = document.getElementById('btn-start-quiz');
+  if (quizBtn && count >= 6) {
+    quizBtn.style.display = 'flex';
+  }
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+// Export for use by app.js
+export { updateProgress, showToast };

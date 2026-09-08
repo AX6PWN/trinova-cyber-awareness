@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bed Room Laptop Setup
+* source:	https://sketchfab.com/3d-models/bed-room-laptop-setup-a18f903fb5774111a0e4feccc07123d1
+* author:	xiverra (https://sketchfab.com/xiverra)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bed Room Laptop Setup" (https://sketchfab.com/3d-models/bed-room-laptop-setup-a18f903fb5774111a0e4feccc07123d1) by xiverra (https://sketchfab.com/xiverra) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
