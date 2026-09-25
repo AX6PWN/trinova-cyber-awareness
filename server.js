@@ -9,6 +9,7 @@ const MIME_TYPES = {
   '.js': 'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.gltf': 'model/gltf+json',
+  '.glb': 'model/gltf-binary',
   '.bin': 'application/octet-stream',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',

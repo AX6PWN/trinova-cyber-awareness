@@ -75,7 +75,7 @@ export function focusCamera(targetRotation, duration = 1200) {
  * Reset camera to default workspace-looking orientation.
  */
 export function resetCamera() {
-  return focusCamera({ x: -16, y: 30, z: 0 }, 800);
+  return focusCamera({ x: -8, y: 90, z: 0 }, 800);
 }
 
 /**

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Interactive 360° cybersecurity awareness training simulator. Explore a realistic office environment and learn about phishing, passwords, MFA, social engineering, safe browsing, and USB security.">
-  <title>CyberSafe 360° — Cybersecurity Awareness Training</title>
+  <title>CyberSafe 360°: Cybersecurity Awareness Training</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,9 +18,7 @@
 </head>
 <body>
 
-  <!-- ====================================================
-       WELCOME SCREEN
-       ==================================================== -->
+
   <div id="welcome-screen">
     <div class="welcome-card">
       <div class="welcome-icon">🛡️</div>
@@ -48,15 +46,20 @@
           <span>Knowledge Quiz</span>
         </div>
       </div>
+
+      <!-- Last Training Result Display Area -->
+      <div id="last-training-result-card" class="last-training-card">
+        <div class="last-training-title">Last Training Result</div>
+        <div id="last-training-content" class="last-training-content">No previous training result.</div>
+      </div>
+
       <button id="btn-enter-training" class="btn-primary">
         Enter Training →
       </button>
     </div>
   </div>
 
-  <!-- ====================================================
-       HUD (Top bar during exploration)
-       ==================================================== -->
+
   <div id="hud">
     <div class="hud-left">
       <span class="hud-title">🛡️ CyberSafe 360°</span>
@@ -68,6 +71,10 @@
       </div>
     </div>
     <div class="hud-right">
+      <button id="btn-see-previous-result" class="hud-btn" title="See Previous Training Result">
+        <span class="btn-icon">📊</span>
+        See Previous Result
+      </button>
       <button id="btn-start-quiz" class="hud-btn" style="display: none; background: linear-gradient(135deg, var(--accent), #3a6fd8); color: #fff; border-color: transparent;">
         <span class="btn-icon">📝</span>
         Start Quiz
@@ -83,9 +90,7 @@
     </div>
   </div>
 
-  <!-- ====================================================
-       HOTSPOT TOOLTIP (positioned dynamically)
-       ==================================================== -->
+
   <div id="hotspot-tooltip">
     <div class="tooltip-header">
       <span class="tooltip-icon"></span>
@@ -94,44 +99,39 @@
     <div class="tooltip-desc"></div>
   </div>
 
-  <!-- ====================================================
-       EXPLORE HINT (bottom center)
-       ==================================================== -->
+
   <div id="explore-hint">
     <span class="hint-icon">👆</span>
-    <span>Click and drag to look around — find the interactive hotspots</span>
+    <span>Click and drag to look around to find the interactive hotspots</span>
   </div>
 
-  <!-- ====================================================
-       A-FRAME 360° SCENE
-       ==================================================== -->
   <a-scene
     embedded
     vr-mode-ui="enabled: false"
     loading-screen="enabled: false"
     renderer="antialias: true; colorManagement: true;"
     cursor="rayOrigin: mouse; fuse: false"
-    raycaster="objects: .clickable"
+    raycaster="objects: .clickable; interval: 20"
   >
     <!-- Assets -->
-    <a-assets timeout="20000">
-      <a-asset-item id="room-model" src="assets/bed_room_laptop_setup/scene.gltf"></a-asset-item>
+    <a-assets timeout="60000">
+      <a-asset-item id="warehouse-model" src="assets/automated_warehouse_-.glb"></a-asset-item>
     </a-assets>
 
-    <!-- Subtle Ambient Sky Background -->
-    <a-sky color="#0a0f1d"></a-sky>
 
-    <!-- 3D Room Model (Sketchfab Bedroom Laptop Setup) -->
-    <a-entity id="bedroom-scene" gltf-model="#room-model" position="0 0 0"></a-entity>
+    <a-sky color="#070b14"></a-sky>
 
-    <!-- Room Lighting for realistic interior illumination -->
-    <a-light type="ambient" color="#ffffff" intensity="1.05"></a-light>
-    <a-light type="point" color="#fffbf0" intensity="1.1" position="0 1.6 0" distance="7"></a-light>
-    <a-light type="point" color="#bae6fd" intensity="0.85" position="-1.1 0.4 -1.3" distance="3"></a-light>
-    <a-light type="directional" color="#fef3c7" intensity="0.6" position="-1.5 1.5 0.5"></a-light>
 
-    <!-- Realistic 3D USB Prop on Desk -->
-    <a-entity id="usb-stick-prop" position="-0.68 -0.69 -1.35" rotation="0 25 0">
+    <a-entity id="warehouse-scene" gltf-model="#warehouse-model" scale="0.001 0.001 0.001" position="0 0 0"></a-entity>
+
+
+    <a-light type="ambient" color="#ffffff" intensity="1.3"></a-light>
+    <a-light type="directional" color="#f1f5f9" intensity="0.9" position="-5 15 5"></a-light>
+    <a-light type="point" color="#e0f2fe" intensity="0.75" position="-8.2 2.5 3.6" distance="10"></a-light>
+    <a-light type="point" color="#fef08a" intensity="0.5" position="-12 4.5 0" distance="20"></a-light>
+
+    <!-- Realistic 3D USB Prop on Workstation Desk -->
+    <a-entity id="usb-stick-prop" position="-8.85 1.03 3.15" rotation="0 15 0">
       <!-- USB Body -->
       <a-box width="0.035" height="0.012" depth="0.065" color="#1e293b" material="metalness: 0.6; roughness: 0.3"></a-box>
       <!-- USB Metal Connector -->
@@ -142,8 +142,7 @@
       <a-torus radius="0.008" radius-tubular="0.002" position="0 0 0.038" rotation="90 0 0" color="#94a3b8" material="metalness: 0.8; roughness: 0.2"></a-torus>
     </a-entity>
 
-    <!-- Camera positioned inside room at realistic human standing eye height with clear view of desk setup -->
-    <a-entity id="camera-rig" position="-0.30 0.15 -0.45">
+    <a-entity id="camera-rig" position="-8.2 1.45 3.6">
       <a-camera
         id="main-camera"
         look-controls="pointerLockEnabled: false; touchEnabled: true"
@@ -154,12 +153,9 @@
       </a-camera>
     </a-entity>
 
-    <!-- Hotspots are added dynamically by js/hotspots.js -->
   </a-scene>
 
-  <!-- ====================================================
-       TOPIC INFORMATION PANEL
-       ==================================================== -->
+
   <div id="topic-panel-overlay"></div>
   <div id="topic-panel">
     <div class="panel-header">
@@ -202,9 +198,7 @@
     </div>
   </div>
 
-  <!-- ====================================================
-       QUIZ SCREEN
-       ==================================================== -->
+
   <div id="quiz-screen">
     <div class="quiz-container">
       <div class="quiz-header">
@@ -228,9 +222,7 @@
     </div>
   </div>
 
-  <!-- ====================================================
-       RESULTS SCREEN
-       ==================================================== -->
+
   <div id="results-screen">
     <div class="results-container">
       <div class="results-score-circle pass">
@@ -243,23 +235,76 @@
       <div class="results-actions">
         <button id="btn-retake-quiz" class="btn-primary">Retake Quiz</button>
         <button id="btn-return-training" class="btn-secondary">Return to Training</button>
+        <button id="btn-download-results-csv-results" class="btn-action-download" title="Download training result history as CSV">
+          <span class="btn-icon">📥</span> Download Results (CSV)
+        </button>
+        <button id="btn-download-results-json-results" class="btn-action-download" title="Download training result history as JSON">
+          <span class="btn-icon">💾</span> Download JSON
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- ====================================================
-       TOAST NOTIFICATION
-       ==================================================== -->
+
+  <div id="previous-result-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div class="custom-modal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">📊</span>
+          <span>Previous Training Result</span>
+        </div>
+        <button id="btn-close-prev-result-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div id="prev-result-modal-body" class="custom-modal-body">
+        <div id="prev-result-modal-content">No previous training result.</div>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-download-csv-modal" class="btn-action-download" style="display: none;">
+          <span class="btn-icon">📥</span> Download CSV
+        </button>
+        <button id="btn-download-json-modal" class="btn-action-download" style="display: none;">
+          <span class="btn-icon">💾</span> Download JSON
+        </button>
+        <button id="btn-close-prev-result" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="training-mistake-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card mistake-card">
+      <div class="custom-modal-header mistake-header">
+        <div class="custom-modal-title mistake-title">
+          <span class="modal-title-icon">⚠️</span>
+          <span>Security Mistake Warning</span>
+        </div>
+        <button id="btn-close-mistake-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <div class="mistake-callout-box">
+          <div class="callout-label danger-label">The Mistake</div>
+          <p id="mistake-desc-text" class="callout-text"></p>
+        </div>
+        <div class="mistake-callout-box safe-box">
+          <div class="callout-label safe-label">Safer Action</div>
+          <p id="mistake-safe-action-text" class="callout-text"></p>
+        </div>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-ack-mistake" class="btn-primary mistake-ack-btn">
+          I Understand: Continue Training
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <div id="toast"></div>
 
-  <!-- ====================================================
-       DEBUG OVERLAY (enabled via ?debug=true)
-       ==================================================== -->
+
   <div id="debug-overlay"></div>
 
-  <!-- ====================================================
-       APPLICATION SCRIPTS (ES Modules)
-       ==================================================== -->
+
   <script type="module" src="js/app.js"></script>
 
 </body>

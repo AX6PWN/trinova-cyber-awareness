@@ -126,6 +126,9 @@ function populatePanel(data) {
         btn.classList.add('incorrect');
         feedbackEl.className = 'scenario-feedback visible incorrect';
         feedbackEl.textContent = topic.scenario.incorrectFeedback;
+
+        // Immediately show the training mistake warning popup explaining mistake & safer action
+        showTrainingMistakePopup(data, opt);
       }
     };
 
@@ -151,12 +154,44 @@ function populatePanel(data) {
       updateProgress();
 
       // Toast
-      showToast(`${data.title} — marked complete! (${getCompletedCount()}/6)`);
+      showToast(`${data.title} marked complete! (${getCompletedCount()}/6)`);
     };
   }
 
   // Close panel button at bottom
   document.getElementById('btn-close-panel').onclick = () => closePanel();
+}
+
+/**
+ * Display the immediate warning popup when an incorrect decision is made during training.
+ */
+function showTrainingMistakePopup(data, selectedOpt) {
+  const modal = document.getElementById('training-mistake-modal');
+  const descEl = document.getElementById('mistake-desc-text');
+  const safeEl = document.getElementById('mistake-safe-action-text');
+  if (!modal || !descEl || !safeEl) return;
+
+  const topic = data.topic;
+  const correctOption = topic.scenario.options.find(o => o.correct);
+
+  descEl.textContent = `You selected: "${selectedOpt.text}". ${topic.scenario.incorrectFeedback.replace(/^[❌\s*Not quite\.\s*]+/i, '')}`;
+  safeEl.textContent = correctOption 
+    ? `Safer practice: ${correctOption.text}. ${topic.scenario.correctFeedback.replace(/^[✅\s*Correct!\s*]+/i, '')}`
+    : topic.scenario.correctFeedback;
+
+  modal.classList.add('visible');
+
+  const closeModal = () => {
+    modal.classList.remove('visible');
+  };
+
+  const closeX = document.getElementById('btn-close-mistake-x');
+  const ackBtn = document.getElementById('btn-ack-mistake');
+  if (closeX) closeX.onclick = closeModal;
+  if (ackBtn) ackBtn.onclick = closeModal;
+  modal.onclick = (e) => {
+    if (e.target === modal) closeModal();
+  };
 }
 
 function updateProgress() {

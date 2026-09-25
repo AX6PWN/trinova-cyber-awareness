@@ -182,6 +182,85 @@ button {
   flex-shrink: 0;
 }
 
+/* --- Last Training Result Display Card --- */
+.last-training-card {
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.last-training-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--accent-light);
+  margin-bottom: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.last-training-title::before {
+  content: "📊";
+  font-size: 14px;
+}
+
+.last-training-content {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.last-training-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.last-training-item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.last-training-item-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.last-training-item-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.last-training-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.last-training-status-badge.pass {
+  background: rgba(52, 211, 153, 0.2);
+  color: var(--accent-green);
+}
+
+.last-training-status-badge.fail {
+  background: rgba(248, 113, 113, 0.2);
+  color: var(--accent-red);
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -299,6 +378,19 @@ button {
 
 .hud-btn .btn-icon {
   font-size: 16px;
+}
+
+#btn-see-previous-result {
+  background: rgba(79, 140, 255, 0.16);
+  border: 1px solid rgba(79, 140, 255, 0.4);
+  color: #fff;
+  font-weight: 600;
+}
+
+#btn-see-previous-result:hover {
+  background: rgba(79, 140, 255, 0.28);
+  border-color: rgba(79, 140, 255, 0.7);
+  box-shadow: 0 0 14px rgba(79, 140, 255, 0.35);
 }
 
 /* ============================================================
@@ -1124,6 +1216,206 @@ button {
 @keyframes hintDrag {
   0%, 100% { transform: translateX(0); }
   50%      { transform: translateX(8px); }
+}
+
+/* ============================================================
+   CUSTOM MODALS & POPUPS (Previous Results & Training Mistake)
+   ============================================================ */
+.custom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 7, 18, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: modalOverlayFade 0.25s var(--ease-out) both;
+}
+
+.custom-modal-overlay.visible {
+  display: flex;
+}
+
+@keyframes modalOverlayFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.custom-modal-card {
+  max-width: 540px;
+  width: 92%;
+  padding: var(--space-xl);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-lg), 0 0 35px rgba(79, 140, 255, 0.2);
+  animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.custom-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.custom-modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-title-icon {
+  font-size: 19px;
+}
+
+.custom-modal-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 14px;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.custom-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.custom-modal-body {
+  margin-bottom: var(--space-md);
+}
+
+.custom-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-md);
+}
+
+/* --- Training Mistake Modal Variations --- */
+.mistake-card {
+  border-color: rgba(248, 113, 113, 0.45);
+  box-shadow: var(--shadow-lg), 0 0 45px rgba(248, 113, 113, 0.25);
+}
+
+.mistake-header {
+  border-bottom-color: rgba(248, 113, 113, 0.2);
+}
+
+.mistake-title {
+  color: #fca5a5;
+}
+
+.mistake-callout-box {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+}
+
+.mistake-callout-box.safe-box {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.28);
+}
+
+.callout-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.danger-label {
+  color: var(--accent-red);
+}
+
+.safe-label {
+  color: var(--accent-green);
+}
+
+.callout-text {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.mistake-ack-btn {
+  width: 100%;
+  justify-content: center;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35);
+}
+
+.mistake-ack-btn:hover {
+  box-shadow: 0 6px 28px rgba(239, 68, 68, 0.5);
+}
+
+/* --- Download Buttons --- */
+.btn-action-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: rgba(79, 140, 255, 0.14);
+  border: 1px solid rgba(79, 140, 255, 0.35);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-action-download:hover {
+  background: rgba(79, 140, 255, 0.25);
+  border-color: rgba(79, 140, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(79, 140, 255, 0.25);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
 }
 
 /* ============================================================

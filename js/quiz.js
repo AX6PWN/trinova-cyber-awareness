@@ -90,7 +90,7 @@ const QUESTIONS = [
       'Shoulder surfing'
     ],
     correct: 1,
-    explanation: 'Pretexting involves creating a fabricated scenario (pretext) — such as pretending to be IT support or a manager — to manipulate the target into providing information or access.'
+    explanation: 'Pretexting involves creating a fabricated scenario (pretext), such as pretending to be IT support or a manager, to manipulate the target into providing information or access.'
   },
   {
     topic: 'social-engineering',
@@ -121,13 +121,13 @@ const QUESTIONS = [
     topic: 'safe-browsing',
     question: 'You see a pop-up warning saying "Your computer is infected! Call this number immediately." What should you do?',
     options: [
-      'Call the number — it looks like a genuine Microsoft warning',
+      'Call the number because it looks like a genuine Microsoft warning',
       'Close the browser tab immediately and run your actual antivirus software',
       'Follow the instructions to download their recommended security tool',
       'Turn off your computer and wait 24 hours'
     ],
     correct: 1,
-    explanation: 'These pop-ups are "scareware" — fake alerts designed to trick you into calling scammers or downloading malware. Close the tab and use your legitimate security software.'
+    explanation: 'These pop-ups are "scareware", fake alerts designed to trick you into calling scammers or downloading malware. Close the tab and use your legitimate security software.'
   },
   // USB / Device Security (2)
   {
@@ -152,7 +152,7 @@ const QUESTIONS = [
       'Formatting found USB drives before use to remove any threats'
     ],
     correct: 2,
-    explanation: 'Organisation-approved encrypted devices have proper security controls. Scanning and formatting cannot reliably remove all threats — some malware resides in USB firmware itself.'
+    explanation: 'Organisation-approved encrypted devices have proper security controls. Scanning and formatting cannot reliably remove all threats because some malware resides in USB firmware itself.'
   }
 ];
 
@@ -196,6 +196,13 @@ export function showResults() {
   const total = QUESTIONS.length;
   const percent = Math.round((score / total) * 100);
   const pass = percent >= 70;
+  const status = pass ? 'Passed' : 'Needs Review';
+
+  // Save latest quiz/training result to browser LocalStorage
+  saveTrainingResult(score, total, percent, status);
+  if (typeof window.updateLastTrainingResultDisplay === 'function') {
+    window.updateLastTrainingResultDisplay();
+  }
 
   // Score circle
   const circle = document.querySelector('.results-score-circle');
@@ -334,3 +341,121 @@ function calculateScore() {
     return score + (answers[i] === q.correct ? 1 : 0);
   }, 0);
 }
+
+// --- Browser LocalStorage Persistence & History ---
+export const STORAGE_KEY = 'cybersafe_last_training_result';
+export const HISTORY_KEY = 'cybersafe_training_history';
+
+export function saveTrainingResult(score, total, percentage, status) {
+  try {
+    const now = new Date();
+    const formattedDate = now.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const newResult = {
+      id: Date.now(),
+      score: `${score} / ${total}`,
+      scoreRaw: score,
+      total: total,
+      percentage: `${percentage}%`,
+      percentageRaw: percentage,
+      status: status,
+      result: status,
+      date: formattedDate,
+      timestamp: now.toISOString()
+    };
+
+    // Keep every completed training result stored locally in history array
+    const history = getTrainingHistory();
+    history.push(newResult);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+
+    // Save as last training result
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newResult));
+
+    return newResult;
+  } catch (e) {
+    console.warn('[Storage] Failed to save training result to localStorage:', e);
+    return null;
+  }
+}
+
+export function getTrainingHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+    // Backward compatibility: check if single last result exists
+    const lastRaw = localStorage.getItem(STORAGE_KEY);
+    if (lastRaw) {
+      const last = JSON.parse(lastRaw);
+      return [last];
+    }
+    return [];
+  } catch (e) {
+    console.warn('[Storage] Failed to retrieve training history from localStorage:', e);
+    return [];
+  }
+}
+
+export function getLastTrainingResult() {
+  try {
+    const history = getTrainingHistory();
+    if (history.length > 0) {
+      return history[history.length - 1];
+    }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.warn('[Storage] Failed to retrieve training result from localStorage:', e);
+    return null;
+  }
+}
+
+export function downloadTrainingResults(format = 'csv') {
+  const history = getTrainingHistory();
+  if (!history || history.length === 0) {
+    return false;
+  }
+
+  let blob;
+  let filename;
+
+  if (format === 'json') {
+    const jsonStr = JSON.stringify(history, null, 2);
+    blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+    filename = `cybersafe_training_results_${Date.now()}.json`;
+  } else {
+    // CSV format
+    const headers = ['Attempt', 'Date and Time', 'Score', 'Percentage', 'Status'];
+    const rows = history.map((item, idx) => {
+      const attempt = idx + 1;
+      const date = `"${(item.date || '').replace(/"/g, '""')}"`;
+      const score = `"${(item.score || '').replace(/"/g, '""')}"`;
+      const pct = `"${(item.percentage || '').replace(/"/g, '""')}"`;
+      const status = `"${(item.status || '').replace(/"/g, '""')}"`;
+      return [attempt, date, score, pct, status].join(',');
+    });
+    const csvContent = [headers.join(','), ...rows].join('\r\n');
+    blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    filename = `cybersafe_training_results_${Date.now()}.csv`;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
+}
+

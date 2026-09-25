@@ -47,7 +47,7 @@ function renderDebugInfo() {
   const overlay = document.getElementById('debug-overlay');
   if (!overlay) return;
 
-  let html = '<div class="debug-title">🔧 DEBUG — Hotspot Positions</div>';
+  let html = '<div class="debug-title">🔧 DEBUG: Hotspot Positions</div>';
 
   HOTSPOT_DATA.forEach(h => {
     html += `
