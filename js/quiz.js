@@ -153,6 +153,56 @@ const QUESTIONS = [
     ],
     correct: 2,
     explanation: 'Organisation-approved encrypted devices have proper security controls. Scanning and formatting cannot reliably remove all threats because some malware resides in USB firmware itself.'
+  },
+  // Ransomware & Data Resiliency (2)
+  {
+    topic: 'ransomware',
+    question: 'What is the primary purpose of the "3-2-1 backup rule" in defending against ransomware?',
+    options: [
+      'Keeping 3 passwords, 2 usernames, and 1 token',
+      'Maintaining 3 copies of data on 2 different media types, with 1 stored offsite or immutable/air-gapped',
+      'Backing up files every 3 hours for 2 days across 1 week',
+      'Encrypting data 3 times using 2 keys and 1 master algorithm'
+    ],
+    correct: 1,
+    explanation: 'The 3-2-1 rule ensures that even if ransomware encrypts local files and network drives, an offsite, immutable, or air-gapped copy remains untouched and ready for clean restoration.'
+  },
+  {
+    topic: 'ransomware',
+    question: 'If a ransomware attack begins encrypting your local workstation files, what is your most urgent first step?',
+    options: [
+      'Immediately isolate the device by pulling the Ethernet cable and disabling Wi-Fi to stop lateral network spread',
+      'Contact the attackers via the provided email to negotiate decryption price',
+      'Perform a factory system reset without backing up system logs',
+      'Copy the locked files to a corporate file server for analysis'
+    ],
+    correct: 0,
+    explanation: 'Instant network disconnection stops the ransomware process from propagating across the internal subnet and encrypting shared department repositories.'
+  },
+  // Physical & Access Security (2)
+  {
+    topic: 'physical-security',
+    question: 'What is "tailgating" (or piggybacking) in enterprise physical security?',
+    options: [
+      'Monitoring employee vehicles in the office parking lot',
+      'An unauthorized person closely following an authorized employee through a badge-secured door without scanning',
+      'Attaching an unauthorized USB keylogger behind a desktop tower',
+      'Intercepting Wi-Fi packets from outside the corporate perimeter'
+    ],
+    correct: 1,
+    explanation: 'Tailgating occurs when someone exploits politeness to slip through a secured door without scanning their own credential. Every person must badge in.'
+  },
+  {
+    topic: 'physical-security',
+    question: 'Which of the following aligns with an enterprise "Clean Desk Policy"?',
+    options: [
+      'Leaving customer files on your desk as long as the office door is closed',
+      'Locking screens when stepping away and storing confidential documents in locked drawers when unattended',
+      'Keeping your badge inserted into your laptop so you never misplace it',
+      'Sticking login credentials under your keyboard where visitors cannot see them'
+    ],
+    correct: 1,
+    explanation: 'A Clean Desk Policy mandates that all sensitive paperwork, notes, and removable media are secured when unattended, and computer screens are locked (Win+L / Ctrl+Cmd+Q).'
   }
 ];
 
@@ -218,7 +268,7 @@ export function showResults() {
       ? 'You demonstrated strong cybersecurity awareness. Stay vigilant!'
       : `You need 70% to pass. Review the topics and try again.`;
 
-  // Breakdown per topic
+  // Breakdown per topic (8 topics)
   const breakdown = document.querySelector('.results-breakdown');
   breakdown.innerHTML = '';
 
@@ -228,13 +278,18 @@ export function showResults() {
     { id: 'mfa', label: 'MFA', icon: '🛡️' },
     { id: 'social-engineering', label: 'Social Eng.', icon: '🎭' },
     { id: 'safe-browsing', label: 'Safe Browsing', icon: '🌐' },
-    { id: 'usb-security', label: 'USB Security', icon: '🔌' }
+    { id: 'usb-security', label: 'USB Security', icon: '🔌' },
+    { id: 'ransomware', label: 'Ransomware', icon: '🗄️' },
+    { id: 'physical-security', label: 'Physical Sec.', icon: '🪪' }
   ];
+
+  const breakdownData = {};
 
   topics.forEach(t => {
     const topicQs = QUESTIONS.map((q, i) => ({ ...q, idx: i })).filter(q => q.topic === t.id);
     const topicCorrect = topicQs.filter(q => answers[q.idx] === q.correct).length;
     const topicTotal = topicQs.length;
+    breakdownData[t.id] = `${topicCorrect}/${topicTotal}`;
 
     const item = document.createElement('div');
     item.className = 'breakdown-item';
@@ -247,6 +302,32 @@ export function showResults() {
     `;
     breakdown.appendChild(item);
   });
+
+  // Sync with Backend API & Issue Certificate
+  try {
+    const authUser = localStorage.getItem('cybersafe_auth_user');
+    const user = authUser ? JSON.parse(authUser) : { id: 'usr-emp-eng', fullName: 'Sarah Chen' };
+    fetch('/api/quiz/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id,
+        score: `${score} / ${total} correct`,
+        percentage: percent,
+        status,
+        breakdown: breakdownData
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.certificate) {
+        localStorage.setItem('cybersafe_latest_certificate', JSON.stringify(data.certificate));
+        const certBtn = document.getElementById('btn-view-certificate-results');
+        if (certBtn) certBtn.style.display = 'inline-flex';
+      }
+    })
+    .catch(e => console.log('[API] Offline sync mode for quiz submit'));
+  } catch (err) {}
 
   // Action buttons
   document.getElementById('btn-retake-quiz').onclick = () => {

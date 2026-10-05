@@ -7,6 +7,8 @@ import { focusCamera, resetCamera } from './camera.js';
 import { openPanel, closePanel, updateProgress, showToast } from './panels.js';
 import { startQuiz, closeQuiz, getLastTrainingResult, downloadTrainingResults } from './quiz.js';
 import { initDebug } from './debug.js';
+import { initB2B, openB2BDashboard, openCertificateModal } from './b2b.js';
+import { initThreatIntel, initInviteEmployee } from './features.js';
 
 // --- App State ---
 let appState = 'welcome'; // 'welcome' | 'training' | 'quiz' | 'results'
@@ -18,6 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function init() {
+  // Initialize B2B SaaS Engine (Auth, CISO Dashboard, Neon DB Status)
+  initB2B();
+
+  // Initialize new feature modules
+  initThreatIntel();
+  initInviteEmployee();
+
   // Update Last Training Result display from LocalStorage
   updateLastTrainingResultDisplay();
   window.updateLastTrainingResultDisplay = updateLastTrainingResultDisplay;
@@ -28,7 +37,12 @@ function init() {
     enterBtn.addEventListener('click', enterTraining);
   }
 
+  // Welcome screen: CISO Admin Dashboard button
+  document.getElementById('btn-welcome-ciso')?.addEventListener('click', openB2BDashboard);
+
   // HUD buttons
+  document.getElementById('btn-hud-ciso-dash')?.addEventListener('click', openB2BDashboard);
+  document.getElementById('btn-hud-certificate')?.addEventListener('click', () => openCertificateModal());
   document.getElementById('btn-see-previous-result')?.addEventListener('click', openPreviousResultModal);
   document.getElementById('btn-close-prev-result-x')?.addEventListener('click', closePreviousResultModal);
   document.getElementById('btn-close-prev-result')?.addEventListener('click', closePreviousResultModal);

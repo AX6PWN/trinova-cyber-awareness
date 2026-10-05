@@ -1,0 +1,544 @@
+{
+  "orgs": [
+    {
+      "id": "org-acme",
+      "name": "Acme CyberDefense Corp",
+      "domain": "acmesec.com",
+      "plan": "Enterprise B2B",
+      "industry": "Defense & Cloud Tech",
+      "securityScore": 84,
+      "createdAt": "2026-10-01T08:35:50.476Z"
+    },
+    {
+      "id": "org-fintech",
+      "name": "FinTech Global Trust Bank",
+      "domain": "fintechtrust.io",
+      "plan": "Financial Sector Enterprise",
+      "industry": "Banking & Core Payments",
+      "securityScore": 76,
+      "createdAt": "2026-10-01T08:35:50.476Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "email": "ciso@acmesec.com",
+      "passwordHash": "4ebd173faca241ec6e301c362552943d2b15445e79f005984c2e35889f8e5ed4",
+      "fullName": "Elena Rostova, CISO",
+      "role": "admin",
+      "department": "Security Operations",
+      "avatar": "🛡️",
+      "status": "active",
+      "createdAt": "2026-10-01T08:35:50.477Z"
+    },
+    {
+      "id": "usr-emp-finance",
+      "orgId": "org-acme",
+      "email": "alex.turner@acmesec.com",
+      "passwordHash": "5bee24eaf9ca47d5c8f09bf92dc5f64a8875e50dc9f527f01bf7a71ba413b235",
+      "fullName": "Alex Turner",
+      "role": "employee",
+      "department": "Finance",
+      "avatar": "💳",
+      "status": "active",
+      "createdAt": "2026-10-01T08:35:50.477Z"
+    },
+    {
+      "id": "usr-emp-eng",
+      "orgId": "org-acme",
+      "email": "sarah.chen@acmesec.com",
+      "passwordHash": "5bee24eaf9ca47d5c8f09bf92dc5f64a8875e50dc9f527f01bf7a71ba413b235",
+      "fullName": "Sarah Chen",
+      "role": "employee",
+      "department": "Engineering",
+      "avatar": "👩‍💻",
+      "status": "active",
+      "createdAt": "2026-10-01T08:35:50.477Z"
+    },
+    {
+      "id": "usr-emp-hr",
+      "orgId": "org-acme",
+      "email": "david.kim@acmesec.com",
+      "passwordHash": "5bee24eaf9ca47d5c8f09bf92dc5f64a8875e50dc9f527f01bf7a71ba413b235",
+      "fullName": "David Kim",
+      "role": "employee",
+      "department": "Human Resources",
+      "avatar": "📋",
+      "status": "active",
+      "createdAt": "2026-10-01T08:35:50.477Z"
+    }
+  ],
+  "progress": [
+    {
+      "id": "prog-1",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "phishing",
+      "completed": true,
+      "completedAt": "2026-09-29T08:35:50.477Z"
+    },
+    {
+      "id": "prog-2",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "passwords",
+      "completed": true,
+      "completedAt": "2026-09-29T08:35:50.477Z"
+    },
+    {
+      "id": "prog-3",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "mfa",
+      "completed": true,
+      "completedAt": "2026-09-29T08:35:50.477Z"
+    },
+    {
+      "id": "prog-4",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "social-engineering",
+      "completed": true,
+      "completedAt": "2026-09-29T08:35:50.477Z"
+    },
+    {
+      "id": "prog-5",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "safe-browsing",
+      "completed": true,
+      "completedAt": "2026-09-29T08:35:50.477Z"
+    },
+    {
+      "id": "prog-6",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "usb-security",
+      "completed": true,
+      "completedAt": "2026-09-29T08:35:50.477Z"
+    },
+    {
+      "id": "prog-7",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "ransomware",
+      "completed": true,
+      "completedAt": "2026-09-30T08:35:50.477Z"
+    },
+    {
+      "id": "prog-8",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "topicId": "physical-security",
+      "completed": true,
+      "completedAt": "2026-10-01T09:50:00.399Z"
+    },
+    {
+      "id": "prog_1790849829837_miby",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "usb-security",
+      "topicTitle": "USB & Device Security",
+      "completed": true,
+      "completedAt": "2026-10-01T10:17:09.837Z"
+    },
+    {
+      "id": "prog_1790849839491_2png",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "passwords",
+      "topicTitle": "Passwords",
+      "completed": true,
+      "completedAt": "2026-10-01T10:17:19.491Z"
+    },
+    {
+      "id": "prog_1790849847576_ti3l",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "phishing",
+      "topicTitle": "Phishing",
+      "completed": true,
+      "completedAt": "2026-10-01T10:17:27.576Z"
+    },
+    {
+      "id": "prog_1790849854635_ewkk",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "mfa",
+      "topicTitle": "Multi-Factor Authentication",
+      "completed": true,
+      "completedAt": "2026-10-03T12:53:00.169Z"
+    },
+    {
+      "id": "prog_1790849861626_dr1s",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "safe-browsing",
+      "topicTitle": "Safe Browsing",
+      "completed": true,
+      "completedAt": "2026-10-01T10:17:41.626Z"
+    },
+    {
+      "id": "prog_1790849870573_sgfd",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "social-engineering",
+      "topicTitle": "Social Engineering",
+      "completed": true,
+      "completedAt": "2026-10-01T10:17:50.573Z"
+    },
+    {
+      "id": "prog_1790849888975_f2dm",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "ransomware",
+      "topicTitle": "Ransomware & Backups",
+      "completed": true,
+      "completedAt": "2026-10-01T10:18:08.975Z"
+    },
+    {
+      "id": "prog_1790849902251_6i33",
+      "userId": "usr-admin-ciso",
+      "orgId": "org-acme",
+      "topicId": "physical-security",
+      "topicTitle": "Physical & Access Security",
+      "completed": true,
+      "completedAt": "2026-10-01T10:18:22.251Z"
+    }
+  ],
+  "quizAttempts": [
+    {
+      "id": "quiz-1",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "score": "15 / 16 correct",
+      "percentage": 94,
+      "status": "Pass",
+      "breakdown": {
+        "phishing": "2/2",
+        "passwords": "2/2",
+        "mfa": "2/2",
+        "social-engineering": "2/2",
+        "safe-browsing": "2/2",
+        "usb-security": "2/2",
+        "ransomware": "2/2",
+        "physical-security": "1/2"
+      },
+      "createdAt": "2026-09-30T08:35:50.477Z"
+    }
+  ],
+  "certificates": [
+    {
+      "id": "cert-1",
+      "certificateNumber": "CYBER-2026-ACME-8942",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "userName": "Sarah Chen",
+      "orgName": "Acme CyberDefense Corp",
+      "issueDate": "30 Sept 2026",
+      "expiryDate": "30 Sept 2027",
+      "score": 94,
+      "verificationHash": "BCBC183673D20CD2",
+      "status": "verified"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "camp-1",
+      "orgId": "org-acme",
+      "title": "Mandatory Q1 2026 ISO 27001 & SOC 2 Cyber Readiness Drill",
+      "description": "Annual mandatory cybersecurity awareness simulation covering 360° workplace threats, physical access, and ransomware resiliency.",
+      "deadline": "April 30, 2026",
+      "targetDepartment": "All Departments",
+      "status": "active",
+      "mandatory": true,
+      "completionRate": 72,
+      "createdAt": "2026-09-21T08:35:50.519Z"
+    },
+    {
+      "id": "camp-2",
+      "orgId": "org-acme",
+      "title": "Targeted Anti-Phishing & Executive Impersonation Drill",
+      "description": "High-alert drill for Finance and Human Resources focusing on wire transfer pretexting and credential harvesting links.",
+      "deadline": "May 15, 2026",
+      "targetDepartment": "Finance & HR",
+      "status": "active",
+      "mandatory": true,
+      "completionRate": 48,
+      "createdAt": "2026-09-28T08:35:50.519Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "log_1791031980185_c7gg",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Multi-Factor Authentication\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-03T12:53:00.185Z"
+    },
+    {
+      "id": "log_1791031904744_gy9o",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-03T12:51:44.744Z"
+    },
+    {
+      "id": "log_1790909651087_r3qp",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-02T02:54:11.087Z"
+    },
+    {
+      "id": "log_1790874487494_3hnb",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T17:08:07.494Z"
+    },
+    {
+      "id": "log_1790849924629_4cxs",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:18:44.629Z"
+    },
+    {
+      "id": "log_1790849919741_m2j0",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:18:39.741Z"
+    },
+    {
+      "id": "log_1790849902256_rbcs",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Physical & Access Security\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:18:22.256Z"
+    },
+    {
+      "id": "log_1790849888982_x625",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Ransomware & Backups\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:18:08.982Z"
+    },
+    {
+      "id": "log_1790849870577_3iyg",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Social Engineering\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:17:50.577Z"
+    },
+    {
+      "id": "log_1790849861630_py31",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Safe Browsing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:17:41.630Z"
+    },
+    {
+      "id": "log_1790849854640_i2i1",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Multi-Factor Authentication\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:17:34.640Z"
+    },
+    {
+      "id": "log_1790849847581_bqju",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Phishing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:17:27.581Z"
+    },
+    {
+      "id": "log_1790849839496_u6js",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Passwords\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:17:19.496Z"
+    },
+    {
+      "id": "log_1790849829850_1cam",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"USB & Device Security\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:17:09.850Z"
+    },
+    {
+      "id": "log_1790849819764_2ye2",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:16:59.764Z"
+    },
+    {
+      "id": "log_1790849613083_r32h",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:13:33.084Z"
+    },
+    {
+      "id": "log_1790849604068_qnfo",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:13:24.068Z"
+    },
+    {
+      "id": "log_1790849227745_pi15",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:07:07.745Z"
+    },
+    {
+      "id": "log_1790848808785_1fjh",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T10:00:08.785Z"
+    },
+    {
+      "id": "log_1790848700807_i38r",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T09:58:20.807Z"
+    },
+    {
+      "id": "log_1790848467455_485u",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T09:54:27.456Z"
+    },
+    {
+      "id": "log_1790848200409_vj4c",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Physical & Access Security\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-01T09:50:00.409Z"
+    },
+    {
+      "id": "log_1790848115513_fd4l",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T09:48:35.513Z"
+    },
+    {
+      "id": "log_1790843750523_7kuw",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-01T08:35:50.523Z"
+    },
+    {
+      "id": "log-1",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Campaign Launched",
+      "details": "Started Mandatory Q1 2026 Cyber Readiness Drill for all active staff",
+      "severity": "info",
+      "timestamp": "2026-09-21T08:35:50.519Z"
+    },
+    {
+      "id": "log-2",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Certificate Earned",
+      "details": "Completed 360° Training and passed assessment with 94% score (Cert #CYBER-2026-ACME-8942)",
+      "severity": "info",
+      "timestamp": "2026-09-30T08:35:50.519Z"
+    },
+    {
+      "id": "log-3",
+      "orgId": "org-acme",
+      "userId": "usr-emp-finance",
+      "userEmail": "alex.turner@acmesec.com",
+      "action": "Scenario Risk Warning",
+      "details": "Flagged incorrect decision in USB Security Drop drill; remedial explanation served",
+      "severity": "warning",
+      "timestamp": "2026-10-01T04:35:50.519Z"
+    }
+  ]
+}

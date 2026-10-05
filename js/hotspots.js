@@ -221,6 +221,74 @@ export const HOTSPOT_DATA = [
         incorrectFeedback: '❌ Not quite. This is a classic "USB drop" attack. The enticing label is designed to exploit curiosity. Plugging it into ANY device, work or personal, could install malware. Always hand unknown devices to IT security.'
       }
     }
+  },
+  {
+    id: 'ransomware',
+    badgeNumber: '',
+    title: 'Ransomware & Backups',
+    icon: '🗄️',
+    iconAlt: '💾',
+    tooltip: 'Ransomware: Defend enterprise data & maintain air-gapped backups',
+    cssClass: 'ransomware',
+    position: { x: -7.20, y: 1.40, z: 2.15 },
+    cameraTarget: { x: -5, y: 220, z: 0 },
+    topic: {
+      subtitle: 'Ransomware Defense & Data Resiliency',
+      whatIsIt: 'Ransomware is extortion malware that encrypts business files and databases, demanding payment for decryption keys. Enterprise defense requires immutable 3-2-1 backups (3 copies, 2 different media, 1 offsite/air-gapped), rapid host isolation, and strict principle of least privilege.',
+      redFlags: [
+        'Sudden extension changes across shared network directories (.locked, .encrypted)',
+        'Spike in file I/O operations from unauthorized scripts or powershell processes',
+        'Ransom notes appearing in system desktop or drive folders',
+        'Unauthorized volume shadow copy deletions (vssadmin delete shadows)',
+        'Disabling of endpoint detection or antivirus services'
+      ],
+      scenario: {
+        text: 'You discover that multiple project files on your department shared server are encrypted with a ".locked_2026" extension, and a text file popup demands a cryptocurrency ransom within 24 hours.',
+        question: 'What is the immediate and most critical first step?',
+        options: [
+          { text: 'Immediately disconnect network cables and turn off Wi-Fi on affected systems to stop lateral spread, then report to Security Operations', correct: true },
+          { text: 'Open the text file to check the Bitcoin address and calculate payment terms for management', correct: false },
+          { text: 'Quickly copy encrypted files to an external USB flash drive to keep a copy', correct: false },
+          { text: 'Restart the computer repeatedly hoping the file system recovers', correct: false }
+        ],
+        correctFeedback: '✅ Correct! Immediate network isolation prevents ransomware from propagating laterally across the corporate network or attacking air-gapped backup stores. Notify SecOps immediately.',
+        incorrectFeedback: '❌ High danger! Never plug in USB drives (which could become infected) or delay by inspecting notes. Immediately isolate the device from the network to halt lateral movement.'
+      }
+    }
+  },
+  {
+    id: 'physical-security',
+    badgeNumber: '',
+    title: 'Physical & Access Security',
+    icon: '🪪',
+    iconAlt: '🚪',
+    tooltip: 'Physical Security: Stop tailgating & enforce clean desk standards',
+    cssClass: 'physical-security',
+    position: { x: -7.10, y: 1.40, z: 4.85 },
+    cameraTarget: { x: -8, y: -25, z: 0 },
+    topic: {
+      subtitle: 'Perimeter, Badges & Clean Desk Security',
+      whatIsIt: 'Physical security safeguards corporate premises, server rooms, and hardware against physical access by unauthorized intruders. Common attack vectors include "tailgating" (following an employee through badge doors) and visual snooping of unattended screens and printed sensitive paperwork.',
+      redFlags: [
+        'Individuals following closely through secure access doors without tapping their badge',
+        'Visitors without visitor badges walking unescorted in restricted office zones',
+        'Laptops left unlocked and unattended in public cafes, lobbies, or conference rooms',
+        'Confidential documents left sitting on shared printers or unattended desks',
+        'Door latches taped open or emergency exits propped open for convenience'
+      ],
+      scenario: {
+        text: 'As you badge into the restricted development floor, an unfamiliar individual dressed in business attire carrying two cups of hot coffee catches the door and asks you to hold it open.',
+        question: 'What is the correct protocol?',
+        options: [
+          { text: 'Politely request that they tap their badge on the reader or escort them to reception', correct: true },
+          { text: 'Hold the door open because they look professional and have full hands', correct: false },
+          { text: 'Let them in but watch where they walk from across the room', correct: false },
+          { text: 'Let them in if they say they have a meeting with your department lead', correct: false }
+        ],
+        correctFeedback: '✅ Correct! Tailgating is one of the easiest ways for unauthorized individuals to enter physical premises. Courteously insisting on badge verification protects everyone.',
+        incorrectFeedback: '❌ Not quite. Attackers deliberately exploit politeness, carrying items or dressing formally to make people feel uncomfortable challenging them. Everyone must badge in.'
+      }
+    }
   }
 ];
 

@@ -1,0 +1,15 @@
+{
+  "name": "cybersafe-360",
+  "version": "1.0.0",
+  "description": "CyberSafe 360° — B2B Enterprise Cybersecurity Awareness Training Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@neon/config": "^1.8.3",
+    "@neon/env": "^1.4.8",
+    "@neondatabase/serverless": "^1.1.0"
+  }
+}

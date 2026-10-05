@@ -2,10 +2,22 @@
    PANELS MODULE — Topic information panels with scenarios
    ============================================================ */
 
-import { markCompleted, isCompleted, getCompletedCount } from './hotspots.js';
+import { markCompleted, isCompleted, getCompletedCount, HOTSPOT_DATA } from './hotspots.js';
 
 let currentTopicId = null;
 let isPanelOpen = false;
+
+// Global helper to get active user ID
+function getActiveUserId() {
+  try {
+    const raw = localStorage.getItem('cybersafe_auth_user');
+    if (raw) {
+      const u = JSON.parse(raw);
+      return u.id;
+    }
+  } catch (e) {}
+  return 'usr-emp-eng';
+}
 
 /**
  * Open the topic panel for a given hotspot data object.
@@ -150,11 +162,20 @@ function populatePanel(data) {
       completeBtn.innerHTML = '✓ Completed';
       completeBtn.onclick = null;
 
+      // Sync with Backend API
+      const userId = getActiveUserId();
+      fetch('/api/training/complete-topic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, topicId: data.id, topicTitle: data.title })
+      }).catch(err => console.log('[API] Offline sync mode for topic completion'));
+
       // Update HUD
       updateProgress();
 
       // Toast
-      showToast(`${data.title} marked complete! (${getCompletedCount()}/6)`);
+      const total = HOTSPOT_DATA.length;
+      showToast(`${data.title} marked complete! (${getCompletedCount()}/${total})`);
     };
   }
 
@@ -196,14 +217,15 @@ function showTrainingMistakePopup(data, selectedOpt) {
 
 function updateProgress() {
   const count = getCompletedCount();
+  const total = HOTSPOT_DATA.length;
   const fill = document.querySelector('.progress-fill');
   const text = document.getElementById('progress-text');
-  if (fill) fill.style.width = `${(count / 6) * 100}%`;
-  if (text) text.textContent = `${count}/6 Topics`;
+  if (fill) fill.style.width = `${(count / total) * 100}%`;
+  if (text) text.textContent = `${count}/${total} Topics`;
 
   // Show quiz button when all done
   const quizBtn = document.getElementById('btn-start-quiz');
-  if (quizBtn && count >= 6) {
+  if (quizBtn && count >= total) {
     quizBtn.style.display = 'flex';
   }
 }
