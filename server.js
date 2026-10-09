@@ -36,30 +36,43 @@ const MIME_TYPES = {
 // Open pages — served to everyone (signed-in users keep their session)
 const OPEN_PAGES = {
   '/': 'landing.html',
-  '/landing': 'landing.html'
+  '/landing': 'landing.html',
+  '/landing.html': 'landing.html',  // .html alias (GitHub Pages nav compat)
+  '/index.html': 'landing.html'     // index.html now IS the landing page
 };
 
 // Public pages — signed-in users are bounced to their dashboard
 const PUBLIC_PAGES = {
   '/login': 'login.html',
+  '/login.html': 'login.html',
   '/register': 'register.html',
-  '/forgot-password': 'forgot-password.html'
+  '/register.html': 'register.html',
+  '/forgot-password': 'forgot-password.html',
+  '/forgot-password.html': 'forgot-password.html'
 };
 
 // Protected pages — require a valid session
 const PROTECTED_PAGES = {
-  '/training': 'index.html',
+  '/training': 'training.html',       // training.html is now the 360° app
+  '/training.html': 'training.html',
   '/certificate': 'certificate.html',
+  '/certificate.html': 'certificate.html',
   '/employee': 'employee.html',
+  '/employee.html': 'employee.html',
   '/admin': 'admin.html',
-  '/super-admin': 'super-admin.html'
+  '/admin.html': 'admin.html',
+  '/super-admin': 'super-admin.html',
+  '/super-admin.html': 'super-admin.html'
 };
 
 // Role allow-list per page (enforced server-side, not in the UI)
 const PAGE_ROLES = {
   '/employee': ['employee', 'admin', 'superadmin'],
+  '/employee.html': ['employee', 'admin', 'superadmin'],
   '/admin': ['admin', 'superadmin'],
-  '/super-admin': ['superadmin']
+  '/admin.html': ['admin', 'superadmin'],
+  '/super-admin': ['superadmin'],
+  '/super-admin.html': ['superadmin']
 };
 
 function dashboardFor(role) {
@@ -406,10 +419,6 @@ function handlePage(req, res, pathname) {
     return serveFile(res, path.join(ROOT, OPEN_PAGES[pathname]), MIME_TYPES['.html'], { noStore: true });
   }
 
-  // Legacy root file path — the training app now lives at /training
-  if (pathname === '/index.html') {
-    return redirect(res, user ? '/training' : '/');
-  }
 
   // Public pages
   if (PUBLIC_PAGES[pathname]) {
