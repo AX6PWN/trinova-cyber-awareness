@@ -375,6 +375,76 @@
   ],
   "auditLogs": [
     {
+      "id": "log_1791555920518_luri",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "User Authentication",
+      "details": "Successful login for Raj Mehta (superadmin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T14:25:20.518Z"
+    },
+    {
+      "id": "log_1791555910400_tbw1",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T14:25:10.400Z"
+    },
+    {
+      "id": "log_1791555905557_rou2",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T14:25:05.557Z"
+    },
+    {
+      "id": "log_1791554909803_ymsf",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-09T14:08:29.803Z"
+    },
+    {
+      "id": "log_1791552940668_0vc0",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-09T13:35:40.668Z"
+    },
+    {
+      "id": "log_1791535348193_fgfe",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T08:42:28.193Z"
+    },
+    {
+      "id": "log_1791533425958_p84f",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-09T08:10:25.958Z"
+    },
+    {
       "id": "log_1791478053750_2l23",
       "orgId": "org-platform",
       "userId": "usr-superadmin",
