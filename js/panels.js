@@ -4,8 +4,29 @@
 
 import { markCompleted, isCompleted, getCompletedCount, HOTSPOT_DATA } from './hotspots.js';
 
+export const BRAND_LOGO = 'assets/images/logo.png';
+
 let currentTopicId = null;
 let isPanelOpen = false;
+
+/**
+ * Render an avatar value. Emoji stay as text; image paths become an <img>.
+ * Escapes the value so user-supplied strings cannot inject markup.
+ */
+export function avatarMarkup(value, alt = 'avatar') {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) return '<span class="avatar-fallback">👤</span>';
+
+  if (/\.(png|jpe?g|gif|svg|webp|avif)$/i.test(raw)) {
+    const safe = raw.replace(/[<>&"']/g, (c) => (
+      { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+    return `<img class="avatar-img" src="${safe}" alt="${alt}">`;
+  }
+
+  const safe = raw.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+  return `<span class="avatar-emoji">${safe}</span>`;
+}
 
 // Global helper to get active user ID
 function getActiveUserId() {
@@ -223,10 +244,19 @@ function updateProgress() {
   if (fill) fill.style.width = `${(count / total) * 100}%`;
   if (text) text.textContent = `${count}/${total} Topics`;
 
-  // Show quiz button when all done
+  // Show quiz button when all done, and auto-start it
   const quizBtn = document.getElementById('btn-start-quiz');
   if (quizBtn && count >= total) {
     quizBtn.style.display = 'flex';
+    
+    // Automatically launch the quiz if it hasn't been triggered yet
+    if (!window.quizAutoTriggered) {
+      window.quizAutoTriggered = true;
+      showToast("All topics completed! Starting Quiz...");
+      setTimeout(() => {
+        quizBtn.click();
+      }, 2500);
+    }
   }
 }
 

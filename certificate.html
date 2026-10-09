@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Trinova Cyber Awareness 360 certificate — view, download and print your verified training certificate.">
+  <title>Certificate · Trinova Cyber Awareness 360</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/features.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/certificate.css?v=4">
+
+  <script>
+    window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
+  </script>
+  <script src="/js/auth-guard.js" defer></script>
+  <script src="/js/certificate.js?v=4" defer></script>
+</head>
+
+<body class="dash-page cert-page">
+
+  <header class="topbar">
+    <a class="topbar-brand" href="/employee">
+      <img src="/assets/images/logo.png" alt="Trinova">
+      <span>
+        <span class="brand-name">Trinova</span>
+        <span class="brand-tag">Cyber Awareness 360</span>
+      </span>
+    </a>
+
+    <nav class="topbar-nav">
+      <a class="nav-link" href="/employee">Dashboard</a>
+      <a class="nav-link" href="/training">360° Training</a>
+      <a class="nav-link active" href="/certificate">Certificate</a>
+      <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
+        <span class="btn-icon">🚪</span> Logout
+      </button>
+      <div class="user-chip">
+        <span class="chip-avatar" id="chip-avatar">👤</span>
+        <div>
+          <div class="chip-name" id="chip-name">…</div>
+          <div class="chip-role employee" id="chip-role">Employee</div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dash-main cert-main">
+    <section class="cert-toolbar">
+      <div>
+        <h1 id="cert-page-title">My Certificate</h1>
+        <p id="cert-page-sub">Issued by Trinova after passing the Cyber Awareness 360 quiz.</p>
+      </div>
+      <div class="cert-actions">
+        <button class="btn-secondary" id="btn-view-cert">
+          <span class="btn-icon">🔍</span> View Certificate
+        </button>
+        <button class="btn-primary" id="btn-download-cert">
+          <span class="btn-icon">📥</span> Download Certificate
+        </button>
+        <button class="btn-primary" id="btn-print-cert">
+          <span class="btn-icon">🖨️</span> Print Certificate
+        </button>
+      </div>
+    </section>
+
+    <div id="cert-loading" class="cert-state">
+      <div class="cert-spinner"></div>
+      <p>Loading certificate…</p>
+    </div>
+
+    <div id="cert-empty" class="cert-state" hidden>
+      <div class="cert-state-icon">🔒</div>
+      <h2>No certificate yet</h2>
+      <p>Certificates are issued automatically when you complete the 360° training and score 70% or higher on the quiz.
+      </p>
+      <a class="btn-primary" href="/training" style="text-decoration:none;">🥽 Start 360° Training</a>
+    </div>
+
+    <div id="cert-denied" class="cert-state" hidden>
+      <div class="cert-state-icon">⛔</div>
+      <h2>Certificate not available</h2>
+      <p id="cert-denied-msg">You can only view your own certificate.</p>
+      <a class="btn-primary" href="/employee" style="text-decoration:none;">Back to Dashboard</a>
+    </div>
+
+    <!-- ============ CERTIFICATE ============ -->
+    <div id="cert-wrap" class="cert-wrap" hidden>
+      <div class="cert-paper" id="cert-paper">
+        <div class="cert-border-outer">
+          <div class="cert-border-inner">
+
+            <div class="cert-head">
+              <img class="cert-logo" src="/assets/images/logo.png" alt="Trinova">
+              <div class="cert-brand">
+                <span class="cert-brand-name">TRINOVA</span>
+                <span class="cert-brand-sub">Cyber Awareness 360</span>
+              </div>
+            </div>
+
+            <div class="cert-ribbon">✓ VERIFIED CERTIFICATE</div>
+
+            <h1 class="cert-title">Certificate of Completion</h1>
+            <p class="cert-awarded">This certificate is proudly awarded to</p>
+            <div class="cert-name" id="cert-name">—</div>
+            <p class="cert-course">
+              for successfully completing the<br>
+              <strong>“Cyber Awareness 360 Training”</strong>
+            </p>
+
+            <div class="cert-score-row">
+              <div class="cert-score-item">
+                <span class="k">Score</span>
+                <span class="v" id="cert-score">—</span>
+              </div>
+              <div class="cert-score-item">
+                <span class="k">Completed</span>
+                <span class="v" id="cert-date">—</span>
+              </div>
+              <div class="cert-score-item">
+                <span class="k">Status</span>
+                <span class="v" id="cert-status">Passed</span>
+              </div>
+            </div>
+
+            <div class="cert-foot">
+              <div class="cert-sign">
+                <span class="cert-sign-line"></span>
+                <span class="cert-sign-name">Trinova Security</span>
+                <span class="cert-sign-role">Cyber Awareness 360 · Authorized Issuer</span>
+              </div>
+              <div class="cert-seal" aria-hidden="true">
+                <span>TRINOVA<br>CERTIFIED</span>
+              </div>
+              <div class="cert-sign right">
+                <span class="cert-sign-line"></span>
+                <span class="cert-sign-name" id="cert-org">—</span>
+                <span class="cert-sign-role">Participant Organization</span>
+              </div>
+            </div>
+
+            <div class="cert-verify">
+              <div>
+                <strong>Certificate ID:</strong> <span id="cert-id">—</span>
+              </div>
+              <div>
+                <strong>Verification code:</strong> <span id="cert-hash">—</span>
+              </div>
+              <div>
+                Verify authenticity at <strong>trinova.io/verify</strong> using the certificate ID above.
+                © <span id="cert-year">2026</span> Trinova Security, Inc.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Distraction-free view -->
+  <div class="cert-lightbox" id="cert-lightbox" hidden>
+    <button class="cert-lightbox-close" id="btn-close-lightbox" title="Close">✕</button>
+    <div class="cert-lightbox-stage" id="cert-lightbox-stage"></div>
+  </div>
+
+  <div id="toast"></div>
+</body>
+
+</html>

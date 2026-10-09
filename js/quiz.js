@@ -303,31 +303,66 @@ export function showResults() {
     breakdown.appendChild(item);
   });
 
-  // Sync with Backend API & Issue Certificate
-  try {
-    const authUser = localStorage.getItem('cybersafe_auth_user');
-    const user = authUser ? JSON.parse(authUser) : { id: 'usr-emp-eng', fullName: 'Sarah Chen' };
-    fetch('/api/quiz/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.id,
-        score: `${score} / ${total} correct`,
-        percentage: percent,
-        status,
-        breakdown: breakdownData
+  // Certificate actions (View / Download / Print) — revealed the moment you pass
+  const CERT_ACTION_IDS = ['btn-view-certificate-results', 'btn-download-certificate-results', 'btn-print-certificate-results'];
+  const revealCertActions = () => {
+    CERT_ACTION_IDS.forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.style.display = 'inline-flex';
+    });
+  };
+  const hideCertActions = () => {
+    CERT_ACTION_IDS.forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.style.display = 'none';
+    });
+  };
+  if (pass) revealCertActions(); else hideCertActions();
+
+  const cacheLatestCert = (userId) => {
+    fetch(`/api/certificates?userId=${encodeURIComponent(userId)}`, { credentials: 'same-origin', cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        const list = (d && d.certificates) || [];
+        if (list[0]) localStorage.setItem('cybersafe_latest_certificate', JSON.stringify(list[0]));
       })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.certificate) {
-        localStorage.setItem('cybersafe_latest_certificate', JSON.stringify(data.certificate));
-        const certBtn = document.getElementById('btn-view-certificate-results');
-        if (certBtn) certBtn.style.display = 'inline-flex';
-      }
-    })
-    .catch(e => console.log('[API] Offline sync mode for quiz submit'));
-  } catch (err) {}
+      .catch(() => {});
+  };
+
+  // Sync with Backend API & Issue Certificate
+  if (pass) {
+    try {
+      const authUser = localStorage.getItem('cybersafe_auth_user');
+      const user = authUser ? JSON.parse(authUser) : { id: 'usr-emp-eng', fullName: 'Sarah Chen' };
+      fetch('/api/quiz/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          score: `${score} / ${total} correct`,
+          percentage: percent,
+          status,
+          breakdown: breakdownData
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.certificate) {
+          localStorage.setItem('cybersafe_latest_certificate', JSON.stringify(data.certificate));
+        } else {
+          cacheLatestCert(user.id);
+        }
+        revealCertActions();
+      })
+      .catch(() => {
+        // Offline / slow API: still offer the certificate actions
+        cacheLatestCert(user.id);
+        revealCertActions();
+      });
+    } catch (err) {
+      revealCertActions();
+    }
+  }
 
   // Action buttons
   document.getElementById('btn-retake-quiz').onclick = () => {

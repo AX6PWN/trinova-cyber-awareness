@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create a Trinova employee account for cybersecurity awareness training.">
+  <title>Create Account · Trinova Cyber Awareness 360</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/features.css">
+  <link rel="stylesheet" href="/css/auth.css">
+
+  <script>
+    // Public page: signed-in users bounce to their dashboard
+    window.PAGE_AUTH = { public: true };
+  </script>
+  <script src="/js/auth-guard.js" defer></script>
+</head>
+
+<body class="auth-page">
+
+  <main class="auth-shell">
+    <a class="auth-home" href="/">&larr; Back to Trinova home</a>
+    <div class="auth-head">
+      <img class="auth-logo" src="/assets/images/logo.png" alt="Trinova">
+      <h1>Create your account</h1>
+      <p class="auth-sub">Self-registration creates an <strong>Employee</strong> account. Admin and Super Admin
+        accounts are provisioned by your organization's Super Admin.</p>
+      <div class="auth-role-pills">
+        <span>👤 Employee (self-signup)</span>
+        <span>🛡️ Admin (invited)</span>
+        <span>👑 Super Admin (platform)</span>
+      </div>
+    </div>
+
+    <div class="auth-body">
+      <form id="form-register" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="reg-fullname">Full name</label>
+          <input type="text" id="reg-fullname" name="fullName" required autocomplete="name"
+            placeholder="e.g. Rachel Vance">
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Work email</label>
+          <input type="email" id="reg-email" name="email" required autocomplete="email"
+            placeholder="rachel@company.com">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-org">Organization</label>
+            <input type="text" id="reg-org" name="orgName" placeholder="e.g. Apex Financial Corp">
+          </div>
+          <div class="form-group">
+            <label for="reg-dept">Department</label>
+            <select id="reg-dept" name="department" class="auth-input-select">
+              <option value="Engineering">Engineering</option>
+              <option value="Finance">Finance</option>
+              <option value="Human Resources">Human Resources</option>
+              <option value="Security Operations">Security Operations</option>
+              <option value="Executive Management">Executive Management</option>
+              <option value="General Operations">General Operations</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" name="password" required autocomplete="new-password"
+            placeholder="Create a secure password">
+          <div class="pwd-meter" id="pwd-meter" data-score="0">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="form-hint" id="pwd-rules">
+            8+ characters · upper or lower case letter · number · symbol
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm">Confirm password</label>
+          <input type="password" id="reg-confirm" name="confirmPassword" required autocomplete="new-password"
+            placeholder="Repeat your password">
+        </div>
+
+        <div id="reg-error-msg" class="auth-error-msg"></div>
+
+        <button type="submit" class="btn-primary btn-block" id="btn-register-submit">
+          Create Employee Account →
+        </button>
+      </form>
+
+      <div class="auth-foot">
+        Already registered? <a href="/login">Sign in</a>
+      </div>
+      <div class="auth-legal">
+        Passwords are hashed with scrypt before storage — plain-text passwords are never saved.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const form = document.getElementById('form-register');
+      const errorEl = document.getElementById('reg-error-msg');
+      const pwdEl = document.getElementById('reg-password');
+      const confirmEl = document.getElementById('reg-confirm');
+      const meter = document.getElementById('pwd-meter');
+      const rulesEl = document.getElementById('pwd-rules');
+      const submitBtn = document.getElementById('btn-register-submit');
+
+      function validatePassword(pwd) {
+        if (pwd.length < 8) return 'Password must be at least 8 characters long.';
+        if (!/[A-Za-z]/.test(pwd)) return 'Password must contain at least one letter.';
+        if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number.';
+        if (!/[^A-Za-z0-9]/.test(pwd)) return 'Password must contain at least one symbol.';
+        if (/^(password|12345678|qwerty|letmein|welcome)/i.test(pwd)) return 'Password is too common. Choose something less predictable.';
+        return null;
+      }
+
+      function scorePassword(pwd) {
+        let score = 0;
+        if (pwd.length >= 8) score++;
+        if (pwd.length >= 12) score++;
+        if (/[A-Za-z]/.test(pwd) && /[0-9]/.test(pwd)) score++;
+        if (/[^A-Za-z0-9]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+        return Math.min(score, 4);
+      }
+
+      pwdEl.addEventListener('input', () => {
+        const pwd = pwdEl.value;
+        meter.dataset.score = pwd ? String(scorePassword(pwd)) : '0';
+        const err = pwd ? validatePassword(pwd) : null;
+        rulesEl.textContent = err || (pwd ? 'Password looks good.' : '8+ characters · upper or lower case letter · number · symbol');
+        rulesEl.className = 'form-hint ' + (pwd ? (err ? 'error' : 'ok') : '');
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.textContent = '';
+
+        const fullName = document.getElementById('reg-fullname').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const orgName = document.getElementById('reg-org').value.trim();
+        const department = document.getElementById('reg-dept').value;
+        const password = pwdEl.value;
+        const confirm = confirmEl.value;
+
+        if (!fullName || !email) {
+          errorEl.textContent = 'Full name and work email are required.';
+          return;
+        }
+        const pwdErr = validatePassword(password);
+        if (pwdErr) { errorEl.textContent = pwdErr; return; }
+        if (password !== confirm) {
+          errorEl.textContent = 'Passwords do not match.';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account…';
+
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            // Note: no role field — the server enforces Employee-only registration
+            body: JSON.stringify({ fullName, email, password, orgName, department })
+          });
+          const data = await res.json();
+
+          if ((res.ok || res.status === 201) && data.success && data.user) {
+            try { localStorage.setItem('cybersafe_auth_user', JSON.stringify(data.user)); } catch (e) { }
+            // New accounts always land on the employee dashboard
+            window.location.replace(data.redirectTo || '/employee');
+            return;
+          }
+          errorEl.textContent = data.error || 'Registration failed.';
+        } catch (err) {
+          errorEl.textContent = 'Server connection error. Please try again.';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Employee Account →';
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

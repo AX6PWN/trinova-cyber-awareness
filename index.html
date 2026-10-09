@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Interactive 360° cybersecurity awareness training simulator. Explore a realistic office environment and learn about phishing, passwords, MFA, social engineering, safe browsing, and USB security.">
-  <title>CyberSafe 360°: Cybersecurity Awareness Training</title>
+  <title>Trinova · Cyber Awareness 360 — Security Awareness Training</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,23 +12,31 @@
 
   <!-- A-Frame 1.8.0 -->
   <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
+  <script src="js/player-controller.js"></script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/features.css">
-</head>
-<body>
 
-  <!-- Top Enterprise B2B SaaS Navigation Bar -->
+  <!-- Session guard: must run before app scripts -->
+  <script>
+    window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
+  </script>
+  <script src="/js/auth-guard.js" defer></script>
+</head>
+<body class="app-page">
+
+  <!-- Top Navigation Bar -->
   <header id="b2b-top-nav">
     <div class="nav-left">
-      <div class="b2b-logo">
-        <span class="logo-shield">🛡️</span>
+      <a class="b2b-logo" href="/" title="Back to Trinova home" style="text-decoration:none;">
+        <img class="logo-shield" src="assets/images/logo.png" alt="Trinova" width="1254" height="1254">
         <div class="logo-text">
-          <span class="logo-title">CyberSafe 360°</span>
-          <span class="logo-tag">B2B ENTERPRISE</span>
+          <span class="logo-title">Trinova</span>
+          <span class="logo-tag">CYBER AWARENESS 360</span>
         </div>
-      </div>
+      </a>
       <div class="b2b-org-badge" title="Active Organization Workspace">
         <span class="org-icon">🏢</span>
         <span id="b2b-user-org">Acme CyberDefense Corp</span>
@@ -36,8 +44,14 @@
     </div>
 
     <div class="nav-right">
+      <!-- My Workspace (role dashboard) -->
+      <a id="btn-my-workspace" class="b2b-btn-dashboard" style="display:none; text-decoration:none;" href="/employee" title="Open your role dashboard">
+        <span class="btn-icon">🏠</span>
+        <span>Workspace</span>
+      </a>
+
       <!-- Logout Button -->
-      <button id="btn-logout" class="b2b-btn-threat" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;" title="Logout of Enterprise Workspace">
+      <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Logout of Enterprise Workspace">
         <span class="btn-icon">🚪</span>
         <span>Logout</span>
       </button>
@@ -47,6 +61,13 @@
         <span class="btn-icon">🔴</span>
         <span>Threat Intel</span>
         <span class="threat-live-badge">LIVE</span>
+      </button>
+
+      <!-- 🌐 SuperAdmin Platform Portal Button (shown only for superadmin role) -->
+      <button id="btn-open-superadmin" class="b2b-btn-superadmin" title="SuperAdmin: Trinova Platform Portal" style="display:none;">
+        <span class="btn-icon">👑</span>
+        <span>Platform Admin</span>
+        <span class="threat-live-badge" style="background: linear-gradient(90deg,#7c3aed,#a855f7);">SA</span>
       </button>
 
       <!-- B2B Compliance Dashboard Button -->
@@ -63,10 +84,10 @@
 
       <!-- User Profile Pill -->
       <div id="b2b-user-pill" class="b2b-user-pill" title="Click to view Account / Sign In">
-        <span id="b2b-user-avatar" class="user-avatar">🛡️</span>
+        <span id="b2b-user-avatar" class="user-avatar"></span>
         <div class="user-info-text">
           <span id="b2b-user-name" class="user-name">Elena Rostova, CISO</span>
-          <span id="b2b-role-badge" class="b2b-role-badge admin">🛡️ CISO / Admin</span>
+          <span id="b2b-role-badge" class="b2b-role-badge admin">CISO / Admin</span>
         </div>
       </div>
     </div>
@@ -74,50 +95,61 @@
 
   <div id="welcome-screen">
     <div class="welcome-card">
-      <div class="welcome-icon">🛡️</div>
-      <h1>CyberSafe 360° Enterprise</h1>
-      <p class="subtitle">
-        Enterprise B2B cybersecurity awareness training simulator. Explore physical workstations,
-        uncover hidden threats (Phishing, MFA, Ransomware, Tailgating), train employees,
-        and monitor department compliance in real-time with Neon Postgres.
-      </p>
-      <div class="welcome-features">
-        <div class="welcome-feature">
-          <span class="feat-icon">🔍</span>
-          <span>360° 3D Office & Servers</span>
-        </div>
-        <div class="welcome-feature">
-          <span class="feat-icon">🎯</span>
-          <span>8 Enterprise Topics</span>
-        </div>
-        <div class="welcome-feature">
-          <span class="feat-icon">📊</span>
-          <span>B2B CISO Compliance</span>
-        </div>
-        <div class="welcome-feature">
-          <span class="feat-icon">🎓</span>
-          <span>Verifiable Certificates</span>
-        </div>
+      <div class="welcome-icon">
+        <img src="assets/images/logo.png" alt="Trinova" width="1254" height="1254">
       </div>
 
-      <div class="welcome-b2b-pill">
-        <span class="pill-dot"></span>
-        <span>Connected to Neon Cloud Postgres (Project: bold-surf-20847857)</span>
-      </div>
+      <h1>Trinova</h1>
+      <p class="subtitle">
+        Cybersecurity awareness training that fits in one sitting.
+        Explore a 3D office, find the hidden threats, and earn your certificate.
+      </p>
+
+      <ol class="flow-steps">
+        <li class="flow-step">
+          <span class="step-num">1</span>
+          <span class="step-text">
+            <strong>Explore</strong>
+            <span>Look around the office and find 8 threat hotspots</span>
+          </span>
+        </li>
+        <li class="flow-step">
+          <span class="step-num">2</span>
+          <span class="step-text">
+            <strong>Learn</strong>
+            <span>Work through each threat with a real-world scenario</span>
+          </span>
+        </li>
+        <li class="flow-step">
+          <span class="step-num">3</span>
+          <span class="step-text">
+            <strong>Get certified</strong>
+            <span>Pass the 12-question quiz and get your certificate</span>
+          </span>
+        </li>
+      </ol>
+
+      <button id="btn-enter-training" class="btn-primary btn-hero">
+        Start Training
+        <span class="btn-arrow">→</span>
+      </button>
+      <p class="hero-hint">Takes about 10 minutes · Progress is saved automatically</p>
 
       <!-- Last Training Result Display Area -->
-      <div id="last-training-result-card" class="last-training-card">
+      <div id="last-training-result-card" class="last-training-card" hidden>
         <div class="last-training-title">Last Training Result</div>
-        <div id="last-training-content" class="last-training-content">No previous training result.</div>
+        <div id="last-training-content" class="last-training-content"></div>
       </div>
 
       <div class="welcome-actions">
-        <button id="btn-enter-training" class="btn-primary">
-          Enter 360° Training →
+        <button id="btn-welcome-ciso" class="link-btn">
+          <span class="link-btn-icon">📊</span>
+          CISO Admin Dashboard
         </button>
-        <button id="btn-welcome-ciso" class="btn-secondary">
-          📊 CISO Admin Dashboard
-        </button>
+        <span class="welcome-b2b-pill">
+          <span class="pill-dot"></span>
+          <span>Workspace synced</span>
+        </span>
       </div>
     </div>
   </div>
@@ -125,7 +157,10 @@
 
   <div id="hud">
     <div class="hud-left">
-      <span class="hud-title">🛡️ CyberSafe 360°</span>
+      <span class="hud-title">
+        <img src="assets/images/logo.png" alt="Trinova" width="1254" height="1254">
+        Trinova
+      </span>
       <div class="hud-progress">
         <div class="progress-bar">
           <div class="progress-fill"></div>
@@ -134,29 +169,28 @@
       </div>
     </div>
     <div class="hud-right">
-      <button id="btn-hud-ciso-dash" class="hud-btn" title="Open CISO Compliance Dashboard">
-        <span class="btn-icon">📊</span>
-        CISO Dashboard
-      </button>
-      <button id="btn-hud-certificate" class="hud-btn" title="View Verified Training Certificate">
-        <span class="btn-icon">🎓</span>
-        Certificate
-      </button>
-      <button id="btn-see-previous-result" class="hud-btn" title="See Previous Training Result">
-        <span class="btn-icon">📈</span>
-        History
-      </button>
-      <button id="btn-start-quiz" class="hud-btn" style="display: none; background: linear-gradient(135deg, var(--accent), #3a6fd8); color: #fff; border-color: transparent;">
+      <button id="btn-start-quiz" class="hud-btn hud-btn-primary" style="display: none;">
         <span class="btn-icon">📝</span>
         Start Quiz
       </button>
-      <button id="btn-reset-camera" class="hud-btn" title="Reset camera orientation (R)">
-        <span class="btn-icon">🧭</span>
-        Reset View
+      <span class="hud-divider"></span>
+      <button id="btn-hud-certificate" class="hud-icon-btn" title="View Verified Training Certificate">
+        <span class="btn-icon">🎓</span>
       </button>
-      <button id="btn-fullscreen" class="hud-btn" title="Toggle fullscreen (F)">
+      <button id="btn-see-previous-result" class="hud-icon-btn" title="Previous Training Result">
+        <span class="btn-icon">📈</span>
+      </button>
+      <button id="btn-hud-ciso-dash" class="hud-icon-btn" title="CISO Compliance Dashboard">
+        <span class="btn-icon">📊</span>
+      </button>
+      <button id="btn-reset-camera" class="hud-icon-btn" title="Reset view (R)">
+        <span class="btn-icon">🧭</span>
+      </button>
+      <button id="btn-fullscreen" class="hud-icon-btn" title="Fullscreen (F)">
         <span class="btn-icon">⛶</span>
-        Fullscreen
+      </button>
+      <button id="btn-exit-training" class="hud-icon-btn" title="Exit Training & Return to Dashboard">
+        <span class="btn-icon">🚪</span>
       </button>
     </div>
   </div>
@@ -172,8 +206,17 @@
 
 
   <div id="explore-hint">
-    <span class="hint-icon">👆</span>
-    <span>Click and drag to look around to find the interactive hotspots</span>
+    <span class="hint-icon">🎮</span>
+    <span>Use W A S D to move | Mouse Drag to look | E to interact</span>
+  </div>
+  
+  <div id="interact-ui" style="display: none; position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: rgba(10,15,30,0.85); color: white; padding: 16px 24px; border-radius: 8px; border: 1px solid #38bdf8; font-family: sans-serif; text-align: center; z-index: 1000; pointer-events: none; box-shadow: 0 4px 20px rgba(0,210,255,0.2);">
+    <div id="interact-topic-title" style="font-size: 14px; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">TOPIC NAME</div>
+    <div style="font-size: 18px; font-weight: bold;">Press <kbd style="background: #fff; color: #000; padding: 2px 6px; border-radius: 4px;">E</kbd> to Explore</div>
+  </div>
+
+  <div id="debug-hotspots" style="position: absolute; top: 80px; left: 20px; background: rgba(0,0,0,0.7); color: #0f0; padding: 10px; font-family: monospace; font-weight: bold; border-radius: 4px; z-index: 9999;">
+    HOTSPOTS: 6/6
   </div>
 
   <a-scene
@@ -190,18 +233,32 @@
     </a-assets>
 
 
-    <a-sky color="#070b14"></a-sky>
+    <a-sky color="#eef2f7"></a-sky>
 
 
     <a-entity id="warehouse-scene" gltf-model="#warehouse-model" scale="0.001 0.001 0.001" position="0 0 0"></a-entity>
+    
+    <!-- PLAYER (Invisible Avatar for exploration) -->
+    <a-entity id="farmer" position="-8.2 0 3.6" third-person-controller="cameraRig: #camera-rig"></a-entity>
+
+    <!-- 3RD PERSON CAMERA RIG -->
+    <a-entity id="camera-rig" position="-8.2 2 7">
+      <a-camera
+        id="main-camera"
+        look-controls="enabled: false"
+        wasd-controls="enabled: false"
+        position="0 0 0"
+      ></a-camera>
+    </a-entity>
 
 
 
 
-    <a-light type="ambient" color="#ffffff" intensity="1.3"></a-light>
-    <a-light type="directional" color="#f1f5f9" intensity="0.9" position="-5 15 5"></a-light>
-    <a-light type="point" color="#e0f2fe" intensity="0.75" position="-8.2 2.5 3.6" distance="10"></a-light>
-    <a-light type="point" color="#fef08a" intensity="0.5" position="-12 4.5 0" distance="20"></a-light>
+<a-light type="ambient" color="#ffffff" intensity="1.05"></a-light>
+<a-light type="directional" color="#ffffff" intensity="0.85" position="-5 15 5"></a-light>
+<a-light type="hemisphere" color="#ffffff" ground-color="#c7d2e0" intensity="0.5"></a-light>
+<a-light type="point" color="#e0f2fe" intensity="0.45" position="-8.2 2.5 3.6" distance="10"></a-light>
+<a-light type="point" color="#fef3c7" intensity="0.3" position="-12 4.5 0" distance="20"></a-light>
 
     <!-- Realistic 3D USB Prop on Workstation Desk -->
     <a-entity id="usb-stick-prop" position="-8.85 1.03 3.15" rotation="0 15 0">
@@ -265,26 +322,7 @@
       <a-box width="0.12" height="0.008" depth="0.01" position="0 0.67 0.054" rotation="-15 0 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 2.2"></a-box>
     </a-entity>
 
-    <a-entity id="camera-rig" position="-8.2 1.45 3.6">
-      <a-camera
-        id="main-camera"
-        look-controls="pointerLockEnabled: false; touchEnabled: true"
-        wasd-controls="enabled: true; acceleration: 25"
-        fov="72"
-        position="0 0 0"
-      >
-        <!-- 3rd Person User Avatar -->
-        <a-entity id="user-avatar" position="0 -1.3 -1.8">
-          <!-- Body -->
-          <a-cylinder color="#3b82f6" radius="0.35" height="1.2" position="0 0.6 0"></a-cylinder>
-          <!-- Head -->
-          <a-sphere color="#fcd34d" radius="0.25" position="0 1.45 0"></a-sphere>
-          <!-- Arms -->
-          <a-cylinder color="#2563eb" radius="0.08" height="0.65" position="0.45 0.9 0" rotation="0 0 -15"></a-cylinder>
-          <a-cylinder color="#2563eb" radius="0.08" height="0.65" position="-0.45 0.9 0" rotation="0 0 15"></a-cylinder>
-        </a-entity>
-      </a-camera>
-    </a-entity>
+
 
   </a-scene>
 
@@ -369,6 +407,12 @@
         <button id="btn-retake-quiz" class="btn-primary">Retake Quiz</button>
         <button id="btn-view-certificate-results" class="btn-primary btn-gold" style="display: none;">
           <span class="btn-icon">🎓</span> View Verified Certificate
+        </button>
+        <button id="btn-download-certificate-results" class="btn-primary" style="display: none;">
+          <span class="btn-icon">📥</span> Download Certificate
+        </button>
+        <button id="btn-print-certificate-results" class="btn-primary" style="display: none;">
+          <span class="btn-icon">🖨️</span> Print Certificate
         </button>
         <button id="btn-return-training" class="btn-secondary">Return to Training</button>
         <button id="btn-download-results-csv-results" class="btn-action-download" title="Download training result history as CSV">
@@ -540,10 +584,21 @@
         <div class="auth-persona-box">
           <div class="auth-persona-title">⚡ 1-Click Fast Switch Demo Personas:</div>
           <div class="auth-persona-grid">
+            <!-- SuperAdmin -->
+            <button class="quick-switch-btn superadmin-persona" data-persona-id="usr-superadmin">
+              <span class="persona-icon">👑</span>
+              <span class="persona-text">Raj Mehta<br><small>SuperAdmin · Platform</small></span>
+            </button>
+            <!-- Org Admins -->
             <button class="quick-switch-btn" data-persona-id="usr-admin-ciso">
-              <span class="persona-icon">🛡️</span>
+              <span class="persona-icon"><img src="assets/images/logo.png" alt="" width="1254" height="1254"></span>
               <span class="persona-text">Elena Rostova<br><small>CISO / Admin</small></span>
             </button>
+            <button class="quick-switch-btn" data-persona-id="usr-admin-fintech">
+              <span class="persona-icon">🏦</span>
+              <span class="persona-text">Priya Nair<br><small>Admin · FinTech Bank</small></span>
+            </button>
+            <!-- Employees -->
             <button class="quick-switch-btn" data-persona-id="usr-emp-finance">
               <span class="persona-icon">💳</span>
               <span class="persona-text">Alex Turner<br><small>Finance Employee</small></span>
@@ -561,8 +616,9 @@
 
         <!-- Auth Tabs -->
         <div class="auth-tabs">
-          <button class="auth-tab-btn active" data-tab="login">Sign In</button>
-          <button class="auth-tab-btn" data-tab="register">Register / New Organization</button>
+          <button class="auth-tab-btn active" data-tab="login">🏢 Org Sign In</button>
+          <button class="auth-tab-btn" data-tab="register">➕ New Organization</button>
+          <button class="auth-tab-btn superadmin-tab" data-tab="superadmin">👑 Platform Admin</button>
         </div>
 
         <!-- Sign In Tab -->
@@ -595,19 +651,12 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="reg-dept">Department</label>
-                <select id="reg-role-dept" class="auth-input-select" id="reg-dept">
+                <select id="reg-dept" class="auth-input-select">
                   <option value="Security Operations">Security Operations</option>
                   <option value="Finance">Finance</option>
                   <option value="Engineering">Engineering</option>
                   <option value="Human Resources">Human Resources</option>
                   <option value="Executive Management">Executive Management</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="reg-role">Role</label>
-                <select id="reg-role" class="auth-input-select">
-                  <option value="admin">Administrator / CISO</option>
-                  <option value="employee">Employee / Learner</option>
                 </select>
               </div>
             </div>
@@ -620,11 +669,131 @@
               <input type="password" id="reg-password" required placeholder="Create secure password">
             </div>
             <div id="reg-error-msg" class="auth-error-msg"></div>
-            <button type="submit" class="btn-primary btn-block">Create B2B Tenant & Account →</button>
+            <button type="submit" class="btn-primary btn-block">Create Workspace &amp; Employee Account →</button>
+          </form>
+        </div>
+
+        <!-- Platform Admin / SuperAdmin Tab -->
+        <div id="tab-superadmin" class="auth-tab-content">
+          <div class="superadmin-access-banner">
+            <span class="sa-banner-icon">👑</span>
+            <div>
+              <div class="sa-banner-title">Trinova Platform Administration</div>
+              <div class="sa-banner-subtitle">Restricted access — platform operators &amp; SaaS administrators only</div>
+            </div>
+          </div>
+          <div class="auth-role-legend">
+            <div class="role-legend-item superadmin">
+              <span class="role-legend-dot"></span>
+              <div>
+                <strong>👑 SuperAdmin</strong> — Full platform access across all tenants, billing, system metrics
+                <div class="role-cred-hint">Demo: <code>superadmin@trinova.io</code> / <code>superadmin2026</code></div>
+              </div>
+            </div>
+            <div class="role-legend-item admin">
+              <span class="role-legend-dot" style="background:#2563eb;"></span>
+              <div>
+                <strong>🛡️ Org Admin / CISO</strong> — Manage org employees, campaigns, compliance reports
+                <div class="role-cred-hint">Demo: <code>ciso@acmesec.com</code> / <code>admin123</code> &nbsp;|&nbsp; <code>admin@fintechtrust.io</code> / <code>admin456</code></div>
+              </div>
+            </div>
+          </div>
+          <form id="form-admin-login" class="auth-form">
+            <div class="form-group">
+              <label for="admin-login-email">Admin / SuperAdmin Email</label>
+              <input type="email" id="admin-login-email" required placeholder="superadmin@trinova.io" value="superadmin@trinova.io">
+            </div>
+            <div class="form-group">
+              <label for="admin-login-password">Password</label>
+              <input type="password" id="admin-login-password" required placeholder="••••••••" value="superadmin2026">
+            </div>
+            <div id="admin-login-error-msg" class="auth-error-msg"></div>
+            <button type="submit" class="btn-primary btn-block sa-login-btn">👑 Sign In as Platform Admin →</button>
           </form>
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- SuperAdmin Platform Portal Modal -->
+  <div id="superadmin-portal-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card sa-portal-card">
+      <div class="custom-modal-header sa-portal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">👑</span>
+          <span>Trinova Platform Administration Portal</span>
+          <span class="sa-portal-badge">SuperAdmin</span>
+        </div>
+        <button id="btn-close-superadmin-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+
+      <div class="custom-modal-body sa-portal-body">
+        <!-- Platform KPI Row -->
+        <div class="sa-kpi-row">
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">🏢</div>
+            <div class="sa-kpi-val" id="sa-metric-orgs">—</div>
+            <div class="sa-kpi-label">Tenant Orgs</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">👥</div>
+            <div class="sa-kpi-val" id="sa-metric-users">—</div>
+            <div class="sa-kpi-label">Total Users</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">🛡️</div>
+            <div class="sa-kpi-val" id="sa-metric-admins">—</div>
+            <div class="sa-kpi-label">Org Admins</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">🎓</div>
+            <div class="sa-kpi-val" id="sa-metric-certs">—</div>
+            <div class="sa-kpi-label">Certificates Issued</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">📋</div>
+            <div class="sa-kpi-val" id="sa-metric-campaigns">—</div>
+            <div class="sa-kpi-label">Active Campaigns</div>
+          </div>
+          <div class="sa-kpi-card highlight">
+            <div class="sa-kpi-icon">📊</div>
+            <div class="sa-kpi-val" id="sa-metric-score">—</div>
+            <div class="sa-kpi-label">Avg Security Score</div>
+          </div>
+        </div>
+
+        <div class="sa-platform-meta">
+          <span id="sa-platform-version">—</span>
+          <span class="sa-dot">·</span>
+          <span id="sa-uptime-since">—</span>
+        </div>
+
+        <!-- Tenant Grid -->
+        <div class="b2b-section-box">
+          <div class="b2b-sec-title">
+            <span>🏢 Active Tenant Organizations</span>
+            <span class="sec-badge">All Orgs</span>
+          </div>
+          <div id="sa-tenant-list" class="sa-tenant-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Platform Activity Feed -->
+        <div class="b2b-section-box" style="margin-top:16px;">
+          <div class="b2b-sec-title">
+            <span>📜 Cross-Tenant Platform Activity Feed</span>
+          </div>
+          <div id="sa-activity-feed" class="b2b-audit-box">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-modal-actions">
+        <button id="btn-close-superadmin-bottom" class="btn-secondary">Close Portal</button>
+      </div>
     </div>
   </div>
 
@@ -643,11 +812,13 @@
         <div id="printable-certificate" class="printable-certificate">
           <div class="cert-border-outer">
             <div class="cert-border-inner">
-              <div class="cert-watermark">CYBERSAFE 360</div>
+              <div class="cert-watermark">TRINOVA</div>
               
               <div class="cert-top-seal">
-                <div class="cert-seal-icon">🛡️</div>
-                <div class="cert-issuing-auth">CyberSafe 360° Global Institute</div>
+                <div class="cert-seal-icon">
+          <img src="assets/images/logo.png" alt="Trinova seal" width="1254" height="1254">
+        </div>
+                <div class="cert-issuing-auth">Trinova Security Institute</div>
                 <div class="cert-compliance-tag">ISO/IEC 27001 & NIST CSF ALIGNED</div>
               </div>
 
@@ -657,7 +828,7 @@
               <div id="cert-holder-name" class="cert-name">Elena Rostova</div>
 
               <div class="cert-desc">
-                has successfully completed all 8 comprehensive modules of the <strong>CyberSafe 360° Interactive Threat Simulator</strong>,
+                has successfully completed all 8 comprehensive modules of the <strong>Trinova Cyber Awareness 360 Interactive Threat Simulator</strong>,
                 demonstrating certified mastery in defending against Phishing, MFA Hijacking, Ransomware Extortion,
                 Social Engineering Pretexting, Physical Tailgating, and Clean Desk Security at
               </div>
@@ -667,7 +838,7 @@
               <div class="cert-details-grid">
                 <div>
                   <span class="cert-meta-label">Certificate ID</span>
-                  <strong id="cert-number">CYBER-2026-ACME-8942</strong>
+                  <strong id="cert-number">TRIN-2026-ACME-8942</strong>
                 </div>
                 <div>
                   <span class="cert-meta-label">Assessment Score</span>
@@ -703,6 +874,9 @@
       </div>
 
       <div class="custom-modal-actions">
+        <button id="btn-download-certificate" class="btn-primary">
+          <span class="btn-icon">📥</span> Download PDF
+        </button>
         <button id="btn-print-certificate" class="btn-primary">
           <span class="btn-icon">🖨️</span> Print / Save Certificate PDF
         </button>
@@ -900,13 +1074,6 @@
                 <option>Security Operations</option>
                 <option>Executive Management</option>
                 <option>Operations</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Role</label>
-              <select id="invite-role" class="auth-input-select">
-                <option value="employee">Employee / Learner</option>
-                <option value="admin">Admin / Manager</option>
               </select>
             </div>
           </div>

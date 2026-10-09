@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trinova admin dashboard — employees, training results and compliance.">
+  <title>Admin Dashboard · Trinova Cyber Awareness 360</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/features.css">
+  <link rel="stylesheet" href="/css/auth.css">
+
+  <script>
+    window.PAGE_AUTH = { roles: ['admin', 'superadmin'] };
+  </script>
+  <script src="/js/auth-guard.js" defer></script>
+  <script src="/js/admin-dashboard.js" defer></script>
+</head>
+<body class="dash-page">
+
+  <header class="topbar">
+    <a class="topbar-brand" href="/admin">
+      <img src="/assets/images/logo.png" alt="Trinova">
+      <span>
+        <span class="brand-name">Trinova</span>
+        <span class="brand-tag">Admin Workspace</span>
+      </span>
+    </a>
+
+    <nav class="topbar-nav">
+      <a class="nav-link active" href="/admin">Dashboard</a>
+      <a class="nav-link" href="/training">360° Training</a>
+      <a class="nav-link" href="/certificate">Certificate</a>
+      <a class="nav-link" id="nav-superadmin" href="/super-admin" style="display:none;">Platform</a>
+      <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
+        <span class="btn-icon">🚪</span> Logout
+      </button>
+      <div class="user-chip">
+        <span class="chip-avatar" id="chip-avatar">🛡️</span>
+        <div>
+          <div class="chip-name" id="chip-name">…</div>
+          <div class="chip-role admin" id="chip-role">Admin</div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dash-main">
+    <section class="dash-hero">
+      <div>
+        <h1 id="hero-title">CISO &amp; Admin Dashboard</h1>
+        <p id="hero-sub">Manage employees, monitor training completion and review compliance results.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="/training" class="btn-primary" style="text-decoration:none;">
+          <span class="btn-icon">🥽</span> Start 360° Training
+        </a>
+        <button id="btn-export-audit" class="btn-secondary btn-hero-secondary">
+          <span class="btn-icon">📥</span> Export Audit Log
+        </button>
+      </div>
+    </section>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-val" id="kpi-employees">—</div>
+        <div class="kpi-label">Employees</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🎓</div>
+        <div class="kpi-val" id="kpi-certified">—</div>
+        <div class="kpi-label">Certified</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-val" id="kpi-score">—</div>
+        <div class="kpi-label">Compliance Score</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-val" id="kpi-campaigns">—</div>
+        <div class="kpi-label">Active Campaigns</div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">
+        <span>👥 Employees &amp; Training Results</span>
+        <span class="sec-badge" id="roster-badge">0 users</span>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-scroll">
+          <table class="data-table" id="users-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Role</th>
+                <th>Progress</th>
+                <th>Last Score</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="7"><div class="empty-state">Loading employees…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="dash-grid">
+      <section class="panel">
+        <div class="panel-title">
+          <span>✉️ Invite / Create Employee</span>
+          <span class="sec-badge">Admin right</span>
+        </div>
+        <div class="panel-body">
+          <p class="muted" style="font-size:12.5px; margin-top:0;">
+            Admins can create <strong>Employee</strong> accounts only. Admin accounts are provisioned by the Super Admin.
+          </p>
+          <form id="form-invite" class="inline-form">
+            <div class="form-group">
+              <label>Full name</label>
+              <input type="text" id="inv-name" required placeholder="e.g. Jordan Mills">
+            </div>
+            <div class="form-group">
+              <label>Work email</label>
+              <input type="email" id="inv-email" required placeholder="jordan@company.com">
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <select id="inv-dept" class="auth-input-select">
+                <option>Engineering</option>
+                <option>Finance</option>
+                <option>Human Resources</option>
+                <option>Security Operations</option>
+                <option>Executive Management</option>
+                <option>Operations</option>
+                <option>General Operations</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Password (optional)</label>
+              <input type="password" id="inv-password" placeholder="Auto-generated if blank">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn-primary btn-block">✉️ Create Employee</button>
+            </div>
+          </form>
+          <div id="invite-error-msg" class="auth-error-msg"></div>
+          <div id="invite-success-msg" class="auth-success-msg"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <span>📜 Audit Log</span>
+          <span class="sec-badge">Latest</span>
+        </div>
+        <div class="panel-body flush">
+          <div class="activity-list" id="audit-list">
+            <div class="empty-state">Loading audit trail…</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Employee detail modal -->
+  <div id="user-detail-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card" style="max-width: 560px;">
+      <div class="custom-modal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">🎓</span>
+          <span id="detail-title">Employee detail</span>
+        </div>
+        <button id="btn-close-detail-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div class="custom-modal-body" id="detail-body">
+        <div class="empty-state">Loading…</div>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-close-detail" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</body>
+</html>

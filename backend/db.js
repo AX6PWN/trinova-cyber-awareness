@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const auth = require('./auth');
 
 // Load environment variables from .env if present
 try {
@@ -52,9 +53,9 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'cybersafe_db.json');
 
-// Helper to hash passwords simply & securely
+// Password hashing — scrypt with a random per-user salt (see backend/auth.js)
 function hashPassword(password) {
-  return crypto.createHash('sha256').update(password + '_cybersafe_salt_2026').digest('hex');
+  return auth.hashPassword(password);
 }
 
 // Initial Enterprise Seed Data
@@ -82,18 +83,45 @@ function getInitialData() {
   ];
 
   const users = [
+    // ── PLATFORM SUPERADMIN (cross-org, Trinova platform owner) ──
+    {
+      id: 'usr-superadmin',
+      orgId: 'org-platform',
+      email: 'superadmin@trinova.io',
+      passwordHash: hashPassword('superadmin2026'),
+      fullName: 'Raj Mehta',
+      role: 'superadmin',
+      department: 'Platform Engineering',
+      avatar: '👑',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    },
+    // ── ORG ADMINS ──
     {
       id: 'usr-admin-ciso',
       orgId: defaultOrgId,
       email: 'ciso@acmesec.com',
       passwordHash: hashPassword('admin123'),
       fullName: 'Elena Rostova, CISO',
-      role: 'admin', // 'admin' | 'employee'
+      role: 'admin', // org-level admin
       department: 'Security Operations',
       avatar: '🛡️',
       status: 'active',
       createdAt: new Date().toISOString()
     },
+    {
+      id: 'usr-admin-fintech',
+      orgId: 'org-fintech',
+      email: 'admin@fintechtrust.io',
+      passwordHash: hashPassword('admin456'),
+      fullName: 'Priya Nair',
+      role: 'admin',
+      department: 'Risk & Compliance',
+      avatar: '🏦',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    },
+    // ── EMPLOYEES ──
     {
       id: 'usr-emp-finance',
       orgId: defaultOrgId,
@@ -159,7 +187,7 @@ function getInitialData() {
   const certificates = [
     {
       id: 'cert-1',
-      certificateNumber: 'CYBER-2026-ACME-8942',
+      certificateNumber: 'TRIN-2026-ACME-8942',
       userId: 'usr-emp-eng',
       orgId: defaultOrgId,
       userName: 'Sarah Chen',
@@ -167,7 +195,7 @@ function getInitialData() {
       issueDate: new Date(Date.now() - 86400000 * 1).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
       expiryDate: new Date(Date.now() + 86400000 * 364).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
       score: 94,
-      verificationHash: crypto.createHash('sha1').update('CYBER-2026-ACME-8942_Sarah_Chen').digest('hex').substring(0, 16).toUpperCase(),
+      verificationHash: crypto.createHash('sha1').update('TRIN-2026-ACME-8942_Sarah_Chen').digest('hex').substring(0, 16).toUpperCase(),
       status: 'verified'
     }
   ];
@@ -216,7 +244,7 @@ function getInitialData() {
       userId: 'usr-emp-eng',
       userEmail: 'sarah.chen@acmesec.com',
       action: 'Certificate Earned',
-      details: 'Completed 360° Training and passed assessment with 94% score (Cert #CYBER-2026-ACME-8942)',
+      details: 'Completed 360° Training and passed assessment with 94% score (Cert #TRIN-2026-ACME-8942)',
       severity: 'info',
       timestamp: new Date(Date.now() - 86400000 * 1).toISOString()
     },
@@ -232,7 +260,7 @@ function getInitialData() {
     }
   ];
 
-  return { orgs, users, progress, quizAttempts, certificates, campaigns, auditLogs };
+  return { orgs, users, progress, quizAttempts, certificates, campaigns, auditLogs, passwordResets: [] };
 }
 
 // Persistent Storage Read / Write
@@ -245,15 +273,34 @@ function readDb() {
     fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2), 'utf8');
     return initial;
   }
+  let data;
   try {
     const raw = fs.readFileSync(DB_FILE, 'utf8');
-    return JSON.parse(raw);
+    data = JSON.parse(raw);
   } catch (err) {
     console.error('[DB] Failed reading db file, resetting to initial data:', err.message);
     const initial = getInitialData();
     fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2), 'utf8');
     return initial;
   }
+
+  // Backfill collections / built-in accounts missing from older data files
+  let changed = false;
+  ['orgs', 'users', 'progress', 'quizAttempts', 'certificates', 'campaigns', 'auditLogs'].forEach(key => {
+    if (!Array.isArray(data[key])) { data[key] = []; changed = true; }
+  });
+  if (!Array.isArray(data.passwordResets)) { data.passwordResets = []; changed = true; }
+
+  const seeds = getInitialData();
+  seeds.orgs.forEach(o => {
+    if (!data.orgs.some(x => x.id === o.id)) { data.orgs.push(o); changed = true; }
+  });
+  seeds.users.forEach(u => {
+    if (!data.users.some(x => x.id === u.id)) { data.users.push(u); changed = true; }
+  });
+
+  if (changed) writeDb(data);
+  return data;
 }
 
 function writeDb(data) {
@@ -265,6 +312,17 @@ function writeDb(data) {
   } catch (err) {
     console.error('[DB] Failed writing db file:', err.message);
   }
+}
+
+// In-memory failed-login throttling (per email)
+const loginAttempts = {};
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+
+// Role → dashboard route mapping
+function dashboardPathFor(role) {
+  if (role === 'superadmin') return '/super-admin';
+  if (role === 'admin') return '/admin';
+  return '/employee';
 }
 
 // Database Methods
@@ -284,16 +342,42 @@ const db = {
 
   // Auth: Login
   login(email, password) {
-    const data = readDb();
     const cleanEmail = (email || '').trim().toLowerCase();
-    const hash = hashPassword(password);
+    const emailError = auth.validateEmail(cleanEmail);
+    if (emailError) return { success: false, error: emailError };
+    if (!password) return { success: false, error: 'Password is required.' };
+
+    // Brute-force throttling: 10 failed attempts per email every 15 minutes
+    const now = Date.now();
+    const attempt = loginAttempts[cleanEmail] || { count: 0, resetAt: now + LOGIN_WINDOW_MS };
+    if (now > attempt.resetAt) { attempt.count = 0; attempt.resetAt = now + LOGIN_WINDOW_MS; }
+    if (attempt.count >= 10) {
+      return { success: false, error: 'Too many failed sign-in attempts. Please try again in 15 minutes.' };
+    }
+
+    const data = readDb();
     const user = data.users.find(u => u.email.toLowerCase() === cleanEmail);
 
-    if (!user) {
-      return { success: false, error: 'User with this email not found.' };
+    const result = user ? auth.verifyPassword(password, user.passwordHash) : { valid: false, needsUpgrade: false };
+    if (!user || !result.valid) {
+      attempt.count += 1;
+      loginAttempts[cleanEmail] = attempt;
+      if (user) {
+        this.logAudit(user.orgId, user.id, user.email, 'Failed Authentication', 'Rejected sign-in attempt (invalid password)', 'warning');
+      }
+      return { success: false, error: 'Invalid email or password.' };
     }
-    if (user.passwordHash !== hash) {
-      return { success: false, error: 'Invalid password. Please check your credentials.' };
+
+    delete loginAttempts[cleanEmail];
+
+    // Transparently upgrade legacy password hashes to scrypt
+    if (result.needsUpgrade) {
+      user.passwordHash = hashPassword(password);
+      writeDb(data);
+    }
+
+    if (user.status && user.status !== 'active') {
+      return { success: false, error: 'This account has been disabled. Contact your administrator.' };
     }
 
     const org = data.orgs.find(o => o.id === user.orgId) || { name: 'Acme CyberDefense Corp', id: user.orgId };
@@ -304,31 +388,33 @@ const db = {
     return {
       success: true,
       token: `token_${user.id}_${Date.now()}`,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        department: user.department,
-        avatar: user.avatar,
-        orgId: user.orgId,
-        orgName: org.name,
-        orgPlan: org.plan || 'Enterprise'
-      }
+      redirectTo: dashboardPathFor(user.role),
+      user: this.toSafeUser(user, org)
     };
   },
 
-  // Auth: Register (User or new Organization)
+  // Auth: Register — public registration ALWAYS creates an Employee account.
+  // Admin / Super Admin accounts can only be provisioned by a Super Admin.
   register({ email, password, fullName, orgName, department, role }) {
     const data = readDb();
     const cleanEmail = (email || '').trim().toLowerCase();
 
-    if (!cleanEmail || !password || !fullName) {
+    const emailError = auth.validateEmail(cleanEmail);
+    if (emailError) return { success: false, error: emailError };
+    if (!password || !fullName || !String(fullName).trim()) {
       return { success: false, error: 'Email, password, and full name are required.' };
     }
+    const pwdError = auth.validatePassword(password, cleanEmail);
+    if (pwdError) return { success: false, error: pwdError };
 
     if (data.users.some(u => u.email.toLowerCase() === cleanEmail)) {
       return { success: false, error: 'An account with this email already exists.' };
+    }
+
+    // Role escalation is impossible through public registration
+    const requestedRole = String(role || '').toLowerCase();
+    if (requestedRole && requestedRole !== 'employee') {
+      return { success: false, error: 'Admin accounts cannot be self-registered. Ask your Super Admin to provision one.' };
     }
 
     let orgId = 'org-acme';
@@ -357,9 +443,10 @@ const db = {
       email: cleanEmail,
       passwordHash: hashPassword(password),
       fullName: fullName.trim(),
-      role: role || (data.users.length === 0 ? 'admin' : 'employee'),
+      // Public registration always creates an Employee account
+      role: 'employee',
       department: department || 'General Operations',
-      avatar: role === 'admin' ? '🛡️' : '👤',
+      avatar: '👤',
       status: 'active',
       createdAt: new Date().toISOString()
     };
@@ -368,22 +455,13 @@ const db = {
     writeDb(data);
 
     const org = data.orgs.find(o => o.id === orgId);
-    this.logAudit(orgId, newUser.id, newUser.email, 'Account Created', `New enterprise user registered: ${newUser.fullName} (${newUser.department})`, 'info');
+    this.logAudit(orgId, newUser.id, newUser.email, 'Account Created', `New employee self-registered: ${newUser.fullName} (${newUser.department})`, 'info');
 
     return {
       success: true,
       token: `token_${newUser.id}_${Date.now()}`,
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        fullName: newUser.fullName,
-        role: newUser.role,
-        department: newUser.department,
-        avatar: newUser.avatar,
-        orgId: newUser.orgId,
-        orgName: org ? org.name : 'Enterprise Workspace',
-        orgPlan: org ? org.plan : 'Enterprise'
-      }
+      redirectTo: dashboardPathFor(newUser.role),
+      user: this.toSafeUser(newUser, org)
     };
   },
 
@@ -393,6 +471,12 @@ const db = {
     const user = data.users.find(u => u.id === userId);
     if (!user) return null;
     const org = data.orgs.find(o => o.id === user.orgId);
+    return this.toSafeUser(user, org);
+  },
+
+  // Public-safe user shape (never includes passwordHash)
+  toSafeUser(user, org) {
+    const organization = org || (user ? readDb().orgs.find(o => o.id === user.orgId) : null);
     return {
       id: user.id,
       email: user.email,
@@ -400,9 +484,12 @@ const db = {
       role: user.role,
       department: user.department,
       avatar: user.avatar,
+      status: user.status || 'active',
       orgId: user.orgId,
-      orgName: org ? org.name : 'Enterprise Workspace',
-      orgPlan: org ? org.plan : 'Enterprise'
+      orgName: organization ? organization.name : 'Enterprise Workspace',
+      orgPlan: organization ? organization.plan : 'Enterprise',
+      createdAt: user.createdAt || null,
+      redirectTo: dashboardPathFor(user.role)
     };
   },
 
@@ -462,7 +549,7 @@ const db = {
     // Auto issue certificate if passed with >= 70%
     let cert = null;
     if (percentage >= 70) {
-      const certNum = `CYBER-2026-${(org ? org.name.substring(0, 4) : 'ACME').toUpperCase().replace(/[^A-Z]/g, 'X')}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const certNum = `TRIN-2026-${(org ? org.name.substring(0, 4) : 'ACME').toUpperCase().replace(/[^A-Z]/g, 'X')}-${Math.floor(1000 + Math.random() * 9000)}`;
       const issueDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
       const expiryDate = new Date(Date.now() + 86400000 * 365).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -498,10 +585,263 @@ const db = {
     return data.certificates.filter(c => c.userId === userId);
   },
 
+  // Super Admin: every certificate across all tenants
+  getAllCertificates() {
+    const data = readDb();
+    return [...data.certificates].sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')));
+  },
+
   getCertificateById(certIdOrNum) {
     const data = readDb();
     return data.certificates.find(c => c.id === certIdOrNum || c.certificateNumber === certIdOrNum);
   },
+
+  /* ----------------------------------------------------------
+     USER MANAGEMENT — Admin / Super Admin
+     ---------------------------------------------------------- */
+
+  // List users (admins see their own org; superadmin sees everyone)
+  listUsers({ orgId = null, role = null } = {}) {
+    const data = readDb();
+    return data.users
+      .filter(u => (orgId ? u.orgId === orgId : true))
+      .filter(u => (role ? u.role === role : true))
+      .map(u => {
+        const org = data.orgs.find(o => o.id === u.orgId);
+        const progress = data.progress.filter(p => p.userId === u.id && p.completed);
+        const attempts = data.quizAttempts.filter(q => q.userId === u.id);
+        const last = attempts[attempts.length - 1];
+        const cert = data.certificates.find(c => c.userId === u.id);
+        return {
+          ...this.toSafeUser(u, org),
+          topicsCompleted: progress.length,
+          totalTopics: 8,
+          lastScore: last ? `${last.percentage}%` : 'Not Taken',
+          certificateNumber: cert ? cert.certificateNumber : null,
+          certified: Boolean(cert)
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  },
+
+  // Full training + results detail for one user (admin view)
+  getUserWithDetails(userId) {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return null;
+    const org = data.orgs.find(o => o.id === user.orgId);
+    return {
+      user: this.toSafeUser(user, org),
+      progress: data.progress.filter(p => p.userId === userId && p.completed),
+      quizAttempts: data.quizAttempts
+        .filter(q => q.userId === userId)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+      certificates: data.certificates.filter(c => c.userId === userId)
+    };
+  },
+
+  /**
+   * Provision a user account with role rules enforced server-side:
+   *  - Admin may only create Employees inside their own organization.
+   *  - Super Admin may create Employees or Admins in any organization.
+   */
+  adminCreateUser({ fullName, email, password, department, role, orgId }, actor) {
+    if (!actor || !['admin', 'superadmin'].includes(actor.role)) {
+      return { success: false, error: 'Not authorized to create accounts.' };
+    }
+    const data = readDb();
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const emailError = auth.validateEmail(cleanEmail);
+    if (emailError) return { success: false, error: emailError };
+    if (!fullName || !String(fullName).trim()) return { success: false, error: 'Full name is required.' };
+
+    if (password) {
+      const pwdError = auth.validatePassword(password, cleanEmail);
+      if (pwdError) return { success: false, error: pwdError };
+    }
+    if (!password && actor.role !== 'admin' && actor.role !== 'superadmin') {
+      return { success: false, error: 'Password is required.' };
+    }
+
+    if (data.users.some(u => u.email.toLowerCase() === cleanEmail)) {
+      return { success: false, error: 'An account with this email already exists.' };
+    }
+
+    const requestedRole = String(role || 'employee').toLowerCase();
+    if (!['employee', 'admin'].includes(requestedRole)) {
+      return { success: false, error: 'Invalid role. Only "employee" or "admin" can be assigned.' };
+    }
+    if (actor.role !== 'superadmin' && requestedRole !== 'employee') {
+      return { success: false, error: 'Only a Super Admin can create Admin accounts.' };
+    }
+
+    // Admins always act inside their own organization
+    const targetOrgId = actor.role === 'superadmin'
+      ? (orgId || actor.orgId || 'org-acme')
+      : actor.orgId;
+
+    const newUser = {
+      id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      orgId: targetOrgId,
+      email: cleanEmail,
+      passwordHash: hashPassword(password || `Welcome@${Math.floor(1000 + Math.random() * 9000)}`),
+      fullName: String(fullName).trim(),
+      role: requestedRole,
+      department: department || 'General Operations',
+      avatar: requestedRole === 'admin' ? '🛡️' : '👤',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    };
+
+    data.users.push(newUser);
+    writeDb(data);
+
+    const org = data.orgs.find(o => o.id === targetOrgId);
+    this.logAudit(targetOrgId, actor.id, actor.email, 'Account Created',
+      `${actor.fullName} (${actor.role}) created ${requestedRole} account ${cleanEmail}`, 'info');
+
+    return { success: true, user: this.toSafeUser(newUser, org) };
+  },
+
+  // Change a user's role (Super Admin only)
+  updateUserRole(userId, newRole, actor) {
+    if (!actor || actor.role !== 'superadmin') {
+      return { success: false, error: 'Only a Super Admin can change user roles.' };
+    }
+    const role = String(newRole || '').toLowerCase();
+    if (!['admin', 'employee'].includes(role)) {
+      return { success: false, error: 'Invalid role. Use "admin" or "employee".' };
+    }
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User not found.' };
+    if (user.id === actor.id) return { success: false, error: 'You cannot change your own role.' };
+    if (user.role === 'superadmin') return { success: false, error: 'Super Admin accounts cannot be modified here.' };
+
+    const previous = user.role;
+    user.role = role;
+    writeDb(data);
+    this.logAudit(user.orgId, actor.id, actor.email, 'Role Changed',
+      `${user.email}: ${previous} → ${role} (by ${actor.email})`, 'warning');
+
+    // Existing sessions must pick up the new role immediately
+    auth.destroyUserSessions(user.id);
+    return { success: true, user: this.toSafeUser(user) };
+  },
+
+  // Enable / disable an account
+  setUserStatus(userId, status, actor) {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User not found.' };
+    if (user.id === actor.id) return { success: false, error: 'You cannot disable your own account.' };
+    if (user.role === 'superadmin' && actor.role !== 'superadmin') {
+      return { success: false, error: 'Not authorized.' };
+    }
+    const next = status === 'disabled' ? 'disabled' : 'active';
+    user.status = next;
+    writeDb(data);
+    if (next === 'disabled') auth.destroyUserSessions(user.id);
+    this.logAudit(user.orgId, actor.id, actor.email, 'Account Status',
+      `${user.email} set to ${next} by ${actor.email}`, 'warning');
+    return { success: true, user: this.toSafeUser(user) };
+  },
+
+  // Delete a user account (admins: employees in own org; superadmin: anyone but themselves)
+  deleteUser(userId, actor) {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User not found.' };
+    if (user.id === actor.id) return { success: false, error: 'You cannot delete your own account.' };
+    if (user.role === 'superadmin') return { success: false, error: 'Super Admin accounts cannot be deleted.' };
+    if (actor.role === 'admin') {
+      if (user.orgId !== actor.orgId) return { success: false, error: 'You can only manage users in your own organization.' };
+      if (user.role !== 'employee') return { success: false, error: 'Only a Super Admin can remove Admin accounts.' };
+    }
+
+    data.users = data.users.filter(u => u.id !== userId);
+    data.progress = data.progress.filter(p => p.userId !== userId);
+    data.quizAttempts = data.quizAttempts.filter(q => q.userId !== userId);
+    data.certificates = data.certificates.filter(c => c.userId !== userId);
+    data.passwordResets = (data.passwordResets || []).filter(r => r.userId !== userId);
+    writeDb(data);
+    auth.destroyUserSessions(userId);
+    this.logAudit(user.orgId, actor.id, actor.email, 'Account Deleted',
+      `${actor.fullName} (${actor.role}) deleted ${user.email}`, 'warning');
+    return { success: true };
+  },
+
+  /* ----------------------------------------------------------
+     PASSWORD RECOVERY
+     ---------------------------------------------------------- */
+
+  // Start forgot-password flow. Always reports success so the API
+  // cannot be used to enumerate accounts. Returns the one-time
+  // token only in this local/no-email environment.
+  createPasswordReset(email) {
+    const data = readDb();
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const user = data.users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    data.passwordResets = (data.passwordResets || []).filter(r => !r.used && r.expiresAt > Date.now());
+    if (!user) {
+      writeDb(data);
+      return { success: true, token: null };
+    }
+
+    const token = auth.createResetToken();
+    data.passwordResets.push({
+      id: `rst_${Date.now()}`,
+      userId: user.id,
+      tokenHash: auth.hashToken(token),
+      expiresAt: Date.now() + auth.RESET_TTL_MS,
+      used: false,
+      createdAt: new Date().toISOString()
+    });
+    writeDb(data);
+    this.logAudit(user.orgId, user.id, user.email, 'Password Reset Requested', 'A 15-minute password reset token was issued', 'info');
+    return { success: true, token, email: user.email };
+  },
+
+  // Complete forgot-password flow with a valid one-time token
+  resetPassword(token, newPassword) {
+    const data = readDb();
+    if (!token) return { success: false, error: 'Reset token is required.' };
+    const record = (data.passwordResets || []).find(r => r.tokenHash === auth.hashToken(token) && !r.used);
+    if (!record) return { success: false, error: 'This reset link is invalid or has already been used.' };
+    if (record.expiresAt < Date.now()) return { success: false, error: 'This reset link has expired. Please request a new one.' };
+
+    const user = data.users.find(u => u.id === record.userId);
+    if (!user) return { success: false, error: 'Account no longer exists.' };
+
+    const pwdError = auth.validatePassword(newPassword, user.email);
+    if (pwdError) return { success: false, error: pwdError };
+
+    user.passwordHash = hashPassword(newPassword);
+    record.used = true;
+    writeDb(data);
+
+    // Kill every active session for this account
+    auth.destroyUserSessions(user.id);
+    this.logAudit(user.orgId, user.id, user.email, 'Password Reset Completed', 'Password changed via reset link; all sessions revoked', 'warning');
+    return { success: true };
+  },
+
+  // Change password while signed in
+  changePassword(userId, currentPassword, newPassword) {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User not found.' };
+    const check = auth.verifyPassword(currentPassword, user.passwordHash);
+    if (!check.valid) return { success: false, error: 'Current password is incorrect.' };
+    const pwdError = auth.validatePassword(newPassword, user.email);
+    if (pwdError) return { success: false, error: pwdError };
+    user.passwordHash = hashPassword(newPassword);
+    writeDb(data);
+    this.logAudit(user.orgId, user.id, user.email, 'Password Changed', 'Password updated from account settings', 'info');
+    return { success: true };
+  },
+
 
   // B2B Admin Dashboard Analytics
   getB2BDashboard(orgId = 'org-acme') {
@@ -617,6 +957,68 @@ const db = {
     if (data.auditLogs.length > 200) data.auditLogs.pop();
     writeDb(data);
     return log;
+  },
+
+  // SuperAdmin: Platform-wide System Dashboard
+  getSystemDashboard() {
+    const data = readDb();
+    const { orgs, users, certificates, campaigns, quizAttempts, auditLogs } = data;
+
+    // Per-tenant metrics
+    const tenants = orgs.map(org => {
+      const orgUsers = users.filter(u => u.orgId === org.id);
+      const orgAdmins = orgUsers.filter(u => u.role === 'admin');
+      const orgCerts = certificates.filter(c => c.orgId === org.id);
+      const orgCampaigns = campaigns.filter(c => c.orgId === org.id);
+      const activeCount = orgUsers.filter(u => u.status === 'active').length;
+
+      return {
+        id: org.id,
+        name: org.name,
+        domain: org.domain,
+        plan: org.plan,
+        industry: org.industry,
+        securityScore: org.securityScore || 75,
+        totalUsers: orgUsers.length,
+        activeUsers: activeCount,
+        adminCount: orgAdmins.length,
+        certifiedCount: orgCerts.length,
+        activeCampaigns: orgCampaigns.filter(c => c.status === 'active').length,
+        status: 'active',
+        joinedAt: org.createdAt
+      };
+    });
+
+    const totalUsers = users.filter(u => u.role !== 'superadmin').length;
+    const totalAdmins = users.filter(u => u.role === 'admin').length;
+    const totalEmployees = users.filter(u => u.role === 'employee').length;
+    const totalCerts = certificates.length;
+    const totalOrgs = orgs.length;
+    const totalCampaigns = campaigns.length;
+    const avgSecurityScore = orgs.length
+      ? Math.round(orgs.reduce((s, o) => s + (o.securityScore || 75), 0) / orgs.length)
+      : 0;
+
+    const recentLogs = auditLogs.slice(0, 20).map(l => ({
+      ...l,
+      orgName: (orgs.find(o => o.id === l.orgId) || {}).name || l.orgId
+    }));
+
+    return {
+      platformMetrics: {
+        totalOrgs,
+        totalUsers,
+        totalAdmins,
+        totalEmployees,
+        totalCerts,
+        totalCampaigns,
+        avgSecurityScore,
+        platformVersion: 'Trinova Cyber Awareness 360 v2.0 (SaaS)',
+        uptimeSince: new Date(Date.now() - 86400000 * 30).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+      },
+      tenants,
+      recentActivity: recentLogs
+    };
   }
 };
 

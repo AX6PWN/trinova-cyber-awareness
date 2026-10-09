@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trinova super admin platform console — tenants, admins, employees and results.">
+  <title>Super Admin · Trinova Cyber Awareness 360</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/features.css">
+  <link rel="stylesheet" href="/css/auth.css">
+
+  <script>
+    window.PAGE_AUTH = { roles: ['superadmin'] };
+  </script>
+  <script src="/js/auth-guard.js" defer></script>
+  <script src="/js/super-admin-dashboard.js" defer></script>
+</head>
+<body class="dash-page">
+
+  <header class="topbar">
+    <a class="topbar-brand" href="/super-admin">
+      <img src="/assets/images/logo.png" alt="Trinova">
+      <span>
+        <span class="brand-name">Trinova</span>
+        <span class="brand-tag">Platform Administration</span>
+      </span>
+    </a>
+
+    <nav class="topbar-nav">
+      <a class="nav-link active" href="/super-admin">Platform</a>
+      <a class="nav-link" href="/admin">Admin Area</a>
+      <a class="nav-link" href="/training">360° Training</a>
+      <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
+        <span class="btn-icon">🚪</span> Logout
+      </button>
+      <div class="user-chip">
+        <span class="chip-avatar" id="chip-avatar">👑</span>
+        <div>
+          <div class="chip-name" id="chip-name">…</div>
+          <div class="chip-role superadmin" id="chip-role">Super Admin</div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dash-main">
+    <section class="dash-hero">
+      <div>
+        <h1>👑 Platform Administration</h1>
+        <p id="hero-sub">Full access: manage admins and employees, tenants, training and results.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="/training" class="btn-primary" style="text-decoration:none;">
+          <span class="btn-icon">🥽</span> Start 360° Training
+        </a>
+      </div>
+    </section>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">🏢</div>
+        <div class="kpi-val" id="kpi-orgs">—</div>
+        <div class="kpi-label">Tenant Orgs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-val" id="kpi-users">—</div>
+        <div class="kpi-label">Total Users</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🛡️</div>
+        <div class="kpi-val" id="kpi-admins">—</div>
+        <div class="kpi-label">Admins</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🎓</div>
+        <div class="kpi-val" id="kpi-certs">—</div>
+        <div class="kpi-label">Certificates</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-val" id="kpi-campaigns">—</div>
+        <div class="kpi-label">Campaigns</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-val" id="kpi-score">—</div>
+        <div class="kpi-label">Avg Security Score</div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">
+        <span>👥 All Users — Roles, Training &amp; Results</span>
+        <span class="sec-badge" id="users-badge">0 users</span>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-scroll">
+          <table class="data-table" id="users-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Organization</th>
+                <th>Role</th>
+                <th>Progress</th>
+                <th>Last Score</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="7"><div class="empty-state">Loading users…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">
+        <span>🎓 Certificates — All Tenants</span>
+        <span class="sec-badge" id="certs-badge">0</span>
+      </div>
+      <div class="panel-body flush">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Certificate ID</th>
+                <th>Employee</th>
+                <th>Organization</th>
+                <th>Score</th>
+                <th>Issued</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="certs-tbody">
+              <tr><td colspan="7"><div class="empty-state">Loading certificates…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="dash-grid">
+      <section class="panel">
+        <div class="panel-title">
+          <span>➕ Create Account (Employee or Admin)</span>
+          <span class="sec-badge">Super Admin</span>
+        </div>
+        <div class="panel-body">
+          <form id="form-create" class="inline-form">
+            <div class="form-group">
+              <label>Full name</label>
+              <input type="text" id="ca-name" required placeholder="e.g. Morgan Reyes">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="ca-email" required placeholder="morgan@company.com">
+            </div>
+            <div class="form-group">
+              <label>Role</label>
+              <select id="ca-role" class="auth-input-select">
+                <option value="employee">Employee</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <select id="ca-dept" class="auth-input-select">
+                <option>Engineering</option>
+                <option>Finance</option>
+                <option>Human Resources</option>
+                <option>Security Operations</option>
+                <option>Executive Management</option>
+                <option>Operations</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Password (optional)</label>
+              <input type="password" id="ca-password" placeholder="Auto-generated if blank">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn-primary btn-block">Create Account</button>
+            </div>
+          </form>
+          <div id="create-error-msg" class="auth-error-msg"></div>
+          <div id="create-success-msg" class="auth-success-msg"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <span>🏢 Tenant Organizations</span>
+          <span class="sec-badge" id="tenants-badge">0</span>
+        </div>
+        <div class="panel-body">
+          <div class="tenant-grid" id="tenant-grid">
+            <div class="empty-state">Loading tenants…</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-title">
+        <span>📜 Cross-Tenant Platform Activity</span>
+        <span class="sec-badge">Live</span>
+      </div>
+      <div class="panel-body flush">
+        <div class="activity-list" id="activity-list">
+          <div class="empty-state">Loading activity…</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast"></div>
+</body>
+</html>

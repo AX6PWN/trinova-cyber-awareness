@@ -37,8 +37,12 @@ function init() {
     enterBtn.addEventListener('click', enterTraining);
   }
 
-  // Welcome screen: CISO Admin Dashboard button
-  document.getElementById('btn-welcome-ciso')?.addEventListener('click', openB2BDashboard);
+  // Welcome screen: role-aware shortcut (dashboard link or CISO modal)
+  document.getElementById('btn-welcome-ciso')?.addEventListener('click', (e) => {
+    const target = e.currentTarget?.dataset?.target;
+    if (target) window.location.href = target;
+    else openB2BDashboard();
+  });
 
   // HUD buttons
   document.getElementById('btn-hud-ciso-dash')?.addEventListener('click', openB2BDashboard);
@@ -58,6 +62,8 @@ function init() {
   });
 
   document.getElementById('btn-fullscreen')?.addEventListener('click', toggleFullscreen);
+
+  document.getElementById('btn-exit-training')?.addEventListener('click', exitTraining);
 
   document.getElementById('btn-start-quiz')?.addEventListener('click', () => {
     startQuiz();
@@ -108,25 +114,38 @@ function enterTraining() {
   const hint = document.getElementById('explore-hint');
   hint.classList.add('visible');
 
-  // Auto-hide hint after 6s
-  setTimeout(() => {
-    hint.classList.remove('visible');
-  }, 6000);
+  // We check if B2B user is logged in
+  if (window.currentUser) {
+    showToast(`Welcome to the simulation, ${window.currentUser.fullName}`);
+  }
+}
+
+function exitTraining() {
+  // "Exit Training" returns the learner to their role dashboard
+  if (window.CyberSafeAuth && window.CyberSafeAuth.user) {
+    const target = window.CyberSafeAuth.dashboardFor[window.CyberSafeAuth.user.role] || '/employee';
+    window.location.replace(target);
+    return;
+  }
+
+  appState = 'welcome';
+
+  // Show welcome screen
+  const welcome = document.getElementById('welcome-screen');
+  if (welcome) welcome.classList.remove('hidden');
+
+  // Hide HUD
+  const hud = document.getElementById('hud');
+  if (hud) hud.classList.remove('visible');
+
+  // Hide explore hint
+  const hint = document.getElementById('explore-hint');
+  if (hint) hint.classList.remove('visible');
 }
 
 // --- Hotspot Click Handler ---
 
 async function onHotspotClick(data) {
-  // Smooth camera focus toward the hotspot area
-  try {
-    await focusCamera(data.cameraTarget, 1000);
-  } catch (e) {
-    console.warn('[App] Camera focus failed, opening panel directly:', e);
-  }
-
-  // Small delay after camera movement for visual smoothness
-  await delay(200);
-
   // Open the topic panel
   openPanel(data);
 }
@@ -231,13 +250,17 @@ export function closePreviousResultModal() {
 
 export function updateLastTrainingResultDisplay() {
   const container = document.getElementById('last-training-content');
+  const card = document.getElementById('last-training-result-card');
   if (!container) return;
 
   const result = getLastTrainingResult();
   if (!result) {
-    container.textContent = 'No previous training result.';
+    container.textContent = '';
+    if (card) card.hidden = true;
     return;
   }
+
+  if (card) card.hidden = false;
 
   const isPass = result.status === 'Passed';
   container.innerHTML = `

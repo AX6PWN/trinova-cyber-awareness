@@ -3,22 +3,50 @@
    Auth, CISO Dashboard, Certificate Generator, Neon DB Sync
    ============================================================ */
 
-import { showToast } from './panels.js';
+import { showToast, avatarMarkup, BRAND_LOGO } from './panels.js';
 import { renderLeaderboard } from './features.js';
 
 // Pre-seeded demo personas for instant frictionless evaluation
 export const DEMO_PERSONAS = [
+  // ── SuperAdmin (Platform-level) ──
+  {
+    id: 'usr-superadmin',
+    email: 'superadmin@trinova.io',
+    fullName: 'Raj Mehta',
+    role: 'superadmin',
+    department: 'Platform Engineering',
+    avatar: '👑',
+    orgId: 'org-platform',
+    orgName: 'Trinova HQ',
+    orgPlan: 'Platform Owner',
+    password: 'superadmin2026'
+  },
+  // ── Org Admins ──
   {
     id: 'usr-admin-ciso',
     email: 'ciso@acmesec.com',
     fullName: 'Elena Rostova, CISO',
     role: 'admin',
     department: 'Security Operations',
-    avatar: '🛡️',
+    avatar: BRAND_LOGO,
     orgId: 'org-acme',
     orgName: 'Acme CyberDefense Corp',
-    orgPlan: 'Enterprise B2B'
+    orgPlan: 'Enterprise B2B',
+    password: 'admin123'
   },
+  {
+    id: 'usr-admin-fintech',
+    email: 'admin@fintechtrust.io',
+    fullName: 'Priya Nair',
+    role: 'admin',
+    department: 'Risk & Compliance',
+    avatar: '🏦',
+    orgId: 'org-fintech',
+    orgName: 'FinTech Global Trust Bank',
+    orgPlan: 'Financial Sector Enterprise',
+    password: 'admin456'
+  },
+  // ── Employees ──
   {
     id: 'usr-emp-eng',
     email: 'sarah.chen@acmesec.com',
@@ -28,7 +56,8 @@ export const DEMO_PERSONAS = [
     avatar: '👩‍💻',
     orgId: 'org-acme',
     orgName: 'Acme CyberDefense Corp',
-    orgPlan: 'Enterprise B2B'
+    orgPlan: 'Enterprise B2B',
+    password: 'user123'
   },
   {
     id: 'usr-emp-finance',
@@ -39,7 +68,8 @@ export const DEMO_PERSONAS = [
     avatar: '💳',
     orgId: 'org-acme',
     orgName: 'Acme CyberDefense Corp',
-    orgPlan: 'Enterprise B2B'
+    orgPlan: 'Enterprise B2B',
+    password: 'user123'
   },
   {
     id: 'usr-emp-hr',
@@ -50,7 +80,8 @@ export const DEMO_PERSONAS = [
     avatar: '📋',
     orgId: 'org-acme',
     orgName: 'Acme CyberDefense Corp',
-    orgPlan: 'Enterprise B2B'
+    orgPlan: 'Enterprise B2B',
+    password: 'user123'
   }
 ];
 
@@ -62,7 +93,20 @@ export function initB2B() {
   setupEventListeners();
   updateTopNavUI();
   checkNeonStatus();
-  
+
+  // Keep the in-page UI in sync with the authoritative session.
+  // The guard may already have resolved (auth:ready fires on DOMContentLoaded,
+  // possibly before this module runs) — so apply the current value immediately.
+  const applySession = (user) => {
+    currentUser = user;
+    updateTopNavUI();
+  };
+  if (window.CyberSafeAuth && CyberSafeAuth.user) {
+    applySession(CyberSafeAuth.user);
+  } else {
+    document.addEventListener('auth:ready', (e) => applySession(e.detail));
+  }
+
   if (!currentUser) {
     openAuthModal();
   }
@@ -86,19 +130,38 @@ export function getCurrentUser() {
   return currentUser;
 }
 
-export function switchPersona(personaId) {
+export async function switchPersona(personaId) {
   const target = DEMO_PERSONAS.find(p => p.id === personaId);
-  if (target) {
-    currentUser = target;
-    localStorage.setItem('cybersafe_auth_user', JSON.stringify(target));
+  if (!target) return;
+
+  const errorEl = document.getElementById('login-error-msg');
+  if (errorEl) errorEl.textContent = '';
+
+  try {
+    // Real server-side login so the role session cookie actually changes
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: target.email, password: target.password })
+    });
+    const data = await res.json();
+    if (!data.success || !data.user) {
+      if (errorEl) errorEl.textContent = data.error || 'Could not switch persona.';
+      return;
+    }
+
+    currentUser = data.user;
+    localStorage.setItem('cybersafe_auth_user', JSON.stringify(currentUser));
     updateTopNavUI();
-    showToast(`Switched persona to ${target.fullName} (${target.role.toUpperCase()})`);
-    
+    showToast(`Switched persona to ${currentUser.fullName} (${currentUser.role.toUpperCase()})`);
+
     // If admin dashboard is open, refresh it
     const dashModal = document.getElementById('b2b-dashboard-modal');
     if (dashModal && dashModal.classList.contains('visible')) {
       loadB2BDashboard();
     }
+  } catch (err) {
+    if (errorEl) errorEl.textContent = 'Server connection error. Please try again.';
   }
 }
 
@@ -109,48 +172,106 @@ function updateTopNavUI() {
   const userAvatarEl = document.getElementById('b2b-user-avatar');
   const roleBadgeEl = document.getElementById('b2b-role-badge');
   const adminDashBtn = document.getElementById('btn-open-b2b-dashboard');
+  const superAdminBtn = document.getElementById('btn-open-superadmin');
   const logoutBtn = document.getElementById('btn-logout');
-  const userPill = document.getElementById('b2b-user-pill');
+  const workspaceLink = document.getElementById('btn-my-workspace');
 
   if (!u) {
     if (userNameEl) userNameEl.textContent = 'Guest';
     if (userOrgEl) userOrgEl.textContent = 'Not logged in';
     if (roleBadgeEl) roleBadgeEl.textContent = 'Please sign in';
     if (logoutBtn) logoutBtn.style.display = 'none';
+    if (workspaceLink) workspaceLink.style.display = 'none';
     if (adminDashBtn) adminDashBtn.style.display = 'none';
+    if (superAdminBtn) superAdminBtn.style.display = 'none';
     return;
   }
 
   if (logoutBtn) logoutBtn.style.display = 'flex';
-  if (adminDashBtn) adminDashBtn.style.display = 'flex';
-
-  if (userNameEl) userNameEl.textContent = u.fullName;
-  if (userOrgEl) userOrgEl.textContent = u.orgName || 'Acme CyberDefense Corp';
-  if (userAvatarEl) userAvatarEl.textContent = u.avatar || '🛡️';
-  if (roleBadgeEl) {
-    roleBadgeEl.textContent = u.role === 'admin' ? '🛡️ CISO / Admin' : '👤 Employee';
-    roleBadgeEl.className = `b2b-role-badge ${u.role === 'admin' ? 'admin' : 'employee'}`;
+  if (workspaceLink) {
+    workspaceLink.style.display = 'flex';
+    workspaceLink.setAttribute('href',
+      u.role === 'superadmin' ? '/super-admin' : u.role === 'admin' ? '/admin' : '/employee');
+    workspaceLink.title = u.role === 'superadmin'
+      ? 'Open Platform Administration'
+      : u.role === 'admin' ? 'Open Admin / CISO Dashboard' : 'Open My Learning Dashboard';
   }
 
-  // Admin button is always visible but highlighted for admins
-  if (adminDashBtn) {
-    if (u.role === 'admin') {
+  if (userNameEl) userNameEl.textContent = u.fullName;
+  if (userOrgEl) userOrgEl.textContent = u.orgName || 'Trinova';
+  if (userAvatarEl) userAvatarEl.innerHTML = avatarMarkup(u.avatar || BRAND_LOGO, u.fullName || 'User');
+
+  if (roleBadgeEl) {
+    if (u.role === 'superadmin') {
+      roleBadgeEl.textContent = '👑 Super Admin';
+      roleBadgeEl.className = 'b2b-role-badge superadmin';
+    } else if (u.role === 'admin') {
+      roleBadgeEl.textContent = 'CISO / Admin';
+      roleBadgeEl.className = 'b2b-role-badge admin';
+    } else {
+      roleBadgeEl.textContent = 'Employee';
+      roleBadgeEl.className = 'b2b-role-badge employee';
+    }
+  }
+
+  // Show/hide nav buttons based on role
+  if (u.role === 'superadmin') {
+    // SuperAdmin gets SuperAdmin portal, NOT the org dashboard
+    if (adminDashBtn) adminDashBtn.style.display = 'none';
+    if (superAdminBtn) {
+      superAdminBtn.style.display = 'flex';
+      superAdminBtn.classList.add('pulse-highlight');
+    }
+  } else if (u.role === 'admin') {
+    // Org Admin gets CISO dashboard
+    if (adminDashBtn) {
+      adminDashBtn.style.display = 'flex';
       adminDashBtn.classList.add('pulse-highlight');
       adminDashBtn.title = 'Open CISO Enterprise Compliance Dashboard';
+    }
+    if (superAdminBtn) superAdminBtn.style.display = 'none';
+  } else {
+    // Employee - no admin panels; their own workspace link covers KPIs
+    if (adminDashBtn) adminDashBtn.style.display = 'none';
+    if (superAdminBtn) superAdminBtn.style.display = 'none';
+  }
+
+  // Welcome-screen shortcut follows the role (dashboard link vs admin modal)
+  const welcomeBtn = document.getElementById('btn-welcome-ciso');
+  if (welcomeBtn) {
+    if (!u) {
+      welcomeBtn.style.display = 'none';
+    } else if (u.role === 'admin') {
+      welcomeBtn.style.display = '';
+      welcomeBtn.innerHTML = '<span class="link-btn-icon">📊</span> CISO Admin Dashboard';
+      delete welcomeBtn.dataset.target;
+    } else if (u.role === 'superadmin') {
+      welcomeBtn.style.display = '';
+      welcomeBtn.innerHTML = '<span class="link-btn-icon">👑</span> Platform Administration';
+      welcomeBtn.dataset.target = '/super-admin';
     } else {
-      adminDashBtn.classList.remove('pulse-highlight');
-      adminDashBtn.title = 'View Enterprise Security Score';
+      welcomeBtn.style.display = '';
+      welcomeBtn.innerHTML = '<span class="link-btn-icon">🏠</span> My Learning Dashboard';
+      welcomeBtn.dataset.target = '/employee';
     }
   }
 }
 
-export function handleLogout() {
+export async function handleLogout() {
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Cache-Control': 'no-store' }
+    });
+  } catch (err) { /* session cookie cleared server-side regardless */ }
+
   currentUser = null;
   localStorage.removeItem('cybersafe_auth_user');
-  updateTopNavUI();
-  showToast('You have been logged out.');
   closeB2BDashboard();
-  openAuthModal();
+
+  // Protected pages (this one included) live behind a server session — go to login
+  window.location.replace('/login');
 }
 
 // Setup Event Listeners
@@ -163,12 +284,19 @@ function setupEventListeners() {
     openAuthModal();
   });
 
-  // Open B2B Dashboard
+  // Open B2B Dashboard (org admin)
   document.getElementById('btn-open-b2b-dashboard')?.addEventListener('click', () => {
     openB2BDashboard();
   });
   document.getElementById('btn-close-b2b-x')?.addEventListener('click', closeB2BDashboard);
   document.getElementById('btn-close-b2b-bottom')?.addEventListener('click', closeB2BDashboard);
+
+  // Open SuperAdmin Portal
+  document.getElementById('btn-open-superadmin')?.addEventListener('click', () => {
+    openSuperAdminPortal();
+  });
+  document.getElementById('btn-close-superadmin-x')?.addEventListener('click', closeSuperAdminPortal);
+  document.getElementById('btn-close-superadmin-bottom')?.addEventListener('click', closeSuperAdminPortal);
 
   // Auth Modal
   document.getElementById('btn-close-auth-x')?.addEventListener('click', closeAuthModal);
@@ -187,15 +315,18 @@ function setupEventListeners() {
 
   // Login Form
   document.getElementById('form-login')?.addEventListener('submit', handleLogin);
+  // Admin Login Form
+  document.getElementById('form-admin-login')?.addEventListener('submit', handleAdminLogin);
   // Register Form
   document.getElementById('form-register')?.addEventListener('submit', handleRegister);
 
   // Fast Switch Persona buttons inside Auth modal
   document.querySelectorAll('.quick-switch-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       const pid = btn.getAttribute('data-persona-id');
-      switchPersona(pid);
-      if (personaSelect) personaSelect.value = pid;
+      btn.disabled = true;
+      await switchPersona(pid);
+      btn.disabled = false;
       closeAuthModal();
     });
   });
@@ -210,6 +341,12 @@ function setupEventListeners() {
   // Certificate Modal Actions
   document.getElementById('btn-view-certificate-results')?.addEventListener('click', () => {
     openCertificateModal();
+  });
+  document.getElementById('btn-download-certificate')?.addEventListener('click', downloadCertificate);
+  document.getElementById('btn-download-certificate-results')?.addEventListener('click', downloadCertificate);
+  document.getElementById('btn-print-certificate-results')?.addEventListener('click', async () => {
+    await openCertificateModal();
+    setTimeout(() => window.print(), 450);
   });
   document.getElementById('btn-close-cert-x')?.addEventListener('click', closeCertificateModal);
   document.getElementById('btn-close-cert-bottom')?.addEventListener('click', closeCertificateModal);
@@ -272,6 +409,38 @@ async function handleLogin(e) {
   }
 }
 
+async function handleAdminLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('admin-login-email').value;
+  const password = document.getElementById('admin-login-password').value;
+  const errorEl = document.getElementById('admin-login-error-msg');
+  if (errorEl) errorEl.textContent = '';
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (data.success && data.user) {
+      if (data.user.role !== 'admin' && data.user.role !== 'superadmin') {
+         if (errorEl) errorEl.textContent = 'Access Denied: Admin privileges required.';
+         return;
+      }
+      currentUser = data.user;
+      localStorage.setItem('cybersafe_auth_user', JSON.stringify(currentUser));
+      updateTopNavUI();
+      closeAuthModal();
+      showToast(`Admin session started for ${currentUser.fullName}.`);
+    } else {
+      if (errorEl) errorEl.textContent = data.error || 'Authentication failed.';
+    }
+  } catch (err) {
+    if (errorEl) errorEl.textContent = 'Server connection error. Please try again.';
+  }
+}
+
 async function handleRegister(e) {
   e.preventDefault();
   const fullName = document.getElementById('reg-fullname').value;
@@ -279,7 +448,6 @@ async function handleRegister(e) {
   const password = document.getElementById('reg-password').value;
   const orgName = document.getElementById('reg-org').value;
   const department = document.getElementById('reg-dept').value;
-  const role = document.getElementById('reg-role').value;
   const errorEl = document.getElementById('reg-error-msg');
   if (errorEl) errorEl.textContent = '';
 
@@ -287,7 +455,7 @@ async function handleRegister(e) {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fullName, email, password, orgName, department, role })
+      body: JSON.stringify({ fullName, email, password, orgName, department })
     });
     const data = await res.json();
     if (data.success && data.user) {
@@ -295,7 +463,7 @@ async function handleRegister(e) {
       localStorage.setItem('cybersafe_auth_user', JSON.stringify(currentUser));
       updateTopNavUI();
       closeAuthModal();
-      showToast(`Organization workspace created for ${currentUser.fullName}!`);
+      showToast(`Workspace created — welcome ${currentUser.fullName}! You were enrolled as an Employee.`);
     } else {
       if (errorEl) errorEl.textContent = data.error || 'Registration failed.';
     }
@@ -321,7 +489,13 @@ async function loadB2BDashboard() {
   const orgId = u.orgId || 'org-acme';
 
   try {
-    const res = await fetch(`/api/b2b/dashboard?orgId=${orgId}`);
+    const res = await fetch(`/api/b2b/dashboard?orgId=${orgId}`, { credentials: 'same-origin' });
+    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 403) {
+      closeB2BDashboard();
+      showToast('Admin access is required for the CISO dashboard.');
+      return;
+    }
     const data = await res.json();
     renderDashboardMetrics(data);
     renderDepartmentHeatmap(data.deptStats);
@@ -404,7 +578,7 @@ function renderEmployeeRoster(roster) {
     tr.innerHTML = `
       <td>
         <div class="roster-user-cell">
-          <span class="roster-avatar">${emp.avatar || '👤'}</span>
+          <span class="roster-avatar">${avatarMarkup(emp.avatar, emp.fullName)}</span>
           <div>
             <div class="roster-name">${emp.fullName}</div>
             <div class="roster-email">${emp.email}</div>
@@ -482,19 +656,22 @@ async function handleCreateCampaign(e) {
   try {
     const res = await fetch('/api/b2b/campaigns', {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        orgId: u.orgId || 'org-acme',
         title,
         description: 'Automated 360° training drill launched via CISO Admin Dashboard.',
         deadline: deadline || 'End of Month',
         targetDepartment: dept || 'All Departments'
       })
     });
+    if (res.status === 401) { window.location.replace('/login'); return; }
     const data = await res.json();
     if (data.success) {
       showToast(`Campaign "${title}" launched successfully!`);
       loadB2BDashboard();
+    } else {
+      showToast(data.error || 'Failed to create campaign.');
     }
   } catch (err) {
     showToast('Failed to create campaign.');
@@ -503,9 +680,10 @@ async function handleCreateCampaign(e) {
 
 function exportAuditReportCsv() {
   const u = getCurrentUser();
-  fetch(`/api/b2b/dashboard?orgId=${u.orgId || 'org-acme'}`)
-    .then(r => r.json())
+  fetch(`/api/b2b/dashboard?orgId=${u.orgId || 'org-acme'}`, { credentials: 'same-origin' })
+    .then(r => (r.status === 401 ? window.location.replace('/login') : r.json()))
     .then(data => {
+      if (!data || !data.auditLogs) { showToast('Audit report unavailable.'); return; }
       const rows = [
         ['Timestamp', 'User', 'Severity', 'Action', 'Details']
       ];
@@ -540,6 +718,102 @@ export function closeAuthModal() {
   document.getElementById('auth-modal')?.classList.remove('visible');
 }
 
+// SuperAdmin Portal Controls
+export function openSuperAdminPortal() {
+  const modal = document.getElementById('superadmin-portal-modal');
+  if (!modal) return;
+  modal.classList.add('visible');
+  loadSuperAdminDashboard();
+}
+
+export function closeSuperAdminPortal() {
+  document.getElementById('superadmin-portal-modal')?.classList.remove('visible');
+}
+
+async function loadSuperAdminDashboard() {
+  try {
+    const res = await fetch('/api/superadmin/dashboard', { credentials: 'same-origin' });
+    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 403) {
+      closeSuperAdminPortal();
+      showToast('Super Admin access is required for the platform portal.');
+      return;
+    }
+    const data = await res.json();
+    renderSuperAdminMetrics(data.platformMetrics);
+    renderTenantList(data.tenants);
+    renderPlatformActivityFeed(data.recentActivity);
+  } catch (err) {
+    console.error('[SuperAdmin] Failed loading system dashboard:', err);
+  }
+}
+
+function renderSuperAdminMetrics(metrics) {
+  if (!metrics) return;
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('sa-metric-orgs', metrics.totalOrgs);
+  setEl('sa-metric-users', metrics.totalUsers);
+  setEl('sa-metric-admins', metrics.totalAdmins);
+  setEl('sa-metric-certs', metrics.totalCerts);
+  setEl('sa-metric-campaigns', metrics.totalCampaigns);
+  setEl('sa-metric-score', `${metrics.avgSecurityScore}%`);
+  setEl('sa-platform-version', metrics.platformVersion);
+  setEl('sa-uptime-since', `Active since ${metrics.uptimeSince}`);
+}
+
+function renderTenantList(tenants) {
+  const container = document.getElementById('sa-tenant-list');
+  if (!container || !tenants) return;
+  container.innerHTML = '';
+
+  tenants.forEach(t => {
+    const scoreClass = t.securityScore >= 80 ? 'low-risk' : t.securityScore >= 65 ? 'med-risk' : 'high-risk';
+    const card = document.createElement('div');
+    card.className = 'sa-tenant-card';
+    card.innerHTML = `
+      <div class="sa-tenant-header">
+        <div class="sa-tenant-name">${t.name}</div>
+        <span class="sa-tenant-plan">${t.plan}</span>
+      </div>
+      <div class="sa-tenant-domain">🌐 ${t.domain}</div>
+      <div class="sa-tenant-industry">🏭 ${t.industry}</div>
+      <div class="sa-tenant-stats">
+        <span>👥 ${t.totalUsers} users</span>
+        <span>🛡️ ${t.adminCount} admins</span>
+        <span>🎓 ${t.certifiedCount} certified</span>
+        <span>📋 ${t.activeCampaigns} campaigns</span>
+      </div>
+      <div class="sa-tenant-score-row">
+        <span class="sa-score-label">Security Score</span>
+        <div class="sa-score-bar-bg">
+          <div class="sa-score-bar-fill ${scoreClass}" style="width:${t.securityScore}%"></div>
+        </div>
+        <span class="sa-score-val ${scoreClass}">${t.securityScore}%</span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderPlatformActivityFeed(logs) {
+  const container = document.getElementById('sa-activity-feed');
+  if (!container || !logs) return;
+  container.innerHTML = '';
+
+  logs.forEach(l => {
+    const div = document.createElement('div');
+    div.className = `sa-log-row ${l.severity}`;
+    const timeStr = new Date(l.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    div.innerHTML = `
+      <span class="log-time">${timeStr}</span>
+      <span class="log-badge ${l.severity}">${l.severity}</span>
+      <span class="sa-log-org">${l.orgName || l.orgId}</span>
+      <span class="log-action"><strong>${l.action}</strong>: ${l.details}</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
 // Neon Modal Controls
 export function openNeonModal() {
   document.getElementById('neon-modal')?.classList.add('visible');
@@ -550,7 +824,7 @@ export function closeNeonModal() {
 }
 
 // Certificate Modal Controls
-export function openCertificateModal(certData = null) {
+export async function openCertificateModal(certData = null) {
   const modal = document.getElementById('certificate-modal');
   if (!modal) return;
 
@@ -558,12 +832,28 @@ export function openCertificateModal(certData = null) {
   let cert = certData;
   if (!cert) {
     const raw = localStorage.getItem('cybersafe_latest_certificate');
-    if (raw) cert = JSON.parse(raw);
+    if (raw) {
+      try { cert = JSON.parse(raw); } catch (e) { cert = null; }
+    }
   }
   if (!cert) {
-    // Generate sample verified cert for active user
+    // Ask the server for this user's latest issued certificate
+    try {
+      const res = await fetch(`/api/certificates?userId=${encodeURIComponent((u && u.id) || '')}`, {
+        credentials: 'same-origin', cache: 'no-store'
+      });
+      const data = res.ok ? await res.json() : null;
+      const list = (data && data.certificates) || [];
+      cert = list
+        .filter(Boolean)
+        .sort((a, b) => String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
+      if (cert) localStorage.setItem('cybersafe_latest_certificate', JSON.stringify(cert));
+    } catch (e) { /* offline — fall back to sample below */ }
+  }
+  if (!cert) {
+    // Last resort: sample verified cert for active user
     cert = {
-      certificateNumber: `CYBER-2026-${(u.orgName || 'ACME').substring(0, 4).toUpperCase()}-9142`,
+      certificateNumber: `TRIN-2026-${(u.orgName || 'ACME').substring(0, 4).toUpperCase()}-9142`,
       userName: u.fullName,
       orgName: u.orgName || 'Acme CyberDefense Corp',
       issueDate: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
@@ -583,10 +873,31 @@ export function openCertificateModal(certData = null) {
   document.getElementById('cert-hash').textContent = cert.verificationHash || 'SHA1-VERIFIED';
 
   modal.classList.add('visible');
+  return cert;
 }
 
 export function closeCertificateModal() {
   document.getElementById('certificate-modal')?.classList.remove('visible');
+}
+
+// Download the certificate as PDF (opens the printable certificate page,
+// where the browser print dialog offers "Save as PDF").
+export function downloadCertificate() {
+  let cert = null;
+  try {
+    const raw = localStorage.getItem('cybersafe_latest_certificate');
+    cert = raw ? JSON.parse(raw) : null;
+  } catch (e) { cert = null; }
+
+  const hint = 'Choose “Save as PDF” in the print dialog to download your certificate.';
+  if (cert && cert.id) {
+    window.open(`/certificate?id=${encodeURIComponent(cert.id)}&print=1`, '_blank');
+    showToast(hint);
+  } else {
+    // No certificate ID yet — print the in-app certificate
+    showToast(hint);
+    setTimeout(() => window.print(), 600);
+  }
 }
 
 // Global window helpers for inline HTML callbacks

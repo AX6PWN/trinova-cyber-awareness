@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trinova employee dashboard — training progress, quiz results and certificate.">
+  <title>Employee Dashboard · Trinova Cyber Awareness 360</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/features.css">
+  <link rel="stylesheet" href="/css/auth.css">
+
+  <script>
+    window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
+  </script>
+  <script src="/js/auth-guard.js" defer></script>
+  <script src="/js/employee-dashboard.js" defer></script>
+</head>
+<body class="dash-page">
+
+  <header class="topbar">
+    <a class="topbar-brand" href="/employee">
+      <img src="/assets/images/logo.png" alt="Trinova">
+      <span>
+        <span class="brand-name">Trinova</span>
+        <span class="brand-tag">Employee Workspace</span>
+      </span>
+    </a>
+
+    <nav class="topbar-nav">
+      <a class="nav-link active" href="/employee">Dashboard</a>
+      <a class="nav-link" href="/training">360° Training</a>
+      <a class="nav-link" href="/certificate">Certificate</a>
+      <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
+        <span class="btn-icon">🚪</span> Logout
+      </button>
+      <div class="user-chip">
+        <span class="chip-avatar" id="chip-avatar">👤</span>
+        <div>
+          <div class="chip-name" id="chip-name">…</div>
+          <div class="chip-role employee" id="chip-role">Employee</div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dash-main">
+    <section class="dash-hero">
+      <div>
+        <h1 id="hero-title">Welcome back</h1>
+        <p id="hero-sub">Complete the 360° warehouse training, pass the quiz and earn your certificate.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="/training" id="btn-start-training" class="btn-primary" style="text-decoration:none;">
+          <span class="btn-icon">🥽</span> <span id="start-training-label">Start 360° Training</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Guided training path -->
+    <section class="panel path-panel">
+      <div class="panel-title">
+        <span>🧭 Your Training Path</span>
+        <span class="sec-badge" id="path-badge">Step 1 of 5</span>
+      </div>
+      <div class="panel-body">
+        <ol class="path-steps" id="path-steps">
+          <li class="path-step active" data-step="1">
+            <span class="path-num">1</span>
+            <div class="path-body">
+              <strong>Start the 360° training</strong>
+              <span>Open the immersive workplace environment</span>
+            </div>
+            <span class="path-state" id="path-state-1">Next</span>
+          </li>
+          <li class="path-step" data-step="2">
+            <span class="path-num">2</span>
+            <div class="path-body">
+              <strong>Explore &amp; find hotspots</strong>
+              <span>Look around and discover all 8 threat hotspots</span>
+            </div>
+            <span class="path-state" id="path-state-2">Waiting</span>
+          </li>
+          <li class="path-step" data-step="3">
+            <span class="path-num">3</span>
+            <div class="path-body">
+              <strong>Complete the training</strong>
+              <span>Open every hotspot and mark each topic complete</span>
+            </div>
+            <span class="path-state" id="path-state-3">Waiting</span>
+          </li>
+          <li class="path-step" data-step="4">
+            <span class="path-num">4</span>
+            <div class="path-body">
+              <strong>Pass the quiz</strong>
+              <span>Answer 12 questions — you need 70% to pass</span>
+            </div>
+            <span class="path-state" id="path-state-4">Waiting</span>
+          </li>
+          <li class="path-step" data-step="5">
+            <span class="path-num">5</span>
+            <div class="path-body">
+              <strong>Get your certificate</strong>
+              <span>View, download and print your verified certificate</span>
+            </div>
+            <span class="path-state" id="path-state-5">Locked</span>
+          </li>
+        </ol>
+        <div class="path-cta">
+          <a href="/training" class="btn-primary" style="text-decoration:none;">
+            <span class="btn-icon">🥽</span> Continue Training
+          </a>
+          <a href="/certificate" class="btn-secondary" style="text-decoration:none;" id="path-cert-link">
+            <span class="btn-icon">🎓</span> View Certificate
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">📘</div>
+        <div class="kpi-val" id="kpi-topics">0/8</div>
+        <div class="kpi-label">Topics Completed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📝</div>
+        <div class="kpi-val" id="kpi-attempts">0</div>
+        <div class="kpi-label">Quiz Attempts</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-val" id="kpi-best">—</div>
+        <div class="kpi-label">Best Score</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-icon">🎓</div>
+        <div class="kpi-val" id="kpi-cert">—</div>
+        <div class="kpi-label">Certificate</div>
+      </div>
+    </section>
+
+    <div class="dash-grid">
+      <section class="panel">
+        <div class="panel-title">
+          <span>🥽 Training Progress</span>
+          <span class="sec-badge" id="topics-badge">0 / 8</span>
+        </div>
+        <div class="panel-body">
+          <div class="mini-bar" style="margin-bottom:14px;"><span id="topics-bar" style="width:0%"></span></div>
+          <div class="topic-chips" id="topic-chips"></div>
+          <p class="muted" style="font-size:12.5px; margin-top:14px; margin-bottom:0;">
+            Progress syncs to your account every time you mark a topic complete.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <span>👤 My Profile</span>
+          <span class="sec-badge" id="profile-badge">—</span>
+        </div>
+        <div class="panel-body">
+          <div class="profile-grid">
+            <div><div class="p-label">Full name</div><div class="p-value" id="p-name">—</div></div>
+            <div><div class="p-label">Email</div><div class="p-value" id="p-email">—</div></div>
+            <div><div class="p-label">Organization</div><div class="p-value" id="p-org">—</div></div>
+            <div><div class="p-label">Department</div><div class="p-value" id="p-dept">—</div></div>
+            <div><div class="p-label">Role</div><div class="p-value" id="p-role">—</div></div>
+            <div><div class="p-label">Account status</div><div class="p-value" id="p-status">—</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="dash-grid single">
+      <section class="panel">
+        <div class="panel-title">
+          <span>📈 My Training Results</span>
+          <span class="sec-badge" id="results-badge">0 attempts</span>
+        </div>
+        <div class="panel-body flush">
+          <div id="results-list">
+            <div class="empty-state">No quiz attempts yet — finish the training to unlock the quiz.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">
+          <span>🎓 My Certificates</span>
+          <span class="sec-badge" id="certs-badge">0</span>
+        </div>
+        <div class="panel-body flush">
+          <div id="certs-list">
+            <div class="empty-state">Certificates are issued automatically when you score 70% or higher.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+</body>
+</html>

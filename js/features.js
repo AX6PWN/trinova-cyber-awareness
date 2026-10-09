@@ -3,7 +3,7 @@
    Threat Intel Feed • Leaderboard • Invite Employee
    ============================================================ */
 
-import { showToast } from './panels.js';
+import { showToast, avatarMarkup } from './panels.js';
 
 // Helper: read current user from localStorage (avoids circular import with b2b.js)
 function getStoredUser() {
@@ -217,7 +217,7 @@ export function renderLeaderboard(dashboardData) {
     return `
       <div class="leaderboard-item ${rankClass}" style="animation-delay: ${i * 0.08}s">
         <div class="leaderboard-rank">${rankDisplay}</div>
-        <div class="leaderboard-avatar">${emp.avatar || '👤'}</div>
+        <div class="leaderboard-avatar">${avatarMarkup(emp.avatar, emp.fullName)}</div>
         <div class="leaderboard-info">
           <div class="leaderboard-name">${emp.fullName}</div>
           <div class="leaderboard-dept">${emp.department}</div>
@@ -279,7 +279,6 @@ async function handleInviteEmployee(e) {
   const fullName = document.getElementById('invite-fullname')?.value?.trim();
   const email    = document.getElementById('invite-email')?.value?.trim();
   const dept     = document.getElementById('invite-dept')?.value;
-  const role     = document.getElementById('invite-role')?.value;
 
   const errEl  = document.getElementById('invite-error-msg');
   const succEl = document.getElementById('invite-success-msg');
@@ -291,22 +290,26 @@ async function handleInviteEmployee(e) {
     return;
   }
 
-  const currentUser = getStoredUser();
-  const orgName = currentUser?.orgName || 'Acme CyberDefense Corp';
-
   try {
-    const res = await fetch('/api/auth/register', {
+    // Invited accounts are always Employees — role escalation is a Super Admin right
+    const res = await fetch('/api/admin/users', {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email,
-        password: `Welcome@${Math.floor(1000 + Math.random() * 9000)}`,  // temp password
         fullName,
-        orgName,
+        email,
         department: dept,
-        role
+        role: 'employee'
       })
     });
+
+    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 403) {
+      if (errEl) errEl.textContent = 'Admin access is required to invite employees.';
+      return;
+    }
+
     const data = await res.json();
 
     if (data.success) {
