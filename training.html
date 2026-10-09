@@ -219,6 +219,20 @@
     HOTSPOTS: 6/6
   </div>
 
+  <!-- Model loading overlay -->
+  <div id="model-loading-overlay" style="position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,10,22,0.92);color:#fff;font-family:Inter,sans-serif;gap:18px;">
+    <div id="model-loading-spinner" style="width:52px;height:52px;border:4px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+    <div style="font-size:16px;font-weight:600;letter-spacing:0.04em;">Loading 3D Environment…</div>
+    <div style="font-size:12px;color:#94a3b8;">Fetching warehouse model — this may take a moment</div>
+    <div id="model-error-banner" style="display:none;margin-top:8px;background:#1e293b;border:1px solid #ef4444;border-radius:8px;padding:14px 20px;max-width:420px;text-align:center;">
+      <div style="color:#f87171;font-weight:700;margin-bottom:6px;">⚠️ Could not load the 3D model</div>
+      <div id="model-error-detail" style="font-size:12px;color:#94a3b8;margin-bottom:12px;">The warehouse file failed to download. Check your connection and try again.</div>
+      <button onclick="location.reload()" style="background:#38bdf8;color:#000;border:none;border-radius:6px;padding:8px 18px;font-weight:700;cursor:pointer;margin-right:8px;">Retry</button>
+      <button onclick="document.getElementById('model-loading-overlay').style.display='none'" style="background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:6px;padding:8px 18px;cursor:pointer;">Continue anyway</button>
+    </div>
+  </div>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
   <a-scene
     embedded
     vr-mode-ui="enabled: false"
@@ -228,8 +242,9 @@
     raycaster="objects: .clickable; interval: 20"
   >
     <!-- Assets -->
-    <a-assets timeout="60000">
-      <a-asset-item id="warehouse-model" src="./assets/automated_warehouse_-.glb"></a-asset-item>
+    <a-assets timeout="120000">
+      <!-- Warehouse GLB proxied via /assets/warehouse.glb → Cloudflare R2 (103 MB, same-origin, no CORS) -->
+      <a-asset-item id="warehouse-model" src="/assets/warehouse.glb"></a-asset-item>
     </a-assets>
 
 
@@ -1087,6 +1102,66 @@
       </div>
     </div>
   </div>
+
+  <!-- Warehouse model loading / error feedback -->
+  <script>
+  (function () {
+    var overlay = document.getElementById('model-loading-overlay');
+    var spinner = document.getElementById('model-loading-spinner');
+    var errorBanner = document.getElementById('model-error-banner');
+    var errorDetail = document.getElementById('model-error-detail');
+
+    function hideOverlay() {
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    function showError(msg) {
+      if (!overlay || !errorBanner) return;
+      if (spinner) spinner.style.display = 'none';
+      if (msg && errorDetail) errorDetail.textContent = msg;
+      errorBanner.style.display = 'block';
+    }
+
+    var assetItem = document.getElementById('warehouse-model');
+    if (assetItem) {
+      // Success — asset fully loaded
+      assetItem.addEventListener('loaded', hideOverlay);
+
+      // A-Frame error event on the asset item
+      assetItem.addEventListener('error', function (e) {
+        var detail = (e && e.detail && e.detail.src)
+          ? 'Failed to fetch: ' + e.detail.src
+          : 'Network or CORS error loading the warehouse model.';
+        showError(detail);
+        console.error('[Trinova] Warehouse model load error:', e);
+      });
+    }
+
+    // a-assets fires "timeout" on the scene if any asset times out
+    var scene = document.querySelector('a-scene');
+    if (scene) {
+      scene.addEventListener('asset-error', function (e) {
+        showError('Asset load failed: ' + ((e.detail && e.detail.src) || 'unknown file'));
+      });
+      // Scene fully loaded (all assets done)
+      scene.addEventListener('loaded', hideOverlay);
+    }
+
+    // Safety net: if nothing resolves in 3 minutes, show error
+    var safetyTimer = setTimeout(function () {
+      if (overlay && overlay.style.display !== 'none') {
+        showError('Download is taking longer than expected. Check your connection.');
+      }
+    }, 180000);
+
+    // Clear safety timer if overlay is hidden normally
+    var origHide = hideOverlay;
+    hideOverlay = function () {
+      clearTimeout(safetyTimer);
+      origHide();
+    };
+  })();
+  </script>
 
   <script type="module" src="./js/app.js"></script>
 

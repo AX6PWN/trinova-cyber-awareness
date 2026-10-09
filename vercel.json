@@ -11,7 +11,9 @@
           "js/**",
           "backend/**",
           "data/cybersafe_db.json",
-          "assets/**"
+          "assets/images/**",
+          "assets/bed_room_laptop_setup/**",
+          "assets/low_poly_farmer_man.glb"
         ]
       }
     }

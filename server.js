@@ -5,10 +5,14 @@
    ============================================================ */
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const db = require('./backend/db');
 const auth = require('./backend/auth');
+
+// Warehouse GLB is hosted on Cloudflare R2; proxied through the server to avoid CORS
+const WAREHOUSE_GLB_URL = 'https://pub-e993468365744434bd90a486983e2131.r2.dev/automated_warehouse_-.glb';
 
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
@@ -83,6 +87,37 @@ function dashboardFor(role) {
 
 // Static asset directories that are safe to serve without a session
 const PUBLIC_STATIC_DIRS = ['/css/', '/js/', '/assets/'];
+
+// ------------------------------------------------------------
+// WAREHOUSE GLB PROXY
+// Streams the 103 MB model from Cloudflare R2 through the server.
+// This avoids all browser CORS restrictions — the browser sees a
+// same-origin request to /assets/warehouse.glb.
+// ------------------------------------------------------------
+
+function handleWarehouseProxy(res) {
+  https.get(WAREHOUSE_GLB_URL, (r2res) => {
+    if (r2res.statusCode !== 200) {
+      res.writeHead(502, { 'Content-Type': 'text/plain' });
+      res.end(`Upstream error: ${r2res.statusCode}`);
+      return;
+    }
+    res.writeHead(200, {
+      'Content-Type': 'model/gltf-binary',
+      'Cache-Control': 'public, max-age=86400',   // cache 24 h in CDN/browser
+      'Access-Control-Allow-Origin': '*'
+    });
+    r2res.pipe(res);
+    r2res.on('error', (err) => {
+      console.error('[Proxy] R2 stream error:', err.message);
+      res.end();
+    });
+  }).on('error', (err) => {
+    console.error('[Proxy] R2 fetch error:', err.message);
+    res.writeHead(502, { 'Content-Type': 'text/plain' });
+    res.end('Failed to fetch model from upstream');
+  });
+}
 
 // ------------------------------------------------------------
 // HELPERS
@@ -494,6 +529,12 @@ async function requestHandler(req, res) {
 
   // Resolve session (if any) before routing
   auth.attachSession(req);
+
+  // Warehouse GLB proxy — serves the large model from R2 through same origin
+  if ((req.method === 'GET' || req.method === 'HEAD') && pathname === '/assets/warehouse.glb') {
+    if (req.method === 'HEAD') { res.writeHead(200, { 'Content-Type': 'model/gltf-binary' }); res.end(); return; }
+    return handleWarehouseProxy(res);
+  }
 
   if (pathname.startsWith('/api/')) {
     return handleApi(req, res, parsedUrl);
