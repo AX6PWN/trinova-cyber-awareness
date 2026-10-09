@@ -3,7 +3,19 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "**/*.html",
+          "css/**",
+          "js/**",
+          "backend/**",
+          "data/**",
+          "assets/images/**",
+          "assets/bed_room_laptop_setup/**",
+          "assets/low_poly_farmer_man.glb"
+        ]
+      }
     }
   ],
   "routes": [
