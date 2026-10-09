@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    CYBERSAFE 360° — NEW FEATURES MODULE
    Threat Intel Feed • Leaderboard • Invite Employee
    ============================================================ */
@@ -304,7 +304,7 @@ async function handleInviteEmployee(e) {
       })
     });
 
-    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 401) { window.location.replace('./login.html'); return; }
     if (res.status === 403) {
       if (errEl) errEl.textContent = 'Admin access is required to invite employees.';
       return;

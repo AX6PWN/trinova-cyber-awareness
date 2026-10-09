@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -14,23 +14,23 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/features.css">
-  <link rel="stylesheet" href="/css/auth.css">
-  <link rel="stylesheet" href="/css/certificate.css?v=4">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/features.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/certificate.css?v=4">
 
   <script>
     window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
   </script>
-  <script src="/js/auth-guard.js" defer></script>
-  <script src="/js/certificate.js?v=4" defer></script>
+  <script src="./js/auth-guard.js" defer></script>
+  <script src="./js/certificate.js?v=4" defer></script>
 </head>
 
 <body class="dash-page cert-page">
 
   <header class="topbar">
-    <a class="topbar-brand" href="/employee">
-      <img src="/assets/images/logo.png" alt="Trinova">
+    <a class="topbar-brand" href="./employee.html">
+      <img src="./assets/images/logo.png" alt="Trinova">
       <span>
         <span class="brand-name">Trinova</span>
         <span class="brand-tag">Cyber Awareness 360</span>
@@ -38,9 +38,9 @@
     </a>
 
     <nav class="topbar-nav">
-      <a class="nav-link" href="/employee">Dashboard</a>
-      <a class="nav-link" href="/training">360° Training</a>
-      <a class="nav-link active" href="/certificate">Certificate</a>
+      <a class="nav-link" href="./employee.html">Dashboard</a>
+      <a class="nav-link" href="./training.html">360° Training</a>
+      <a class="nav-link active" href="./certificate.html">Certificate</a>
       <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
         <span class="btn-icon">🚪</span> Logout
       </button>
@@ -83,14 +83,14 @@
       <h2>No certificate yet</h2>
       <p>Certificates are issued automatically when you complete the 360° training and score 70% or higher on the quiz.
       </p>
-      <a class="btn-primary" href="/training" style="text-decoration:none;">🥽 Start 360° Training</a>
+      <a class="btn-primary" href="./training.html" style="text-decoration:none;">🥽 Start 360° Training</a>
     </div>
 
     <div id="cert-denied" class="cert-state" hidden>
       <div class="cert-state-icon">⛔</div>
       <h2>Certificate not available</h2>
       <p id="cert-denied-msg">You can only view your own certificate.</p>
-      <a class="btn-primary" href="/employee" style="text-decoration:none;">Back to Dashboard</a>
+      <a class="btn-primary" href="./employee.html" style="text-decoration:none;">Back to Dashboard</a>
     </div>
 
     <!-- ============ CERTIFICATE ============ -->
@@ -100,7 +100,7 @@
           <div class="cert-border-inner">
 
             <div class="cert-head">
-              <img class="cert-logo" src="/assets/images/logo.png" alt="Trinova">
+              <img class="cert-logo" src="./assets/images/logo.png" alt="Trinova">
               <div class="cert-brand">
                 <span class="cert-brand-name">TRINOVA</span>
                 <span class="cert-brand-sub">Cyber Awareness 360</span>

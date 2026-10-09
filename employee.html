@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,21 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/features.css">
-  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/features.css">
+  <link rel="stylesheet" href="./css/auth.css">
 
   <script>
     window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
   </script>
-  <script src="/js/auth-guard.js" defer></script>
-  <script src="/js/employee-dashboard.js" defer></script>
+  <script src="./js/auth-guard.js" defer></script>
+  <script src="./js/employee-dashboard.js" defer></script>
 </head>
 <body class="dash-page">
 
   <header class="topbar">
-    <a class="topbar-brand" href="/employee">
-      <img src="/assets/images/logo.png" alt="Trinova">
+    <a class="topbar-brand" href="./employee.html">
+      <img src="./assets/images/logo.png" alt="Trinova">
       <span>
         <span class="brand-name">Trinova</span>
         <span class="brand-tag">Employee Workspace</span>
@@ -32,9 +32,9 @@
     </a>
 
     <nav class="topbar-nav">
-      <a class="nav-link active" href="/employee">Dashboard</a>
-      <a class="nav-link" href="/training">360° Training</a>
-      <a class="nav-link" href="/certificate">Certificate</a>
+      <a class="nav-link active" href="./employee.html">Dashboard</a>
+      <a class="nav-link" href="./training.html">360° Training</a>
+      <a class="nav-link" href="./certificate.html">Certificate</a>
       <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
         <span class="btn-icon">🚪</span> Logout
       </button>
@@ -55,7 +55,7 @@
         <p id="hero-sub">Complete the 360° warehouse training, pass the quiz and earn your certificate.</p>
       </div>
       <div class="hero-actions">
-        <a href="/training" id="btn-start-training" class="btn-primary" style="text-decoration:none;">
+        <a href="./training.html" id="btn-start-training" class="btn-primary" style="text-decoration:none;">
           <span class="btn-icon">🥽</span> <span id="start-training-label">Start 360° Training</span>
         </a>
       </div>
@@ -111,10 +111,10 @@
           </li>
         </ol>
         <div class="path-cta">
-          <a href="/training" class="btn-primary" style="text-decoration:none;">
+          <a href="./training.html" class="btn-primary" style="text-decoration:none;">
             <span class="btn-icon">🥽</span> Continue Training
           </a>
-          <a href="/certificate" class="btn-secondary" style="text-decoration:none;" id="path-cert-link">
+          <a href="./certificate.html" class="btn-secondary" style="text-decoration:none;" id="path-cert-link">
             <span class="btn-icon">🎓</span> View Certificate
           </a>
         </div>

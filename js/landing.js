@@ -4,7 +4,7 @@
    ============================================================ */
 
 (function () {
-  const DASH = { superadmin: '/super-admin', admin: '/admin', employee: '/employee' };
+  const DASH = { superadmin: './super-admin.html', admin: './admin.html', employee: './employee.html' };
   let sessionUser = null;
 
   const $ = (sel) => document.querySelector(sel);
@@ -40,7 +40,7 @@
 
   function startTraining() {
     // Never guess: wait for session resolution before choosing the target
-    const go = () => { window.location.href = sessionUser ? '/training' : '/register'; };
+    const go = () => { window.location.href = sessionUser ? './training.html' : './register.html'; };
     if (sessionReady) {
       Promise.race([sessionReady, new Promise(r => setTimeout(r, 3000))]).then(go, go);
     } else {

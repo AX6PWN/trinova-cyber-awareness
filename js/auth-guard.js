@@ -11,9 +11,9 @@
 
 (function () {
   const DASH = {
-    superadmin: '/super-admin',
-    admin: '/admin',
-    employee: '/employee'
+    superadmin: './super-admin.html',
+    admin: './admin.html',
+    employee: './employee.html'
   };
 
   const AUTH_KEY = 'cybersafe_auth_user';
@@ -59,7 +59,7 @@
     async require(roles) {
       const user = await CyberSafeAuth.refresh();
       if (!user) {
-        window.location.replace('/login');
+        window.location.replace('./login.html');
         return null;
       }
       if (roles && roles.length && !roles.includes(user.role)) {
@@ -87,7 +87,7 @@
       } catch (e) {}
 
       // Replace + purge history so Back cannot restore a protected page
-      window.location.replace('/login');
+      window.location.replace('./login.html');
     },
 
     /**
@@ -98,7 +98,7 @@
     guardResponse(res) {
       if (res.status === 401) {
         storeUser(null);
-        window.location.replace('/login');
+        window.location.replace('./login.html');
         return true;
       }
       if (res.status === 403) {
@@ -136,7 +136,7 @@
     }
 
     if (!user) {
-      window.location.replace('/login');
+      window.location.replace('./login.html');
       return;
     }
     if (cfg.roles && cfg.roles.length && !cfg.roles.includes(user.role)) {
@@ -177,7 +177,7 @@
       .then(res => {
         if (!res.ok) {
           storeUser(null);
-          window.location.replace('/login');
+          window.location.replace('./login.html');
         }
       })
       .catch(() => {});

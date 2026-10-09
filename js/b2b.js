@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    B2B SAAS & ENTERPRISE COMPLIANCE MODULE
    Auth, CISO Dashboard, Certificate Generator, Neon DB Sync
    ============================================================ */
@@ -271,7 +271,7 @@ export async function handleLogout() {
   closeB2BDashboard();
 
   // Protected pages (this one included) live behind a server session — go to login
-  window.location.replace('/login');
+  window.location.replace('./login.html');
 }
 
 // Setup Event Listeners
@@ -490,7 +490,7 @@ async function loadB2BDashboard() {
 
   try {
     const res = await fetch(`/api/b2b/dashboard?orgId=${orgId}`, { credentials: 'same-origin' });
-    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 401) { window.location.replace('./login.html'); return; }
     if (res.status === 403) {
       closeB2BDashboard();
       showToast('Admin access is required for the CISO dashboard.');
@@ -665,7 +665,7 @@ async function handleCreateCampaign(e) {
         targetDepartment: dept || 'All Departments'
       })
     });
-    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 401) { window.location.replace('./login.html'); return; }
     const data = await res.json();
     if (data.success) {
       showToast(`Campaign "${title}" launched successfully!`);
@@ -681,7 +681,7 @@ async function handleCreateCampaign(e) {
 function exportAuditReportCsv() {
   const u = getCurrentUser();
   fetch(`/api/b2b/dashboard?orgId=${u.orgId || 'org-acme'}`, { credentials: 'same-origin' })
-    .then(r => (r.status === 401 ? window.location.replace('/login') : r.json()))
+    .then(r => (r.status === 401 ? window.location.replace('./login.html') : r.json()))
     .then(data => {
       if (!data || !data.auditLogs) { showToast('Audit report unavailable.'); return; }
       const rows = [
@@ -733,7 +733,7 @@ export function closeSuperAdminPortal() {
 async function loadSuperAdminDashboard() {
   try {
     const res = await fetch('/api/superadmin/dashboard', { credentials: 'same-origin' });
-    if (res.status === 401) { window.location.replace('/login'); return; }
+    if (res.status === 401) { window.location.replace('./login.html'); return; }
     if (res.status === 403) {
       closeSuperAdminPortal();
       showToast('Super Admin access is required for the platform portal.');

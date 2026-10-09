@@ -11,23 +11,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/features.css">
-  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/features.css">
+  <link rel="stylesheet" href="./css/auth.css">
 
   <script>
     // Public page: signed-in users bounce to their dashboard
     window.PAGE_AUTH = { public: true };
   </script>
-  <script src="/js/auth-guard.js" defer></script>
+  <script src="./js/auth-guard.js" defer></script>
 </head>
 
 <body class="auth-page">
 
   <main class="auth-shell">
-    <a class="auth-home" href="/">&larr; Back to Trinova home</a>
+    <a class="auth-home" href="./index.html">&larr; Back to Trinova home</a>
     <div class="auth-head">
-      <img class="auth-logo" src="/assets/images/logo.png" alt="Trinova">
+      <img class="auth-logo" src="./assets/images/logo.png" alt="Trinova">
       <h1>Create your account</h1>
       <p class="auth-sub">Self-registration creates an <strong>Employee</strong> account. Admin and Super Admin
         accounts are provisioned by your organization's Super Admin.</p>
@@ -96,7 +96,7 @@
       </form>
 
       <div class="auth-foot">
-        Already registered? <a href="/login">Sign in</a>
+        Already registered? <a href="./login.html">Sign in</a>
       </div>
       <div class="auth-legal">
         Passwords are hashed with scrypt before storage — plain-text passwords are never saved.
@@ -178,7 +178,7 @@
           if ((res.ok || res.status === 201) && data.success && data.user) {
             try { localStorage.setItem('cybersafe_auth_user', JSON.stringify(data.user)); } catch (e) { }
             // New accounts always land on the employee dashboard
-            window.location.replace(data.redirectTo || '/employee');
+            window.location.replace(data.redirectTo || './employee.html');
             return;
           }
           errorEl.textContent = data.error || 'Registration failed.';

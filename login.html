@@ -10,22 +10,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/features.css">
-  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/features.css">
+  <link rel="stylesheet" href="./css/auth.css">
 
   <script>
     // Public page: signed-in users bounce to their dashboard
     window.PAGE_AUTH = { public: true };
   </script>
-  <script src="/js/auth-guard.js" defer></script>
+  <script src="./js/auth-guard.js" defer></script>
 </head>
 <body class="auth-page">
 
   <main class="auth-shell">
-    <a class="auth-home" href="/">&larr; Back to Trinova home</a>
+    <a class="auth-home" href="./index.html">&larr; Back to Trinova home</a>
     <div class="auth-head">
-      <img class="auth-logo" src="/assets/images/logo.png" alt="Trinova">
+      <img class="auth-logo" src="./assets/images/logo.png" alt="Trinova">
       <h1>Welcome back</h1>
       <p class="auth-sub">Sign in to your Trinova workspace to continue cybersecurity awareness training.</p>
       <div class="auth-role-pills">
@@ -56,9 +56,9 @@
       </form>
 
       <div class="auth-foot">
-        <a href="/forgot-password">Forgot password?</a>
+        <a href="./forgot-password.html">Forgot password?</a>
         &nbsp;·&nbsp;
-        New here? <a href="/register">Create an account</a>
+        New here? <a href="./register.html">Create an account</a>
       </div>
 
       <div class="demo-box">
@@ -133,7 +133,7 @@
           if (res.ok && data.success && data.user) {
             try { localStorage.setItem('cybersafe_auth_user', JSON.stringify(data.user)); } catch (e) {}
             // Role-based redirect: /super-admin | /admin | /employee
-            window.location.replace(data.redirectTo || window.CyberSafeAuth.dashboardFor[data.user.role] || '/employee');
+            window.location.replace(data.redirectTo || window.CyberSafeAuth.dashboardFor[data.user.role] || './employee.html');
             return;
           }
           showError(data.error || 'Sign-in failed. Please check your credentials.');

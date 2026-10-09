@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,21 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/features.css">
-  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/features.css">
+  <link rel="stylesheet" href="./css/auth.css">
 
   <script>
     window.PAGE_AUTH = { roles: ['admin', 'superadmin'] };
   </script>
-  <script src="/js/auth-guard.js" defer></script>
-  <script src="/js/admin-dashboard.js" defer></script>
+  <script src="./js/auth-guard.js" defer></script>
+  <script src="./js/admin-dashboard.js" defer></script>
 </head>
 <body class="dash-page">
 
   <header class="topbar">
-    <a class="topbar-brand" href="/admin">
-      <img src="/assets/images/logo.png" alt="Trinova">
+    <a class="topbar-brand" href="./admin.html">
+      <img src="./assets/images/logo.png" alt="Trinova">
       <span>
         <span class="brand-name">Trinova</span>
         <span class="brand-tag">Admin Workspace</span>
@@ -32,10 +32,10 @@
     </a>
 
     <nav class="topbar-nav">
-      <a class="nav-link active" href="/admin">Dashboard</a>
-      <a class="nav-link" href="/training">360° Training</a>
-      <a class="nav-link" href="/certificate">Certificate</a>
-      <a class="nav-link" id="nav-superadmin" href="/super-admin" style="display:none;">Platform</a>
+      <a class="nav-link active" href="./admin.html">Dashboard</a>
+      <a class="nav-link" href="./training.html">360° Training</a>
+      <a class="nav-link" href="./certificate.html">Certificate</a>
+      <a class="nav-link" id="nav-superadmin" href="./super-admin.html" style="display:none;">Platform</a>
       <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Sign out">
         <span class="btn-icon">🚪</span> Logout
       </button>
@@ -56,7 +56,7 @@
         <p id="hero-sub">Manage employees, monitor training completion and review compliance results.</p>
       </div>
       <div class="hero-actions">
-        <a href="/training" class="btn-primary" style="text-decoration:none;">
+        <a href="./training.html" class="btn-primary" style="text-decoration:none;">
           <span class="btn-icon">🥽</span> Start 360° Training
         </a>
         <button id="btn-export-audit" class="btn-secondary btn-hero-secondary">

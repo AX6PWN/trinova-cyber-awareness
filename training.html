@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive 360° cybersecurity awareness training simulator. Explore a realistic office environment and learn about phishing, passwords, MFA, social engineering, safe browsing, and USB security.">
+  <title>Trinova · Cyber Awareness 360 — Security Awareness Training</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- A-Frame 1.8.0 -->
+  <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
+  <script src="./js/player-controller.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/features.css">
+
+  <!-- Session guard: must run before app scripts -->
+  <script>
+    window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
+  </script>
+  <script src="./js/auth-guard.js" defer></script>
+</head>
+<body class="app-page">
+
+  <!-- Top Navigation Bar -->
+  <header id="b2b-top-nav">
+    <div class="nav-left">
+      <a class="b2b-logo" href="./index.html" title="Back to Trinova home" style="text-decoration:none;">
+        <img class="logo-shield" src="./assets/images/logo.png" alt="Trinova" width="1254" height="1254">
+        <div class="logo-text">
+          <span class="logo-title">Trinova</span>
+          <span class="logo-tag">CYBER AWARENESS 360</span>
+        </div>
+      </a>
+      <div class="b2b-org-badge" title="Active Organization Workspace">
+        <span class="org-icon">🏢</span>
+        <span id="b2b-user-org">Acme CyberDefense Corp</span>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <!-- My Workspace (role dashboard) -->
+      <a id="btn-my-workspace" class="b2b-btn-dashboard" style="display:none; text-decoration:none;" href="./employee.html" title="Open your role dashboard">
+        <span class="btn-icon">🏠</span>
+        <span>Workspace</span>
+      </a>
+
+      <!-- Logout Button -->
+      <button id="btn-logout" class="btn-secondary" style="padding: 7px 12px;" title="Logout of Enterprise Workspace">
+        <span class="btn-icon">🚪</span>
+        <span>Logout</span>
+      </button>
+
+      <!-- 🆕 Threat Intel Live Feed Button -->
+      <button id="btn-open-threat-intel" class="b2b-btn-threat" title="Live Threat Intelligence Feed">
+        <span class="btn-icon">🔴</span>
+        <span>Threat Intel</span>
+        <span class="threat-live-badge">LIVE</span>
+      </button>
+
+      <!-- 🌐 SuperAdmin Platform Portal Button (shown only for superadmin role) -->
+      <button id="btn-open-superadmin" class="b2b-btn-superadmin" title="SuperAdmin: Trinova Platform Portal" style="display:none;">
+        <span class="btn-icon">👑</span>
+        <span>Platform Admin</span>
+        <span class="threat-live-badge" style="background: linear-gradient(90deg,#7c3aed,#a855f7);">SA</span>
+      </button>
+
+      <!-- B2B Compliance Dashboard Button -->
+      <button id="btn-open-b2b-dashboard" class="b2b-btn-dashboard" title="Open CISO Enterprise Compliance Dashboard">
+        <span class="btn-icon">📊</span>
+        <span>CISO Dashboard</span>
+      </button>
+
+      <!-- Neon DB Status Badge -->
+      <button id="neon-db-badge" class="neon-db-pill" title="Neon Database: bold-surf-20847857 (production)">
+        <span id="neon-status-dot" class="status-dot"></span>
+        <span id="neon-status-text">Neon DB (production)</span>
+      </button>
+
+      <!-- User Profile Pill -->
+      <div id="b2b-user-pill" class="b2b-user-pill" title="Click to view Account / Sign In">
+        <span id="b2b-user-avatar" class="user-avatar"></span>
+        <div class="user-info-text">
+          <span id="b2b-user-name" class="user-name">Elena Rostova, CISO</span>
+          <span id="b2b-role-badge" class="b2b-role-badge admin">CISO / Admin</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="welcome-screen">
+    <div class="welcome-card">
+      <div class="welcome-icon">
+        <img src="assets/images/logo.png" alt="Trinova" width="1254" height="1254">
+      </div>
+
+      <h1>Trinova</h1>
+      <p class="subtitle">
+        Cybersecurity awareness training that fits in one sitting.
+        Explore a 3D office, find the hidden threats, and earn your certificate.
+      </p>
+
+      <ol class="flow-steps">
+        <li class="flow-step">
+          <span class="step-num">1</span>
+          <span class="step-text">
+            <strong>Explore</strong>
+            <span>Look around the office and find 8 threat hotspots</span>
+          </span>
+        </li>
+        <li class="flow-step">
+          <span class="step-num">2</span>
+          <span class="step-text">
+            <strong>Learn</strong>
+            <span>Work through each threat with a real-world scenario</span>
+          </span>
+        </li>
+        <li class="flow-step">
+          <span class="step-num">3</span>
+          <span class="step-text">
+            <strong>Get certified</strong>
+            <span>Pass the 12-question quiz and get your certificate</span>
+          </span>
+        </li>
+      </ol>
+
+      <button id="btn-enter-training" class="btn-primary btn-hero">
+        Start Training
+        <span class="btn-arrow">→</span>
+      </button>
+      <p class="hero-hint">Takes about 10 minutes · Progress is saved automatically</p>
+
+      <!-- Last Training Result Display Area -->
+      <div id="last-training-result-card" class="last-training-card" hidden>
+        <div class="last-training-title">Last Training Result</div>
+        <div id="last-training-content" class="last-training-content"></div>
+      </div>
+
+      <div class="welcome-actions">
+        <button id="btn-welcome-ciso" class="link-btn">
+          <span class="link-btn-icon">📊</span>
+          CISO Admin Dashboard
+        </button>
+        <span class="welcome-b2b-pill">
+          <span class="pill-dot"></span>
+          <span>Workspace synced</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="hud">
+    <div class="hud-left">
+      <span class="hud-title">
+        <img src="assets/images/logo.png" alt="Trinova" width="1254" height="1254">
+        Trinova
+      </span>
+      <div class="hud-progress">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <span id="progress-text">0/8 Topics</span>
+      </div>
+    </div>
+    <div class="hud-right">
+      <button id="btn-start-quiz" class="hud-btn hud-btn-primary" style="display: none;">
+        <span class="btn-icon">📝</span>
+        Start Quiz
+      </button>
+      <span class="hud-divider"></span>
+      <button id="btn-hud-certificate" class="hud-icon-btn" title="View Verified Training Certificate">
+        <span class="btn-icon">🎓</span>
+      </button>
+      <button id="btn-see-previous-result" class="hud-icon-btn" title="Previous Training Result">
+        <span class="btn-icon">📈</span>
+      </button>
+      <button id="btn-hud-ciso-dash" class="hud-icon-btn" title="CISO Compliance Dashboard">
+        <span class="btn-icon">📊</span>
+      </button>
+      <button id="btn-reset-camera" class="hud-icon-btn" title="Reset view (R)">
+        <span class="btn-icon">🧭</span>
+      </button>
+      <button id="btn-fullscreen" class="hud-icon-btn" title="Fullscreen (F)">
+        <span class="btn-icon">⛶</span>
+      </button>
+      <button id="btn-exit-training" class="hud-icon-btn" title="Exit Training & Return to Dashboard">
+        <span class="btn-icon">🚪</span>
+      </button>
+    </div>
+  </div>
+
+
+  <div id="hotspot-tooltip">
+    <div class="tooltip-header">
+      <span class="tooltip-icon"></span>
+      <span class="tooltip-title"></span>
+    </div>
+    <div class="tooltip-desc"></div>
+  </div>
+
+
+  <div id="explore-hint">
+    <span class="hint-icon">🎮</span>
+    <span>Use W A S D to move | Mouse Drag to look | E to interact</span>
+  </div>
+  
+  <div id="interact-ui" style="display: none; position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: rgba(10,15,30,0.85); color: white; padding: 16px 24px; border-radius: 8px; border: 1px solid #38bdf8; font-family: sans-serif; text-align: center; z-index: 1000; pointer-events: none; box-shadow: 0 4px 20px rgba(0,210,255,0.2);">
+    <div id="interact-topic-title" style="font-size: 14px; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">TOPIC NAME</div>
+    <div style="font-size: 18px; font-weight: bold;">Press <kbd style="background: #fff; color: #000; padding: 2px 6px; border-radius: 4px;">E</kbd> to Explore</div>
+  </div>
+
+  <div id="debug-hotspots" style="position: absolute; top: 80px; left: 20px; background: rgba(0,0,0,0.7); color: #0f0; padding: 10px; font-family: monospace; font-weight: bold; border-radius: 4px; z-index: 9999;">
+    HOTSPOTS: 6/6
+  </div>
+
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    loading-screen="enabled: false"
+    renderer="antialias: true; colorManagement: true;"
+    cursor="rayOrigin: mouse; fuse: false"
+    raycaster="objects: .clickable; interval: 20"
+  >
+    <!-- Assets -->
+    <a-assets timeout="60000">
+      <a-asset-item id="warehouse-model" src="assets/automated_warehouse_-.glb"></a-asset-item>
+    </a-assets>
+
+
+    <a-sky color="#eef2f7"></a-sky>
+
+
+    <a-entity id="warehouse-scene" gltf-model="#warehouse-model" scale="0.001 0.001 0.001" position="0 0 0"></a-entity>
+    
+    <!-- PLAYER (Invisible Avatar for exploration) -->
+    <a-entity id="farmer" position="-8.2 0 3.6" third-person-controller="cameraRig: #camera-rig"></a-entity>
+
+    <!-- 3RD PERSON CAMERA RIG -->
+    <a-entity id="camera-rig" position="-8.2 2 7">
+      <a-camera
+        id="main-camera"
+        look-controls="enabled: false"
+        wasd-controls="enabled: false"
+        position="0 0 0"
+      ></a-camera>
+    </a-entity>
+
+
+
+
+<a-light type="ambient" color="#ffffff" intensity="1.05"></a-light>
+<a-light type="directional" color="#ffffff" intensity="0.85" position="-5 15 5"></a-light>
+<a-light type="hemisphere" color="#ffffff" ground-color="#c7d2e0" intensity="0.5"></a-light>
+<a-light type="point" color="#e0f2fe" intensity="0.45" position="-8.2 2.5 3.6" distance="10"></a-light>
+<a-light type="point" color="#fef3c7" intensity="0.3" position="-12 4.5 0" distance="20"></a-light>
+
+    <!-- Realistic 3D USB Prop on Workstation Desk -->
+    <a-entity id="usb-stick-prop" position="-8.85 1.03 3.15" rotation="0 15 0">
+      <!-- USB Body -->
+      <a-box width="0.035" height="0.012" depth="0.065" color="#1e293b" material="metalness: 0.6; roughness: 0.3"></a-box>
+      <!-- USB Metal Connector -->
+      <a-box width="0.022" height="0.008" depth="0.025" position="0 0 -0.045" color="#cbd5e1" material="metalness: 0.9; roughness: 0.2"></a-box>
+      <!-- Activity LED -->
+      <a-sphere radius="0.003" position="0 0.007 0.015" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 2"></a-sphere>
+      <!-- Lanyard Loop -->
+      <a-torus radius="0.008" radius-tubular="0.002" position="0 0 0.038" rotation="90 0 0" color="#94a3b8" material="metalness: 0.8; roughness: 0.2"></a-torus>
+    </a-entity>
+
+    <!-- 3D Enterprise Cyber Defense Server Rack & Backup Vault -->
+    <a-entity id="server-rack-prop" position="-7.2 0.3 2.1" rotation="0 -135 0">
+      <!-- Main Server Cabinet Chassis -->
+      <a-box width="0.75" height="1.8" depth="0.75" color="#090d16" material="metalness: 0.85; roughness: 0.25"></a-box>
+      <!-- Front Glass / Perforated Door -->
+      <a-box width="0.70" height="1.7" depth="0.02" position="0 0 0.38" color="#1e293b" material="metalness: 0.7; roughness: 0.2; opacity: 0.88; transparent: true"></a-box>
+      <!-- Server Rack Units (Stacked Blade Servers) -->
+      <a-box width="0.66" height="0.12" depth="0.6" position="0 0.65 0.05" color="#111827" material="metalness: 0.9; roughness: 0.15"></a-box>
+      <a-box width="0.66" height="0.12" depth="0.6" position="0 0.50 0.05" color="#111827" material="metalness: 0.9; roughness: 0.15"></a-box>
+      <a-box width="0.66" height="0.12" depth="0.6" position="0 0.35 0.05" color="#0f172a" material="metalness: 0.9; roughness: 0.15"></a-box>
+      <a-box width="0.66" height="0.12" depth="0.6" position="0 0.20 0.05" color="#111827" material="metalness: 0.9; roughness: 0.15"></a-box>
+      <a-box width="0.66" height="0.12" depth="0.6" position="0 0.05 0.05" color="#111827" material="metalness: 0.9; roughness: 0.15"></a-box>
+      <a-box width="0.66" height="0.18" depth="0.6" position="0 -0.12 0.05" color="#0b1120" material="metalness: 0.9; roughness: 0.2"></a-box>
+      <a-box width="0.66" height="0.22" depth="0.6" position="0 -0.34 0.05" color="#0b1120" material="metalness: 0.9; roughness: 0.2"></a-box>
+      <a-box width="0.66" height="0.22" depth="0.6" position="0 -0.58 0.05" color="#020617" material="metalness: 0.9; roughness: 0.2"></a-box>
+      <!-- Activity LEDs & Blinking Fiber Indicators -->
+      <a-sphere radius="0.012" position="-0.26 0.65 0.39" color="#10b981" material="emissive: #10b981; emissiveIntensity: 2.5"></a-sphere>
+      <a-sphere radius="0.010" position="-0.22 0.65 0.39" color="#06b6d4" material="emissive: #06b6d4; emissiveIntensity: 2"></a-sphere>
+      <a-sphere radius="0.012" position="-0.26 0.50 0.39" color="#10b981" material="emissive: #10b981; emissiveIntensity: 2.5"></a-sphere>
+      <a-sphere radius="0.010" position="-0.22 0.50 0.39" color="#3b82f6" material="emissive: #3b82f6; emissiveIntensity: 2"></a-sphere>
+      <a-sphere radius="0.012" position="-0.26 0.35 0.39" color="#f59e0b" material="emissive: #f59e0b; emissiveIntensity: 2"></a-sphere>
+      <a-sphere radius="0.012" position="-0.26 0.20 0.39" color="#10b981" material="emissive: #10b981; emissiveIntensity: 2.5"></a-sphere>
+      <a-sphere radius="0.012" position="-0.26 0.05 0.39" color="#10b981" material="emissive: #10b981; emissiveIntensity: 2.5"></a-sphere>
+      <!-- Server Monitoring Screen (Status Terminal) -->
+      <a-plane width="0.28" height="0.11" position="0.12 0.65 0.39" color="#022c22" material="emissive: #064e3b; emissiveIntensity: 1; roughness: 0.1">
+        <a-text value="BACKUP: SYNCED\nAIRGAP: ACTIVE" color="#34d399" align="center" width="0.65" position="0 0 0.01"></a-text>
+      </a-plane>
+      <!-- Status Beacon Top -->
+      <a-cylinder radius="0.04" height="0.06" position="0 0.93 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 1.5; transparent: true; opacity: 0.85"></a-cylinder>
+    </a-entity>
+
+    <!-- 3D Biometric Access Terminal & Secure Door Station -->
+    <a-entity id="access-station-prop" position="-7.1 0.4 4.85" rotation="0 -45 0">
+      <!-- Stanchion Pedestal -->
+      <a-cylinder radius="0.045" height="1.05" position="0 0 0" color="#1e293b" material="metalness: 0.8; roughness: 0.3"></a-cylinder>
+      <a-cylinder radius="0.16" height="0.03" position="0 -0.52 0" color="#0f172a" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
+      <!-- Reader Terminal Housing -->
+      <a-box width="0.16" height="0.28" depth="0.08" position="0 0.55 0" rotation="-15 0 0" color="#090d16" material="metalness: 0.7; roughness: 0.25"></a-box>
+      <!-- Bezel Accent Frame -->
+      <a-box width="0.14" height="0.25" depth="0.02" position="0 0.55 0.04" rotation="-15 0 0" color="#1e293b" material="metalness: 0.9; roughness: 0.15"></a-box>
+      <!-- Optical Fingerprint Scanner Prism -->
+      <a-plane width="0.05" height="0.06" position="0 0.50 0.052" rotation="-15 0 0" color="#052e16" material="emissive: #10b981; emissiveIntensity: 1.8; roughness: 0.1"></a-plane>
+      <!-- RFID Smart Card Reader Zone -->
+      <a-plane width="0.10" height="0.07" position="0 0.61 0.052" rotation="-15 0 0" color="#082f49" material="emissive: #0284c7; emissiveIntensity: 0.8; roughness: 0.2">
+        <a-text value="TAP BADGE" color="#7dd3fc" align="center" width="0.45" position="0 0 0.005"></a-text>
+      </a-plane>
+      <!-- Dual-Color LED Security Status Strip -->
+      <a-box width="0.12" height="0.008" depth="0.01" position="0 0.67 0.054" rotation="-15 0 0" color="#38bdf8" material="emissive: #38bdf8; emissiveIntensity: 2.2"></a-box>
+    </a-entity>
+
+
+
+  </a-scene>
+
+
+  <div id="topic-panel-overlay"></div>
+  <div id="topic-panel">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="panel-topic-icon">✉️</div>
+        <div>
+          <div class="panel-topic-title">Phishing</div>
+          <div class="panel-topic-subtitle">Email & Message Threats</div>
+        </div>
+      </div>
+      <button class="panel-close-btn" title="Close (Esc)">✕</button>
+    </div>
+    <div class="panel-body">
+      <!-- What Is It -->
+      <div class="panel-section">
+        <div class="panel-section-title">What Is It?</div>
+        <p id="panel-what-is-it"></p>
+      </div>
+
+      <!-- Red Flags -->
+      <div class="panel-section">
+        <div class="panel-section-title">Red Flags to Watch For</div>
+        <ul class="red-flags-list" id="panel-red-flags"></ul>
+      </div>
+
+      <!-- Scenario -->
+      <div class="panel-section">
+        <div class="scenario-box">
+          <div class="scenario-label">📋 Scenario</div>
+          <div class="scenario-text" id="panel-scenario-text"></div>
+          <div class="panel-section-title" style="margin-top: 12px;" id="panel-scenario-question"></div>
+          <div class="scenario-options" id="panel-scenario-options"></div>
+          <div class="scenario-feedback" id="panel-scenario-feedback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-actions">
+      <button id="btn-mark-complete" class="btn-complete">✓ Mark Complete</button>
+      <button id="btn-close-panel" class="btn-close-panel">Close</button>
+    </div>
+  </div>
+
+
+  <div id="quiz-screen">
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <h2>🎯 Cybersecurity Knowledge Quiz</h2>
+        <div class="quiz-progress">
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill"></div>
+          </div>
+          <span id="quiz-progress-text">Question 1 of 12</span>
+        </div>
+      </div>
+      <div class="quiz-question-box">
+        <div class="quiz-question-number">Question 1</div>
+        <div class="quiz-question-text"></div>
+      </div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="quiz-actions">
+        <button id="btn-quiz-next" class="btn-quiz-next" disabled>Next Question →</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="results-screen">
+    <div class="results-container">
+      <div class="results-score-circle pass">
+        <span class="score-number">0%</span>
+        <span class="score-label">0 / 12 correct</span>
+      </div>
+      <div class="results-message">🎉 Excellent Work!</div>
+      <div class="results-subtitle">You demonstrated strong cybersecurity awareness.</div>
+      <div class="results-breakdown"></div>
+      <div class="results-actions">
+        <button id="btn-retake-quiz" class="btn-primary">Retake Quiz</button>
+        <button id="btn-view-certificate-results" class="btn-primary btn-gold" style="display: none;">
+          <span class="btn-icon">🎓</span> View Verified Certificate
+        </button>
+        <button id="btn-download-certificate-results" class="btn-primary" style="display: none;">
+          <span class="btn-icon">📥</span> Download Certificate
+        </button>
+        <button id="btn-print-certificate-results" class="btn-primary" style="display: none;">
+          <span class="btn-icon">🖨️</span> Print Certificate
+        </button>
+        <button id="btn-return-training" class="btn-secondary">Return to Training</button>
+        <button id="btn-download-results-csv-results" class="btn-action-download" title="Download training result history as CSV">
+          <span class="btn-icon">📥</span> Download Results (CSV)
+        </button>
+        <button id="btn-download-results-json-results" class="btn-action-download" title="Download training result history as JSON">
+          <span class="btn-icon">💾</span> Download JSON
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- B2B CISO Enterprise Compliance Dashboard Modal -->
+  <div id="b2b-dashboard-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card b2b-modal-card">
+      <div class="custom-modal-header b2b-dash-header">
+        <div class="b2b-header-title-wrap">
+          <span class="modal-title-icon">🏢</span>
+          <div>
+            <div class="b2b-dash-title">CISO Enterprise Security & Compliance Hub</div>
+            <div class="b2b-dash-sub"><span id="b2b-dash-org-name">Acme CyberDefense Corp</span> · ISO 27001 / SOC 2 Ready · Neon PostgreSQL</div>
+          </div>
+        </div>
+        <div class="b2b-header-actions">
+          <button id="btn-export-audit-csv" class="btn-action-download">
+            <span class="btn-icon">📥</span> Export Audit Log (CSV)
+          </button>
+          <button id="btn-close-b2b-x" class="custom-modal-close-btn" title="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="custom-modal-body b2b-modal-body">
+        <!-- Metric KPI Cards -->
+        <div class="b2b-kpi-grid">
+          <div class="b2b-kpi-card highlight">
+            <div class="kpi-label">Org Cyber Readiness Index</div>
+            <div class="kpi-val" id="b2b-dash-score">84%</div>
+            <div class="kpi-status-badge good">Grade A — Audit Compliant</div>
+          </div>
+          <div class="b2b-kpi-card">
+            <div class="kpi-label">Active Headcount</div>
+            <div class="kpi-val" id="b2b-dash-employees">4</div>
+            <div class="kpi-subtext">Monitored across 4 departments</div>
+          </div>
+          <div class="b2b-kpi-card">
+            <div class="kpi-label">Certified Personnel</div>
+            <div class="kpi-val" id="b2b-dash-certified">1</div>
+            <div class="kpi-subtext">Verified completion >= 70%</div>
+          </div>
+          <div class="b2b-kpi-card">
+            <div class="kpi-label">Mandatory Drills</div>
+            <div class="kpi-val" id="b2b-dash-campaigns">2</div>
+            <div class="kpi-subtext">Active security campaigns</div>
+          </div>
+        </div>
+
+        <!-- Two Column: Department Heatmap & Vulnerability Hotspots -->
+        <div class="b2b-two-col">
+          <!-- Department Compliance Heatmap -->
+          <div class="b2b-section-box">
+            <div class="b2b-sec-title">
+              <span>📈 Department Compliance Heatmap</span>
+              <span class="sec-badge">Real-time</span>
+            </div>
+            <div id="b2b-dept-heatmap-list" class="b2b-dept-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Vulnerability Risk Weakspots -->
+          <div class="b2b-section-box">
+            <div class="b2b-sec-title">
+              <span>⚠️ Critical Risk & Vulnerability Matrix</span>
+              <span class="sec-badge danger">High Priority</span>
+            </div>
+            <div id="b2b-vulnerability-list" class="b2b-vuln-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Training Roster & Status Table -->
+        <div class="b2b-section-box" style="margin-top: 16px;">
+          <div class="b2b-sec-title">
+            <span>👥 Employee Cybersecurity Roster & Audit Status</span>
+            <span class="sec-badge">Neon DB Synced</span>
+          </div>
+          <div class="b2b-table-wrap">
+            <table class="b2b-roster-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>360° Topics</th>
+                  <th>Assessment Score</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="b2b-roster-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Security Campaigns & Drill Management -->
+        <div class="b2b-section-box" style="margin-top: 16px;">
+          <div class="b2b-sec-title-row">
+            <div class="b2b-sec-title">
+              <span>🎯 Enterprise Security Campaigns & Phishing Drills</span>
+            </div>
+            <button id="btn-launch-campaign" class="btn-primary btn-sm">
+              + Launch New Security Drill
+            </button>
+          </div>
+          <div id="b2b-campaigns-list" class="b2b-campaigns-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Real-time Enterprise Audit Trail -->
+        <div class="b2b-section-box" style="margin-top: 16px;">
+          <div class="b2b-sec-title">
+            <span>📜 Real-Time Security Operations Audit Trail</span>
+          </div>
+          <div id="b2b-audit-list" class="b2b-audit-box">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- 🆕 Employee Leaderboard -->
+        <div class="b2b-section-box" style="margin-top: 16px;">
+          <div class="b2b-sec-title-row">
+            <div class="b2b-sec-title">
+              <span>🏆 Cybersecurity Leaderboard — Top Performers</span>
+              <span class="sec-badge">Gamified</span>
+            </div>
+            <button id="btn-invite-employee" class="btn-primary btn-sm" title="Invite new employee to training">
+              + Invite Employee
+            </button>
+          </div>
+          <div id="b2b-leaderboard-list" class="b2b-leaderboard-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+
+      </div>
+
+      <div class="custom-modal-actions">
+        <button id="btn-close-b2b-bottom" class="btn-secondary">Close Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enterprise Authentication & Workspace Onboarding Modal -->
+  <div id="auth-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card auth-card">
+      <div class="custom-modal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">🔐</span>
+          <span>Enterprise Access & Authentication</span>
+        </div>
+      </div>
+
+      <div class="custom-modal-body">
+        <!-- Quick Switch Demo Personas -->
+        <div class="auth-persona-box">
+          <div class="auth-persona-title">⚡ 1-Click Fast Switch Demo Personas:</div>
+          <div class="auth-persona-grid">
+            <!-- SuperAdmin -->
+            <button class="quick-switch-btn superadmin-persona" data-persona-id="usr-superadmin">
+              <span class="persona-icon">👑</span>
+              <span class="persona-text">Raj Mehta<br><small>SuperAdmin · Platform</small></span>
+            </button>
+            <!-- Org Admins -->
+            <button class="quick-switch-btn" data-persona-id="usr-admin-ciso">
+              <span class="persona-icon"><img src="assets/images/logo.png" alt="" width="1254" height="1254"></span>
+              <span class="persona-text">Elena Rostova<br><small>CISO / Admin</small></span>
+            </button>
+            <button class="quick-switch-btn" data-persona-id="usr-admin-fintech">
+              <span class="persona-icon">🏦</span>
+              <span class="persona-text">Priya Nair<br><small>Admin · FinTech Bank</small></span>
+            </button>
+            <!-- Employees -->
+            <button class="quick-switch-btn" data-persona-id="usr-emp-finance">
+              <span class="persona-icon">💳</span>
+              <span class="persona-text">Alex Turner<br><small>Finance Employee</small></span>
+            </button>
+            <button class="quick-switch-btn" data-persona-id="usr-emp-eng">
+              <span class="persona-icon">👩‍💻</span>
+              <span class="persona-text">Sarah Chen<br><small>Engineering Lead</small></span>
+            </button>
+            <button class="quick-switch-btn" data-persona-id="usr-emp-hr">
+              <span class="persona-icon">📋</span>
+              <span class="persona-text">David Kim<br><small>HR Specialist</small></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" data-tab="login">🏢 Org Sign In</button>
+          <button class="auth-tab-btn" data-tab="register">➕ New Organization</button>
+          <button class="auth-tab-btn superadmin-tab" data-tab="superadmin">👑 Platform Admin</button>
+        </div>
+
+        <!-- Sign In Tab -->
+        <div id="tab-login" class="auth-tab-content active">
+          <form id="form-login" class="auth-form">
+            <div class="form-group">
+              <label for="login-email">Corporate Email</label>
+              <input type="email" id="login-email" required placeholder="ciso@acmesec.com" value="ciso@acmesec.com">
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" required placeholder="••••••••" value="admin123">
+            </div>
+            <div id="login-error-msg" class="auth-error-msg"></div>
+            <button type="submit" class="btn-primary btn-block">Sign In to Enterprise Workspace →</button>
+          </form>
+        </div>
+
+        <!-- Register Tab -->
+        <div id="tab-register" class="auth-tab-content">
+          <form id="form-register" class="auth-form">
+            <div class="form-group">
+              <label for="reg-fullname">Full Name</label>
+              <input type="text" id="reg-fullname" required placeholder="e.g. Rachel Vance">
+            </div>
+            <div class="form-group">
+              <label for="reg-org">Organization / Company Name</label>
+              <input type="text" id="reg-org" required placeholder="e.g. Apex Financial Corp" value="Apex Financial Corp">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reg-dept">Department</label>
+                <select id="reg-dept" class="auth-input-select">
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Human Resources">Human Resources</option>
+                  <option value="Executive Management">Executive Management</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Work Email</label>
+              <input type="email" id="reg-email" required placeholder="rachel@apexcorp.com">
+            </div>
+            <div class="form-group">
+              <label for="reg-password">Password</label>
+              <input type="password" id="reg-password" required placeholder="Create secure password">
+            </div>
+            <div id="reg-error-msg" class="auth-error-msg"></div>
+            <button type="submit" class="btn-primary btn-block">Create Workspace &amp; Employee Account →</button>
+          </form>
+        </div>
+
+        <!-- Platform Admin / SuperAdmin Tab -->
+        <div id="tab-superadmin" class="auth-tab-content">
+          <div class="superadmin-access-banner">
+            <span class="sa-banner-icon">👑</span>
+            <div>
+              <div class="sa-banner-title">Trinova Platform Administration</div>
+              <div class="sa-banner-subtitle">Restricted access — platform operators &amp; SaaS administrators only</div>
+            </div>
+          </div>
+          <div class="auth-role-legend">
+            <div class="role-legend-item superadmin">
+              <span class="role-legend-dot"></span>
+              <div>
+                <strong>👑 SuperAdmin</strong> — Full platform access across all tenants, billing, system metrics
+                <div class="role-cred-hint">Demo: <code>superadmin@trinova.io</code> / <code>superadmin2026</code></div>
+              </div>
+            </div>
+            <div class="role-legend-item admin">
+              <span class="role-legend-dot" style="background:#2563eb;"></span>
+              <div>
+                <strong>🛡️ Org Admin / CISO</strong> — Manage org employees, campaigns, compliance reports
+                <div class="role-cred-hint">Demo: <code>ciso@acmesec.com</code> / <code>admin123</code> &nbsp;|&nbsp; <code>admin@fintechtrust.io</code> / <code>admin456</code></div>
+              </div>
+            </div>
+          </div>
+          <form id="form-admin-login" class="auth-form">
+            <div class="form-group">
+              <label for="admin-login-email">Admin / SuperAdmin Email</label>
+              <input type="email" id="admin-login-email" required placeholder="superadmin@trinova.io" value="superadmin@trinova.io">
+            </div>
+            <div class="form-group">
+              <label for="admin-login-password">Password</label>
+              <input type="password" id="admin-login-password" required placeholder="••••••••" value="superadmin2026">
+            </div>
+            <div id="admin-login-error-msg" class="auth-error-msg"></div>
+            <button type="submit" class="btn-primary btn-block sa-login-btn">👑 Sign In as Platform Admin →</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SuperAdmin Platform Portal Modal -->
+  <div id="superadmin-portal-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card sa-portal-card">
+      <div class="custom-modal-header sa-portal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">👑</span>
+          <span>Trinova Platform Administration Portal</span>
+          <span class="sa-portal-badge">SuperAdmin</span>
+        </div>
+        <button id="btn-close-superadmin-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+
+      <div class="custom-modal-body sa-portal-body">
+        <!-- Platform KPI Row -->
+        <div class="sa-kpi-row">
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">🏢</div>
+            <div class="sa-kpi-val" id="sa-metric-orgs">—</div>
+            <div class="sa-kpi-label">Tenant Orgs</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">👥</div>
+            <div class="sa-kpi-val" id="sa-metric-users">—</div>
+            <div class="sa-kpi-label">Total Users</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">🛡️</div>
+            <div class="sa-kpi-val" id="sa-metric-admins">—</div>
+            <div class="sa-kpi-label">Org Admins</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">🎓</div>
+            <div class="sa-kpi-val" id="sa-metric-certs">—</div>
+            <div class="sa-kpi-label">Certificates Issued</div>
+          </div>
+          <div class="sa-kpi-card">
+            <div class="sa-kpi-icon">📋</div>
+            <div class="sa-kpi-val" id="sa-metric-campaigns">—</div>
+            <div class="sa-kpi-label">Active Campaigns</div>
+          </div>
+          <div class="sa-kpi-card highlight">
+            <div class="sa-kpi-icon">📊</div>
+            <div class="sa-kpi-val" id="sa-metric-score">—</div>
+            <div class="sa-kpi-label">Avg Security Score</div>
+          </div>
+        </div>
+
+        <div class="sa-platform-meta">
+          <span id="sa-platform-version">—</span>
+          <span class="sa-dot">·</span>
+          <span id="sa-uptime-since">—</span>
+        </div>
+
+        <!-- Tenant Grid -->
+        <div class="b2b-section-box">
+          <div class="b2b-sec-title">
+            <span>🏢 Active Tenant Organizations</span>
+            <span class="sec-badge">All Orgs</span>
+          </div>
+          <div id="sa-tenant-list" class="sa-tenant-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Platform Activity Feed -->
+        <div class="b2b-section-box" style="margin-top:16px;">
+          <div class="b2b-sec-title">
+            <span>📜 Cross-Tenant Platform Activity Feed</span>
+          </div>
+          <div id="sa-activity-feed" class="b2b-audit-box">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-modal-actions">
+        <button id="btn-close-superadmin-bottom" class="btn-secondary">Close Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verifiable Cybersecurity Certificate Modal -->
+  <div id="certificate-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card cert-modal-card">
+      <div class="custom-modal-header cert-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">🎓</span>
+          <span>Official Cybersecurity Certificate of Competence</span>
+        </div>
+        <button id="btn-close-cert-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+
+      <div class="custom-modal-body cert-body">
+        <div id="printable-certificate" class="printable-certificate">
+          <div class="cert-border-outer">
+            <div class="cert-border-inner">
+              <div class="cert-watermark">TRINOVA</div>
+              
+              <div class="cert-top-seal">
+                <div class="cert-seal-icon">
+          <img src="assets/images/logo.png" alt="Trinova seal" width="1254" height="1254">
+        </div>
+                <div class="cert-issuing-auth">Trinova Security Institute</div>
+                <div class="cert-compliance-tag">ISO/IEC 27001 & NIST CSF ALIGNED</div>
+              </div>
+
+              <div class="cert-heading">Certificate of Cybersecurity Competence</div>
+              <div class="cert-presented">This official enterprise credential is proud to certify that</div>
+
+              <div id="cert-holder-name" class="cert-name">Elena Rostova</div>
+
+              <div class="cert-desc">
+                has successfully completed all 8 comprehensive modules of the <strong>Trinova Cyber Awareness 360 Interactive Threat Simulator</strong>,
+                demonstrating certified mastery in defending against Phishing, MFA Hijacking, Ransomware Extortion,
+                Social Engineering Pretexting, Physical Tailgating, and Clean Desk Security at
+              </div>
+
+              <div id="cert-org-name" class="cert-org">Acme CyberDefense Corp</div>
+
+              <div class="cert-details-grid">
+                <div>
+                  <span class="cert-meta-label">Certificate ID</span>
+                  <strong id="cert-number">TRIN-2026-ACME-8942</strong>
+                </div>
+                <div>
+                  <span class="cert-meta-label">Assessment Score</span>
+                  <strong id="cert-score">94%</strong>
+                </div>
+                <div>
+                  <span class="cert-meta-label">Issue Date</span>
+                  <span id="cert-issue-date">October 1, 2026</span>
+                </div>
+                <div>
+                  <span class="cert-meta-label">Valid Until</span>
+                  <span id="cert-expiry-date">October 1, 2027</span>
+                </div>
+              </div>
+
+              <div class="cert-footer-row">
+                <div class="cert-sig-block">
+                  <div class="cert-sig-line">Elena Rostova, CISO</div>
+                  <div class="cert-sig-title">Chief Information Security Officer</div>
+                </div>
+                <div class="cert-qr-block">
+                  <div class="cert-qr-fake"></div>
+                  <div class="cert-hash" id="cert-hash">SHA1: A89F-72E1-BC94</div>
+                </div>
+                <div class="cert-sig-block">
+                  <div class="cert-sig-line">Dr. Marcus Vance</div>
+                  <div class="cert-sig-title">Director of Threat Intelligence</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-modal-actions">
+        <button id="btn-download-certificate" class="btn-primary">
+          <span class="btn-icon">📥</span> Download PDF
+        </button>
+        <button id="btn-print-certificate" class="btn-primary">
+          <span class="btn-icon">🖨️</span> Print / Save Certificate PDF
+        </button>
+        <button id="btn-close-cert-bottom" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Neon Database Status Modal -->
+  <div id="neon-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div class="custom-modal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">🐘</span>
+          <span>Neon Cloud Serverless PostgreSQL</span>
+        </div>
+        <button id="btn-close-neon-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+
+      <div class="custom-modal-body">
+        <div class="neon-info-box">
+          <div class="neon-info-row">
+            <span class="neon-label">Neon Project ID:</span>
+            <code class="neon-code">bold-surf-20847857</code>
+          </div>
+          <div class="neon-info-row">
+            <span class="neon-label">Neon Branch:</span>
+            <code class="neon-code">production</code>
+          </div>
+          <div class="neon-info-row">
+            <span class="neon-label">Engine Status:</span>
+            <span class="neon-badge-online">🟢 Active & Synced</span>
+          </div>
+          <div class="neon-info-row">
+            <span class="neon-label">Config File:</span>
+            <code class="neon-code">neon.ts (defineConfig)</code>
+          </div>
+          <div class="neon-info-row">
+            <span class="neon-label">Agent Skills:</span>
+            <span class="neon-badge-skill">Installed (8 Neon Skills in .agents)</span>
+          </div>
+          <div class="neon-info-row">
+            <span class="neon-label">Agent MCP:</span>
+            <span class="neon-badge-skill">Installed across Antigravity, Claude, VSCode</span>
+          </div>
+        </div>
+
+        <div class="neon-tip-box">
+          <strong>💡 Connecting with Neon Cloud CLI:</strong>
+          <p>
+            The project is fully configured to link with <code>bold-surf-20847857</code>.
+            Once you run <code>neon login</code> in your terminal or paste your <code>DATABASE_URL</code> in <code>.env</code>, all tenant data, quiz results, and compliance audits sync directly to your Neon Serverless Postgres instance!
+          </p>
+        </div>
+      </div>
+
+      <div class="custom-modal-actions">
+        <button id="btn-close-neon-bottom" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="previous-result-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div class="custom-modal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">📊</span>
+          <span>Previous Training Result</span>
+        </div>
+        <button id="btn-close-prev-result-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div id="prev-result-modal-body" class="custom-modal-body">
+        <div id="prev-result-modal-content">No previous training result.</div>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-download-csv-modal" class="btn-action-download" style="display: none;">
+          <span class="btn-icon">📥</span> Download CSV
+        </button>
+        <button id="btn-download-json-modal" class="btn-action-download" style="display: none;">
+          <span class="btn-icon">💾</span> Download JSON
+        </button>
+        <button id="btn-close-prev-result" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="training-mistake-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card mistake-card">
+      <div class="custom-modal-header mistake-header">
+        <div class="custom-modal-title mistake-title">
+          <span class="modal-title-icon">⚠️</span>
+          <span>Security Mistake Warning</span>
+        </div>
+        <button id="btn-close-mistake-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <div class="mistake-callout-box">
+          <div class="callout-label danger-label">The Mistake</div>
+          <p id="mistake-desc-text" class="callout-text"></p>
+        </div>
+        <div class="mistake-callout-box safe-box">
+          <div class="callout-label safe-label">Safer Action</div>
+          <p id="mistake-safe-action-text" class="callout-text"></p>
+        </div>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-ack-mistake" class="btn-primary mistake-ack-btn">
+          I Understand: Continue Training
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="toast"></div>
+
+
+  <div id="debug-overlay"></div>
+
+
+  <!-- 🆕 Threat Intelligence Live Feed Modal -->
+  <div id="threat-intel-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card threat-intel-card">
+      <div class="custom-modal-header threat-intel-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">🔴</span>
+          <span>Live Threat Intelligence Feed</span>
+          <span class="threat-live-badge-modal">● LIVE</span>
+        </div>
+        <button id="btn-close-threat-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div class="custom-modal-body threat-intel-body">
+        <div class="threat-intel-summary">
+          <div class="threat-kpi-card">
+            <div class="threat-kpi-val" id="threat-kpi-critical">3</div>
+            <div class="threat-kpi-label">Critical Alerts</div>
+          </div>
+          <div class="threat-kpi-card">
+            <div class="threat-kpi-val warn" id="threat-kpi-warnings">7</div>
+            <div class="threat-kpi-label">Warnings</div>
+          </div>
+          <div class="threat-kpi-card">
+            <div class="threat-kpi-val good" id="threat-kpi-blocked">142</div>
+            <div class="threat-kpi-label">Blocked Today</div>
+          </div>
+          <div class="threat-kpi-card">
+            <div class="threat-kpi-val" id="threat-kpi-score">ELEVATED</div>
+            <div class="threat-kpi-label">Threat Level</div>
+          </div>
+        </div>
+        <div class="threat-intel-feed" id="threat-intel-feed">
+          <!-- Dynamically populated by JS -->
+        </div>
+        <div class="threat-intel-actions">
+          <button id="btn-refresh-threat-feed" class="btn-primary btn-sm">↻ Refresh Feed</button>
+          <span class="threat-last-updated" id="threat-last-updated">Last updated: just now</span>
+        </div>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-close-threat-bottom" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 Invite Employee Modal -->
+  <div id="invite-employee-modal" class="custom-modal-overlay">
+    <div class="custom-modal-card" style="max-width: 480px;">
+      <div class="custom-modal-header">
+        <div class="custom-modal-title">
+          <span class="modal-title-icon">✉️</span>
+          <span>Invite Employee to Training</span>
+        </div>
+        <button id="btn-close-invite-x" class="custom-modal-close-btn" title="Close">✕</button>
+      </div>
+      <div class="custom-modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">Create a new employee account and immediately enroll them in the active cybersecurity training campaign.</p>
+        <form id="form-invite-employee" class="auth-form">
+          <div class="form-group">
+            <label for="invite-fullname">Employee Full Name</label>
+            <input type="text" id="invite-fullname" required placeholder="e.g. Jordan Mills">
+          </div>
+          <div class="form-group">
+            <label for="invite-email">Work Email</label>
+            <input type="email" id="invite-email" required placeholder="jordan@company.com">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Department</label>
+              <select id="invite-dept" class="auth-input-select">
+                <option>Engineering</option>
+                <option>Finance</option>
+                <option>Human Resources</option>
+                <option>Security Operations</option>
+                <option>Executive Management</option>
+                <option>Operations</option>
+              </select>
+            </div>
+          </div>
+          <div id="invite-error-msg" class="auth-error-msg"></div>
+          <div id="invite-success-msg" class="auth-success-msg" style="display:none;"></div>
+          <button type="submit" class="btn-primary btn-block">✉️ Invite & Enroll Employee</button>
+        </form>
+      </div>
+      <div class="custom-modal-actions">
+        <button id="btn-close-invite-bottom" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
