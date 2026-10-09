@@ -345,7 +345,18 @@ async function attachSession(req) {
   const cookiePresent = Boolean(sid);
   diag('attach', { backend: sessionBackend, cookiePresent });
   if (!sid) return null;
-  const session = await getSession(sid);
+
+  let session;
+  try {
+    session = await getSession(sid);
+  } catch (err) {
+    // The session store (e.g. Neon) is unreachable. Degrade to an
+    // anonymous request instead of crashing the serverless function.
+    // Log the error type only — never cookie values or credentials.
+    console.warn('[Auth] Session lookup failed; treating request as anonymous:', err && err.name);
+    return null;
+  }
+
   if (!session) return null;
   req.session = session;
   return session;
