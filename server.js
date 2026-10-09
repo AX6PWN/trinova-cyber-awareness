@@ -466,10 +466,10 @@ function handleStatic(res, pathname) {
 }
 
 // ------------------------------------------------------------
-// SERVER
+// REQUEST HANDLER (extracted so Vercel can import it)
 // ------------------------------------------------------------
 
-const server = http.createServer(async (req, res) => {
+async function requestHandler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -498,10 +498,17 @@ const server = http.createServer(async (req, res) => {
 
   res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('405 Method Not Allowed');
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`[Trinova] Enterprise Server running at http://localhost:${PORT}/`);
-  console.log(`[Trinova] Neon DB Project: bold-surf-20847857 (production)`);
-  console.log(`[Trinova] Routes: /login /register /forgot-password | /employee /admin /super-admin`);
-});
+// Vercel: import this file and use the exported handler
+module.exports = requestHandler;
+
+// Local dev: run directly with `node server.js`
+if (require.main === module) {
+  const server = http.createServer(requestHandler);
+  server.listen(PORT, () => {
+    console.log(`[Trinova] Enterprise Server running at http://localhost:${PORT}/`);
+    console.log(`[Trinova] Neon DB Project: bold-surf-20847857 (production)`);
+    console.log(`[Trinova] Routes: /login /register /forgot-password | /employee /admin /super-admin`);
+  });
+}

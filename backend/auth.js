@@ -8,7 +8,10 @@ const fs = require('fs');
 const path = require('path');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const SESSION_FILE = path.join(DATA_DIR, 'sessions.json');
+// On Vercel (and other read-only serverless hosts), write sessions to /tmp
+const SESSION_FILE = process.env.VERCEL
+  ? '/tmp/sessions.json'
+  : path.join(DATA_DIR, 'sessions.json');
 
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const COOKIE_NAME = 'cs_session';
