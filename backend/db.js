@@ -51,7 +51,15 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
 
 // Local Persistent Store Directory & Path
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const DB_FILE = path.join(DATA_DIR, 'cybersafe_db.json');
+
+// On Vercel (and other read-only serverless hosts), the deployed directory
+// (/var/task) is read-only. We use /tmp for the writable working copy.
+// Note: /tmp is ephemeral per serverless instance — for durable user storage
+// configure DATABASE_URL to use Neon Postgres (see backend/schema.sql).
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const DB_FILE_SEED = path.join(DATA_DIR, 'cybersafe_db.json'); // committed read-only seed
+const DB_FILE_WRITABLE = IS_VERCEL ? '/tmp/cybersafe_db.json' : DB_FILE_SEED;
+const DB_FILE = DB_FILE_SEED; // legacy alias used in readDb() for seed reads
 
 // Password hashing — scrypt with a random per-user salt (see backend/auth.js)
 function hashPassword(password) {
@@ -265,22 +273,39 @@ function getInitialData() {
 
 // Persistent Storage Read / Write
 function readDb() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(DB_FILE)) {
-    const initial = getInitialData();
-    fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2), 'utf8');
+  // On Vercel: prefer the /tmp working copy (may have user mutations from
+  // this invocation); fall back to the committed seed, then getInitialData().
+  const fileToRead = DB_FILE_WRITABLE;
+
+  // Bootstrap: if the writable copy doesn't exist yet, seed it.
+  if (!fs.existsSync(fileToRead)) {
+    let initial;
+    // Try to read the committed seed (available in /var/task on Vercel)
+    if (IS_VERCEL && fs.existsSync(DB_FILE_SEED)) {
+      try {
+        initial = JSON.parse(fs.readFileSync(DB_FILE_SEED, 'utf8'));
+      } catch (e) {
+        initial = getInitialData();
+      }
+    } else if (!IS_VERCEL) {
+      // Local: ensure data dir exists
+      if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+      initial = getInitialData();
+    } else {
+      initial = getInitialData();
+    }
+    writeDb(initial);
     return initial;
   }
+
   let data;
   try {
-    const raw = fs.readFileSync(DB_FILE, 'utf8');
+    const raw = fs.readFileSync(fileToRead, 'utf8');
     data = JSON.parse(raw);
   } catch (err) {
     console.error('[DB] Failed reading db file, resetting to initial data:', err.message);
     const initial = getInitialData();
-    fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2), 'utf8');
+    writeDb(initial);
     return initial;
   }
 
@@ -305,10 +330,11 @@ function readDb() {
 
 function writeDb(data) {
   try {
-    if (!fs.existsSync(DATA_DIR)) {
+    // Ensure the target directory exists (only relevant for local/non-Vercel)
+    if (!IS_VERCEL && !fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+    fs.writeFileSync(DB_FILE_WRITABLE, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
     console.error('[DB] Failed writing db file:', err.message);
   }

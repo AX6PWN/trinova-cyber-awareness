@@ -229,7 +229,17 @@ async function handleApi(req, res, parsedUrl) {
       const result = db.login(body.email, body.password);
       if (!result.success) return sendJson(res, 401, result);
 
-      const sid = await auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
+      let sid;
+      try {
+        sid = await auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
+      } catch (sessionErr) {
+        console.error('[Auth] createSession failed during login:', sessionErr && sessionErr.name, sessionErr && sessionErr.message);
+        return sendJson(res, 503, {
+          success: false,
+          error: 'Session service is temporarily unavailable. Please try again in a moment.',
+          retryable: true
+        });
+      }
       return sendJson(res, 200, result, { 'Set-Cookie': auth.buildSessionCookie(sid, 7 * 24 * 3600) });
     }
 
@@ -239,7 +249,17 @@ async function handleApi(req, res, parsedUrl) {
       const result = db.register(body);
       if (!result.success) return sendJson(res, 400, result);
 
-      const sid = await auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
+      let sid;
+      try {
+        sid = await auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
+      } catch (sessionErr) {
+        console.error('[Auth] createSession failed during register:', sessionErr && sessionErr.name, sessionErr && sessionErr.message);
+        return sendJson(res, 503, {
+          success: false,
+          error: 'Session service is temporarily unavailable. Your account was created — please try signing in again in a moment.',
+          retryable: true
+        });
+      }
       return sendJson(res, 201, result, { 'Set-Cookie': auth.buildSessionCookie(sid, 7 * 24 * 3600) });
     }
 

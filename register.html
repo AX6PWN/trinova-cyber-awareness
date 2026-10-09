@@ -181,6 +181,11 @@
             window.location.replace(data.redirectTo || './employee.html');
             return;
           }
+          // 503: session store temporarily unavailable — account may have been created
+          if (res.status === 503 && data.retryable) {
+            errorEl.textContent = data.error || 'Session service is temporarily unavailable. Please try signing in.';
+            return;
+          }
           errorEl.textContent = data.error || 'Registration failed.';
         } catch (err) {
           errorEl.textContent = 'Server connection error. Please try again.';

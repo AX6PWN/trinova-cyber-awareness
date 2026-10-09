@@ -1,4 +1,7 @@
 .vercel
 node_modules/
 .env
+.env.local
 data/sessions.json
+server_out.txt
+server_err.txt

@@ -130,10 +130,15 @@
           });
           const data = await res.json();
 
-          if (res.ok && data.success && data.user) {
+          if ((res.ok || res.status === 200) && data.success && data.user) {
             try { localStorage.setItem('cybersafe_auth_user', JSON.stringify(data.user)); } catch (e) {}
             // Role-based redirect: /super-admin | /admin | /employee
-            window.location.replace(data.redirectTo || window.CyberSafeAuth.dashboardFor[data.user.role] || './employee.html');
+            window.location.replace(data.redirectTo || (window.CyberSafeAuth && window.CyberSafeAuth.dashboardFor[data.user.role]) || './employee.html');
+            return;
+          }
+          // 503: session store temporarily unavailable — user credentials OK
+          if (res.status === 503 && data.retryable) {
+            showError(data.error || 'Session service is temporarily unavailable. Please wait a moment and try again.');
             return;
           }
           showError(data.error || 'Sign-in failed. Please check your credentials.');
