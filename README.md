@@ -1,4 +1,4 @@
-<p align="center">
+v<p align="center">
   <img src="assets/images/logo.png" alt="Trinova Logo" width="140" />
 </p>
 
@@ -265,5 +265,6 @@ All endpoints are prefixed with `/api` and accept/return JSON. Authenticated rou
 ## License
 
 This project is intended for evaluation and demonstration purposes.
-#   t r i n o v a - c y b e r - a w a r e n e s s  
+#   t r i n o v a - c y b e r - a w a r e n e s s 
+ 
  
