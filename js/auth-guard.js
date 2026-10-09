@@ -40,6 +40,55 @@
     } catch (e) { /* private mode */ }
   }
 
+  // ------------------------------------------------------------
+  // Redirect-loop breaker
+  // When the session is visible to one serverless instance but not
+  // another, the browser can bounce endlessly between /login and a
+  // dashboard. We still perform the safe direction (-> login) but stop
+  // the risky direction (-> dashboard) after several rapid attempts so
+  // the loop terminates without granting any protected access.
+  // ------------------------------------------------------------
+  const LOOP_KEY_AT = 'cybersafe_redirect_at';
+  const LOOP_KEY_COUNT = 'cybersafe_redirect_count';
+  const LOOP_WINDOW_MS = 4000;
+  const LOOP_LIMIT = 6;
+
+  function clearLoopGuard() {
+    try {
+      sessionStorage.removeItem(LOOP_KEY_AT);
+      sessionStorage.removeItem(LOOP_KEY_COUNT);
+    } catch (e) {}
+  }
+
+  function noteRedirect() {
+    const now = Date.now();
+    let last = 0;
+    let count = 0;
+    try {
+      last = Number(sessionStorage.getItem(LOOP_KEY_AT) || 0);
+      count = Number(sessionStorage.getItem(LOOP_KEY_COUNT) || 0);
+    } catch (e) {}
+    const next = (now - last < LOOP_WINDOW_MS) ? count + 1 : 1;
+    try {
+      sessionStorage.setItem(LOOP_KEY_AT, String(now));
+      sessionStorage.setItem(LOOP_KEY_COUNT, String(next));
+    } catch (e) {}
+    return next;
+  }
+
+  /**
+   * Navigate with replace(). When breakOnLoop is set, a detected loop
+   * cancels the navigation instead of bouncing again.
+   */
+  function safeReplace(url, { breakOnLoop = false } = {}) {
+    if (breakOnLoop && noteRedirect() > LOOP_LIMIT) {
+      console.warn('[Auth] Redirect loop detected; halting automatic redirect.');
+      return false;
+    }
+    window.location.replace(url);
+    return true;
+  }
+
   const CyberSafeAuth = {
     user: null,
 
@@ -59,13 +108,15 @@
     async require(roles) {
       const user = await CyberSafeAuth.refresh();
       if (!user) {
-        window.location.replace('./login.html');
+        // Safe direction: protected -> login (never grants access).
+        safeReplace('./login.html');
         return null;
       }
       if (roles && roles.length && !roles.includes(user.role)) {
-        window.location.replace(DASH[user.role] || '/employee');
+        safeReplace(DASH[user.role] || '/employee', { breakOnLoop: true });
         return null;
       }
+      clearLoopGuard();
       return user;
     },
 
@@ -106,10 +157,10 @@
         res.clone().json()
           .then(body => {
             const target = (body && body.redirectTo) || null;
-            window.location.replace(target || DASH[window.CYBERSAFE_ROLE] || '/employee');
+            safeReplace(target || DASH[window.CYBERSAFE_ROLE] || '/employee', { breakOnLoop: true });
           })
           .catch(() => {
-            window.location.replace(DASH[window.CYBERSAFE_ROLE] || '/employee');
+            safeReplace(DASH[window.CYBERSAFE_ROLE] || '/employee', { breakOnLoop: true });
           });
         return true;
       }
@@ -131,18 +182,24 @@
 
     if (cfg.public) {
       // Already signed in? Never show login/register again.
-      if (user) window.location.replace(DASH[user.role] || '/employee');
+      if (user) {
+        safeReplace(DASH[user.role] || '/employee', { breakOnLoop: true });
+        return;
+      }
+      clearLoopGuard();
       return;
     }
 
     if (!user) {
-      window.location.replace('./login.html');
+      // Safe direction: protected -> login (never grants access).
+      safeReplace('./login.html');
       return;
     }
     if (cfg.roles && cfg.roles.length && !cfg.roles.includes(user.role)) {
-      window.location.replace(DASH[user.role] || '/employee');
+      safeReplace(DASH[user.role] || '/employee', { breakOnLoop: true });
       return;
     }
+    clearLoopGuard();
     window.CYBERSAFE_ROLE = user.role;
     document.dispatchEvent(new CustomEvent('auth:ready', { detail: user }));
   }
@@ -166,7 +223,10 @@
 
   // Back/forward cache: re-validate whenever the page is restored
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted) runGuard();
+    if (event.persisted) {
+      clearLoopGuard();
+      runGuard();
+    }
   });
 
   // Tab refocus — catch server-side session revocation (e.g. password reset)
@@ -177,7 +237,7 @@
       .then(res => {
         if (!res.ok) {
           storeUser(null);
-          window.location.replace('./login.html');
+          safeReplace('./login.html');
         }
       })
       .catch(() => {});

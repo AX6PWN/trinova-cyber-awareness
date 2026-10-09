@@ -85,6 +85,14 @@ function dashboardFor(role) {
   return '/employee';
 }
 
+// Only page routes and API calls need a session lookup. Static assets
+// (/css, /js, /assets) are served without touching the session store,
+// so the shared Neon lookup runs once per navigation instead of per file.
+function needsSession(pathname) {
+  return pathname.startsWith('/api/') ||
+    Boolean(OPEN_PAGES[pathname] || PUBLIC_PAGES[pathname] || PROTECTED_PAGES[pathname]);
+}
+
 // Static asset directories that are safe to serve without a session
 const PUBLIC_STATIC_DIRS = ['/css/', '/js/', '/assets/'];
 
@@ -221,7 +229,7 @@ async function handleApi(req, res, parsedUrl) {
       const result = db.login(body.email, body.password);
       if (!result.success) return sendJson(res, 401, result);
 
-      const sid = auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
+      const sid = await auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
       return sendJson(res, 200, result, { 'Set-Cookie': auth.buildSessionCookie(sid, 7 * 24 * 3600) });
     }
 
@@ -231,14 +239,14 @@ async function handleApi(req, res, parsedUrl) {
       const result = db.register(body);
       if (!result.success) return sendJson(res, 400, result);
 
-      const sid = auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
+      const sid = await auth.createSession({ id: result.user.id, role: result.user.role, orgId: result.user.orgId });
       return sendJson(res, 201, result, { 'Set-Cookie': auth.buildSessionCookie(sid, 7 * 24 * 3600) });
     }
 
     // Logout — destroys the server session AND clears the cookie
     if (pathname === '/api/auth/logout' && method === 'POST') {
       const sid = auth.extractSid(req);
-      auth.destroySession(sid);
+      await auth.destroySession(sid);
       return sendJson(res, 200, { success: true }, { 'Set-Cookie': auth.clearCookie() });
     }
 
@@ -264,7 +272,7 @@ async function handleApi(req, res, parsedUrl) {
     // Reset password
     if (pathname === '/api/auth/reset-password' && method === 'POST') {
       const body = await parseJsonBody(req);
-      const result = db.resetPassword(body.token, body.password);
+      const result = await db.resetPassword(body.token, body.password);
       if (!result.success) return sendJson(res, 400, result);
       return sendJson(res, 200, { success: true, message: 'Password updated. Please sign in.' });
     }
@@ -347,7 +355,7 @@ async function handleApi(req, res, parsedUrl) {
         return sendJson(res, 403, { error: 'Only a Super Admin can change roles', redirectTo: dashboardFor(actor.role) });
       }
       const body = await parseJsonBody(req);
-      const result = db.updateUserRole(roleMatch[1], body.role, actor);
+      const result = await db.updateUserRole(roleMatch[1], body.role, actor);
       if (!result.success) return sendJson(res, 400, result);
       return sendJson(res, 200, result);
     }
@@ -361,7 +369,7 @@ async function handleApi(req, res, parsedUrl) {
       if (actor.role !== 'superadmin' && (target.orgId !== actor.orgId || target.role !== 'employee')) {
         return sendJson(res, 403, { error: 'You can only manage employees in your own organization' });
       }
-      const result = db.setUserStatus(statusMatch[1], body.status, actor);
+      const result = await db.setUserStatus(statusMatch[1], body.status, actor);
       if (!result.success) return sendJson(res, 400, result);
       return sendJson(res, 200, result);
     }
@@ -369,7 +377,7 @@ async function handleApi(req, res, parsedUrl) {
     const deleteMatch = pathname.match(/^\/api\/admin\/users\/([^/]+)$/);
     if (deleteMatch && method === 'DELETE') {
       if (!canManage(req)) return sendJson(res, 403, { error: 'Admin access required' });
-      const result = db.deleteUser(deleteMatch[1], actor);
+      const result = await db.deleteUser(deleteMatch[1], actor);
       if (!result.success) return sendJson(res, 400, result);
       return sendJson(res, 200, result);
     }
@@ -527,8 +535,11 @@ async function requestHandler(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = decodeURIComponent(parsedUrl.pathname);
 
-  // Resolve session (if any) before routing
-  auth.attachSession(req);
+  // Resolve session (if any) before routing. Session storage is shared
+  // (Neon) in production, so any instance resolves the same session.
+  if (needsSession(pathname)) {
+    await auth.attachSession(req);
+  }
 
   // Warehouse GLB proxy — serves the large model from R2 through same origin
   if ((req.method === 'GET' || req.method === 'HEAD') && pathname === '/assets/warehouse.glb') {

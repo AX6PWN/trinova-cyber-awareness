@@ -93,6 +93,23 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 8. Shared Authentication Sessions
+-- Shared across serverless instances so a login on one instance is
+-- visible to every other instance (fixes the /tmp/ per-instance 401 loop).
+-- created_at / expires_at are epoch milliseconds (BIGINT) to match the
+-- application's existing JS timestamps.
+CREATE TABLE IF NOT EXISTS sessions (
+    sid        TEXT PRIMARY KEY,
+    user_id    VARCHAR(64) NOT NULL,
+    role       VARCHAR(50) NOT NULL,
+    org_id     VARCHAR(64),
+    created_at BIGINT NOT NULL,
+    expires_at BIGINT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions (expires_at);
+CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions (user_id);
+
 -- Initial B2B Seed Data
 INSERT INTO organizations (id, name, domain, plan, industry, security_score)
 VALUES 

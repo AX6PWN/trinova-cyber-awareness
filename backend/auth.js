@@ -20,6 +20,69 @@ const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1 };
 const KEYLEN = 64;
 
 /* ------------------------------------------------------------
+   SESSION STORAGE BACKEND
+   Neon Postgres when DATABASE_URL is configured — this is shared
+   across every serverless instance and survives cold starts. The
+   local JSON file is a development fallback only (single process).
+   ------------------------------------------------------------ */
+
+const DATABASE_URL = process.env.DATABASE_URL || '';
+let neonSql = null;
+let sessionBackend = 'file';
+
+if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
+  try {
+    const { neon } = require('@neondatabase/serverless');
+    neonSql = neon(DATABASE_URL);
+    sessionBackend = 'neon';
+  } catch (err) {
+    console.warn('[Auth] Neon driver unavailable; falling back to file session store:', err.message);
+    sessionBackend = 'file';
+  }
+}
+
+// Diagnostics are OFF by default. Enable with AUTH_DEBUG=true.
+// Values logged are limited to booleans/backend names — never cookie
+// values, session IDs, emails, passwords, or secrets.
+const AUTH_DEBUG = process.env.AUTH_DEBUG === 'true';
+function diag(message, fields = {}) {
+  if (!AUTH_DEBUG) return;
+  const parts = Object.keys(fields).map(k => `${k}=${fields[k]}`);
+  console.log(`[Auth][diag] ${message}${parts.length ? ' ' + parts.join(' ') : ''}`);
+}
+
+// Non-destructive migration: create the shared sessions table on first
+// use. CREATE ... IF NOT EXISTS never touches existing data.
+let schemaReady = null;
+function ensureSessionSchema() {
+  if (sessionBackend !== 'neon') return Promise.resolve();
+  if (!schemaReady) {
+    schemaReady = neonSql.query(
+      `CREATE TABLE IF NOT EXISTS sessions (
+         sid        TEXT PRIMARY KEY,
+         user_id    VARCHAR(64) NOT NULL,
+         role       VARCHAR(50) NOT NULL,
+         org_id     VARCHAR(64),
+         created_at BIGINT NOT NULL,
+         expires_at BIGINT NOT NULL
+       )`
+    ).then(() => neonSql.query(
+      `CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions (expires_at)`
+    )).then(() => neonSql.query(
+      `CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions (user_id)`
+    )).catch(err => {
+      schemaReady = null; // allow the next request to retry
+      throw err;
+    });
+  }
+  return schemaReady;
+}
+
+function getSessionBackend() {
+  return sessionBackend;
+}
+
+/* ------------------------------------------------------------
    PASSWORD HASHING
    Stored format: scrypt$<salt-hex>$<hash-hex>
    Legacy format (sha256 + static salt) is still verified and
@@ -80,7 +143,9 @@ function validateEmail(email) {
 }
 
 /* ------------------------------------------------------------
-   SERVER-SIDE SESSION STORE (file-backed, cookie delivered)
+   SERVER-SIDE SESSION STORE
+   Shared Neon Postgres table (production) with a local JSON file
+   fallback for single-process development.
    ------------------------------------------------------------ */
 
 let sessions = null;
@@ -121,35 +186,76 @@ function pruneSessions() {
   return dirty;
 }
 
-function createSession(user) {
-  const store = loadSessions();
+async function createSession(user) {
   const sid = crypto.randomBytes(32).toString('hex');
-  store[sid] = {
-    userId: user.id,
-    role: user.role,
-    orgId: user.orgId,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + SESSION_TTL_MS
-  };
-  saveSessions();
+  const createdAt = Date.now();
+  const expiresAt = createdAt + SESSION_TTL_MS;
+  const record = { userId: user.id, role: user.role, orgId: user.orgId, createdAt, expiresAt };
+
+  if (sessionBackend === 'neon') {
+    await ensureSessionSchema();
+    await neonSql.query(
+      `INSERT INTO sessions (sid, user_id, role, org_id, created_at, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [sid, record.userId, record.role, record.orgId, record.createdAt, record.expiresAt]
+    );
+  } else {
+    const store = loadSessions();
+    store[sid] = record;
+    saveSessions();
+  }
+  diag('sessionCreated', { backend: sessionBackend });
   return sid;
 }
 
-function getSession(sid) {
+async function getSession(sid) {
   if (!sid) return null;
+
+  if (sessionBackend === 'neon') {
+    await ensureSessionSchema();
+    const rows = await neonSql.query(
+      `SELECT sid, user_id, role, org_id, created_at, expires_at FROM sessions WHERE sid = $1`,
+      [sid]
+    );
+    const row = rows && rows[0];
+    if (!row) { diag('sessionLookup', { backend: sessionBackend, found: false }); return null; }
+    if (Number(row.expires_at) < Date.now()) {
+      await neonSql.query('DELETE FROM sessions WHERE sid = $1', [sid]);
+      diag('sessionLookup', { backend: sessionBackend, found: false, expired: true });
+      return null;
+    }
+    return {
+      sid: row.sid,
+      userId: row.user_id,
+      role: row.role,
+      orgId: row.org_id,
+      createdAt: Number(row.created_at),
+      expiresAt: Number(row.expires_at)
+    };
+  }
+
   const store = loadSessions();
   const session = store[sid];
-  if (!session) return null;
+  if (!session) { diag('sessionLookup', { backend: sessionBackend, found: false }); return null; }
   if (session.expiresAt < Date.now()) {
     delete store[sid];
     saveSessions();
+    diag('sessionLookup', { backend: sessionBackend, found: false, expired: true });
     return null;
   }
+  diag('sessionLookup', { backend: sessionBackend, found: true });
   return { sid, ...session };
 }
 
-function destroySession(sid) {
+async function destroySession(sid) {
   if (!sid) return false;
+
+  if (sessionBackend === 'neon') {
+    await ensureSessionSchema();
+    const rows = await neonSql.query('DELETE FROM sessions WHERE sid = $1 RETURNING sid', [sid]);
+    return Boolean(rows && rows.length);
+  }
+
   const store = loadSessions();
   if (!store[sid]) return false;
   delete store[sid];
@@ -157,7 +263,15 @@ function destroySession(sid) {
   return true;
 }
 
-function destroyUserSessions(userId) {
+async function destroyUserSessions(userId) {
+  if (!userId) return 0;
+
+  if (sessionBackend === 'neon') {
+    await ensureSessionSchema();
+    const rows = await neonSql.query('DELETE FROM sessions WHERE user_id = $1 RETURNING sid', [userId]);
+    return rows ? rows.length : 0;
+  }
+
   const store = loadSessions();
   let removed = 0;
   Object.keys(store).forEach(sid => {
@@ -224,11 +338,14 @@ function clearCookie() {
  * Resolve the authenticated user for a request.
  * Populates req.session + req.authUser (full db record) when valid.
  */
-function attachSession(req) {
+async function attachSession(req) {
   req.session = null;
   req.authUser = null;
   const sid = extractSid(req);
-  const session = getSession(sid);
+  const cookiePresent = Boolean(sid);
+  diag('attach', { backend: sessionBackend, cookiePresent });
+  if (!sid) return null;
+  const session = await getSession(sid);
   if (!session) return null;
   req.session = session;
   return session;
@@ -279,5 +396,6 @@ module.exports = {
   createResetToken,
   hashToken,
   RESET_TTL_MS,
-  COOKIE_NAME
+  COOKIE_NAME,
+  getSessionBackend
 };

@@ -335,6 +335,7 @@ const db = {
       neonProjectId: NEON_PROJECT_ID,
       neonBranch: NEON_BRANCH,
       databaseUrlConfigured: Boolean(DATABASE_URL),
+      sessionStore: auth.getSessionBackend(),
       provider: isNeonActive ? 'Neon Serverless PostgreSQL (Cloud)' : 'Neon Schema Persistent Engine (Local Sync)',
       timestamp: new Date().toISOString()
     };
@@ -704,7 +705,7 @@ const db = {
   },
 
   // Change a user's role (Super Admin only)
-  updateUserRole(userId, newRole, actor) {
+  async updateUserRole(userId, newRole, actor) {
     if (!actor || actor.role !== 'superadmin') {
       return { success: false, error: 'Only a Super Admin can change user roles.' };
     }
@@ -725,12 +726,12 @@ const db = {
       `${user.email}: ${previous} → ${role} (by ${actor.email})`, 'warning');
 
     // Existing sessions must pick up the new role immediately
-    auth.destroyUserSessions(user.id);
+    await auth.destroyUserSessions(user.id);
     return { success: true, user: this.toSafeUser(user) };
   },
 
   // Enable / disable an account
-  setUserStatus(userId, status, actor) {
+  async setUserStatus(userId, status, actor) {
     const data = readDb();
     const user = data.users.find(u => u.id === userId);
     if (!user) return { success: false, error: 'User not found.' };
@@ -741,14 +742,14 @@ const db = {
     const next = status === 'disabled' ? 'disabled' : 'active';
     user.status = next;
     writeDb(data);
-    if (next === 'disabled') auth.destroyUserSessions(user.id);
+    if (next === 'disabled') await auth.destroyUserSessions(user.id);
     this.logAudit(user.orgId, actor.id, actor.email, 'Account Status',
       `${user.email} set to ${next} by ${actor.email}`, 'warning');
     return { success: true, user: this.toSafeUser(user) };
   },
 
   // Delete a user account (admins: employees in own org; superadmin: anyone but themselves)
-  deleteUser(userId, actor) {
+  async deleteUser(userId, actor) {
     const data = readDb();
     const user = data.users.find(u => u.id === userId);
     if (!user) return { success: false, error: 'User not found.' };
@@ -765,7 +766,7 @@ const db = {
     data.certificates = data.certificates.filter(c => c.userId !== userId);
     data.passwordResets = (data.passwordResets || []).filter(r => r.userId !== userId);
     writeDb(data);
-    auth.destroyUserSessions(userId);
+    await auth.destroyUserSessions(userId);
     this.logAudit(user.orgId, actor.id, actor.email, 'Account Deleted',
       `${actor.fullName} (${actor.role}) deleted ${user.email}`, 'warning');
     return { success: true };
@@ -804,7 +805,7 @@ const db = {
   },
 
   // Complete forgot-password flow with a valid one-time token
-  resetPassword(token, newPassword) {
+  async resetPassword(token, newPassword) {
     const data = readDb();
     if (!token) return { success: false, error: 'Reset token is required.' };
     const record = (data.passwordResets || []).find(r => r.tokenHash === auth.hashToken(token) && !r.used);
@@ -822,7 +823,7 @@ const db = {
     writeDb(data);
 
     // Kill every active session for this account
-    auth.destroyUserSessions(user.id);
+    await auth.destroyUserSessions(user.id);
     this.logAudit(user.orgId, user.id, user.email, 'Password Reset Completed', 'Password changed via reset link; all sessions revoked', 'warning');
     return { success: true };
   },
