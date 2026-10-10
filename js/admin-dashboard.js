@@ -35,7 +35,7 @@
     if (av && !av.includes('/') && av.length <= 8) {
       document.getElementById('chip-avatar').textContent = av;
     }
-    document.getElementById('hero-title').textContent = `${actor.orgName || 'Organization'} — Compliance Hub`;
+    document.getElementById('hero-title').textContent = `${actor.orgName || 'Organization'} Compliance Hub`;
     document.getElementById('hero-sub').textContent =
       `Signed in as ${actor.fullName} · manage employees, training completion and results.`;
 
@@ -79,7 +79,7 @@
         <div class="activity-row">
           <span class="act-time">${t.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
           <span class="act-badge ${l.severity === 'warning' ? 'warning' : l.severity === 'error' ? 'error' : 'info'}">${esc(l.severity)}</span>
-          <span><strong>${esc(l.action)}</strong> — ${esc(l.details)} <span class="muted">(${esc(l.userEmail)})</span></span>
+          <span><strong>${esc(l.action)}</strong> ${esc(l.details)} <span class="muted">(${esc(l.userEmail)})</span></span>
         </div>
       `;
     }).join('');
@@ -95,7 +95,7 @@
 
     const tbody = document.getElementById('users-tbody');
     if (!users.length) {
-      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No users yet — create your first employee.</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">No users yet create your first employee.</div></td></tr>';
       return;
     }
 
@@ -120,8 +120,8 @@
           <td>${esc(u.department)}</td>
           <td><span class="badge ${roleBadge}">${roleLabel}</span></td>
           <td style="min-width:120px;">
-            <div class="mini-bar" style="margin-bottom:4px;"><span style="width:${Math.round((u.topicsCompleted / (u.totalTopics || 8)) * 100)}%"></span></div>
-            <span class="muted" style="font-size:11.5px;">${u.topicsCompleted}/${u.totalTopics || 8} topics</span>
+            <div class="mini-bar" style="margin-bottom:4px;"><span style="width:${Math.round((u.topicsCompleted / (u.totalTopics || 6)) * 100)}%"></span></div>
+            <span class="muted" style="font-size:11.5px;">${u.topicsCompleted}/${u.totalTopics || 6} topics</span>
           </td>
           <td><strong>${esc(score)}</strong>${u.certified ? ' 🎓' : ''}</td>
           <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
@@ -173,7 +173,7 @@
         <div><div class="p-label">Email</div><div class="p-value">${esc(u.email)}</div></div>
         <div><div class="p-label">Department</div><div class="p-value">${esc(u.department)}</div></div>
         <div><div class="p-label">Role</div><div class="p-value">${esc(u.role)}</div></div>
-        <div><div class="p-label">Training progress</div><div class="p-value">${progress.length}/8 topics</div></div>
+        <div><div class="p-label">Training progress</div><div class="p-value">${progress.length}/6 topics</div></div>
       </div>
       <div class="panel-title" style="border:0; padding-left:0; padding-right:0;">Quiz attempts</div>
       ${attempts.length ? attempts.map(a => `

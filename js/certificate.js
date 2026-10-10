@@ -12,6 +12,16 @@
   const A4_W = (297 * 96) / 25.4; // 1122.5px — A4 landscape width
   const A4_H = (210 * 96) / 25.4; // 793.7px  — A4 landscape height
 
+  /* Format elapsed seconds as HH:MM:SS (matches the in-app HUD timer) */
+  function formatDuration(totalSeconds) {
+    if (totalSeconds == null || totalSeconds === '') return '—';
+    const s = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const sec = String(s % 60).padStart(2, '0');
+    return `${h}:${m}:${sec}`;
+  }
+
   /* Fit the certificate content inside the fixed A4 sheet, then scale the
      whole sheet so it stays fully visible in the viewer (and lightbox). */
   function fitA4Certificate() {
@@ -162,8 +172,10 @@
     $('cert-name').textContent = cert.userName || 'Certified Employee';
     $('cert-score').textContent = `${cert.score}%`;
     $('cert-date').textContent = cert.issueDate || '—';
+    $('cert-duration').textContent = formatDuration(cert.durationSeconds);
     $('cert-status').textContent = cert.status === 'verified' ? 'Passed' : (cert.status || 'Passed');
     $('cert-id').textContent = cert.certificateNumber || cert.id || '—';
+    $('cert-quiz-score').textContent = cert.quizScore || `${cert.score}%`;
     $('cert-hash').textContent = cert.verificationHash || '—';
     $('cert-org').textContent = cert.orgName || '—';
 

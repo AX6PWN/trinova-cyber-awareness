@@ -110,7 +110,7 @@
           <span class="step-num">1</span>
           <span class="step-text">
             <strong>Explore</strong>
-            <span>Look around the office and find 8 threat hotspots</span>
+            <span>Look around the office and find 6 threat hotspots</span>
           </span>
         </li>
         <li class="flow-step">
@@ -165,8 +165,12 @@
         <div class="progress-bar">
           <div class="progress-fill"></div>
         </div>
-        <span id="progress-text">0/8 Topics</span>
+        <span id="progress-text">0/6 Topics</span>
       </div>
+      <span class="hud-timer" title="Elapsed training time">
+        <span class="hud-timer-icon">⏱</span>
+        <span id="training-timer">00:00:00</span>
+      </span>
     </div>
     <div class="hud-right">
       <button id="btn-start-quiz" class="hud-btn hud-btn-primary" style="display: none;">
@@ -215,6 +219,16 @@
     <div style="font-size: 18px; font-weight: bold;">Press <kbd style="background: #fff; color: #000; padding: 2px 6px; border-radius: 4px;">E</kbd> to Explore</div>
   </div>
 
+  <!-- On-screen movement arrows (mirror W/A/S/D and the arrow keys) -->
+  <div id="move-pad" aria-label="Movement controls">
+    <button type="button" class="move-btn" data-code="KeyW" title="Move forward (W)" aria-label="Move forward">▲</button>
+    <div class="move-pad-row">
+      <button type="button" class="move-btn" data-code="KeyA" title="Move left (A)" aria-label="Move left">◀</button>
+      <button type="button" class="move-btn" data-code="KeyS" title="Move backward (S)" aria-label="Move backward">▼</button>
+      <button type="button" class="move-btn" data-code="KeyD" title="Move right (D)" aria-label="Move right">▶</button>
+    </div>
+  </div>
+
   <div id="debug-hotspots" style="position: absolute; top: 80px; left: 20px; background: rgba(0,0,0,0.7); color: #0f0; padding: 10px; font-family: monospace; font-weight: bold; border-radius: 4px; z-index: 9999;">
     HOTSPOTS: 6/6
   </div>
@@ -223,7 +237,7 @@
   <div id="model-loading-overlay" style="position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(6,10,22,0.92);color:#fff;font-family:Inter,sans-serif;gap:18px;">
     <div id="model-loading-spinner" style="width:52px;height:52px;border:4px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
     <div style="font-size:16px;font-weight:600;letter-spacing:0.04em;">Loading 3D Environment…</div>
-    <div style="font-size:12px;color:#94a3b8;">Fetching warehouse model — this may take a moment</div>
+    <div style="font-size:12px;color:#94a3b8;">Fetching warehouse model this may take a moment</div>
     <div id="model-error-banner" style="display:none;margin-top:8px;background:#1e293b;border:1px solid #ef4444;border-radius:8px;padding:14px 20px;max-width:420px;text-align:center;">
       <div style="color:#f87171;font-weight:700;margin-bottom:6px;">⚠️ Could not load the 3D model</div>
       <div id="model-error-detail" style="font-size:12px;color:#94a3b8;margin-bottom:12px;">The warehouse file failed to download. Check your connection and try again.</div>
@@ -253,11 +267,13 @@
 
     <a-entity id="warehouse-scene" gltf-model="#warehouse-model" scale="0.001 0.001 0.001" position="0 0 0"></a-entity>
     
-    <!-- PLAYER (Invisible Avatar for exploration) -->
-    <a-entity id="farmer" position="-8.2 0 3.6" third-person-controller="cameraRig: #camera-rig"></a-entity>
+    <!-- PLAYER (Invisible Avatar for exploration). Starts in the open aisle
+         north of the workstation so the whole room is visible on load. -->
+    <a-entity id="farmer" position="-9 0 -1" third-person-controller="cameraRig: #camera-rig"></a-entity>
 
-    <!-- 3RD PERSON CAMERA RIG -->
-    <a-entity id="camera-rig" position="-8.2 2 7">
+    <!-- 3RD PERSON CAMERA RIG (matches the computed start pose: yaw = PI,
+         distance 4.2, pitch 0.12, target height 1.35) -->
+    <a-entity id="camera-rig" position="-9 1.85 -5.17">
       <a-camera
         id="main-camera"
         look-controls="enabled: false"
@@ -417,6 +433,7 @@
       </div>
       <div class="results-message">🎉 Excellent Work!</div>
       <div class="results-subtitle">You demonstrated strong cybersecurity awareness.</div>
+      <div class="results-duration" id="results-duration"></div>
       <div class="results-breakdown"></div>
       <div class="results-actions">
         <button id="btn-retake-quiz" class="btn-primary">Retake Quiz</button>
@@ -465,7 +482,7 @@
           <div class="b2b-kpi-card highlight">
             <div class="kpi-label">Org Cyber Readiness Index</div>
             <div class="kpi-val" id="b2b-dash-score">84%</div>
-            <div class="kpi-status-badge good">Grade A — Audit Compliant</div>
+            <div class="kpi-status-badge good">Grade A Audit Compliant</div>
           </div>
           <div class="b2b-kpi-card">
             <div class="kpi-label">Active Headcount</div>
@@ -563,7 +580,7 @@
         <div class="b2b-section-box" style="margin-top: 16px;">
           <div class="b2b-sec-title-row">
             <div class="b2b-sec-title">
-              <span>🏆 Cybersecurity Leaderboard — Top Performers</span>
+              <span>🏆 Cybersecurity Leaderboard Top Performers</span>
               <span class="sec-badge">Gamified</span>
             </div>
             <button id="btn-invite-employee" class="btn-primary btn-sm" title="Invite new employee to training">
@@ -694,21 +711,21 @@
             <span class="sa-banner-icon">👑</span>
             <div>
               <div class="sa-banner-title">Trinova Platform Administration</div>
-              <div class="sa-banner-subtitle">Restricted access — platform operators &amp; SaaS administrators only</div>
+              <div class="sa-banner-subtitle">Restricted access platform operators &amp; SaaS administrators only</div>
             </div>
           </div>
           <div class="auth-role-legend">
             <div class="role-legend-item superadmin">
               <span class="role-legend-dot"></span>
               <div>
-                <strong>👑 SuperAdmin</strong> — Full platform access across all tenants, billing, system metrics
+                <strong>👑 SuperAdmin</strong> Full platform access across all tenants, billing, system metrics
                 <div class="role-cred-hint">Demo: <code>superadmin@trinova.io</code> / <code>superadmin2026</code></div>
               </div>
             </div>
             <div class="role-legend-item admin">
               <span class="role-legend-dot" style="background:#2563eb;"></span>
               <div>
-                <strong>🛡️ Org Admin / CISO</strong> — Manage org employees, campaigns, compliance reports
+                <strong>🛡️ Org Admin / CISO</strong> Manage org employees, campaigns, compliance reports
                 <div class="role-cred-hint">Demo: <code>ciso@acmesec.com</code> / <code>admin123</code> &nbsp;|&nbsp; <code>admin@fintechtrust.io</code> / <code>admin456</code></div>
               </div>
             </div>
@@ -843,7 +860,7 @@
               <div id="cert-holder-name" class="cert-name">Elena Rostova</div>
 
               <div class="cert-desc">
-                has successfully completed all 8 comprehensive modules of the <strong>Trinova Cyber Awareness 360 Interactive Threat Simulator</strong>,
+                has successfully completed all 6 comprehensive modules of the <strong>Trinova Cyber Awareness 360 Interactive Threat Simulator</strong>,
                 demonstrating certified mastery in defending against Phishing, MFA Hijacking, Ransomware Extortion,
                 Social Engineering Pretexting, Physical Tailgating, and Clean Desk Security at
               </div>
@@ -866,6 +883,10 @@
                 <div>
                   <span class="cert-meta-label">Valid Until</span>
                   <span id="cert-expiry-date">October 1, 2027</span>
+                </div>
+                <div>
+                  <span class="cert-meta-label">Total Duration</span>
+                  <strong id="cert-duration">—</strong>
                 </div>
               </div>
 

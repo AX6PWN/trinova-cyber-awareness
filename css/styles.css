@@ -535,7 +535,9 @@ button {
    ============================================================ */
 #hud {
   position: fixed;
-  top: 0;
+  /* Sit directly beneath the fixed 60px enterprise top nav so the nav
+     (z-index 1100) can never occlude the HUD clock, progress and buttons. */
+  top: 60px;
   left: 0;
   right: 0;
   z-index: 100;
@@ -1508,6 +1510,64 @@ button {
 @keyframes hintDrag {
   0%, 100% { transform: translateX(0); }
   50%      { transform: translateX(6px); }
+}
+
+/* ============================================================
+   ON-SCREEN MOVEMENT PAD (mirrors WASD / arrow keys)
+   ============================================================ */
+#move-pad {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  z-index: 90;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+#move-pad.visible {
+  display: flex;
+}
+
+.move-pad-row {
+  display: flex;
+  gap: 8px;
+}
+
+.move-btn {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.move-btn:hover {
+  background: #fff;
+}
+
+.move-btn.active,
+.move-btn:active {
+  transform: scale(0.94);
+  background: var(--accent, #38bdf8);
+  border-color: var(--accent, #38bdf8);
+  color: #fff;
 }
 
 /* ============================================================
@@ -2825,7 +2885,7 @@ a-scene {
 
 .cert-details-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 12px;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -3380,4 +3440,61 @@ a-scene {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* ============================================================
+   TRAINING DURATION TRACKING
+   ============================================================ */
+
+.hud-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.hud-timer-icon { font-size: 12px; }
+#training-timer { display: inline-block; min-width: 8ch; text-align: center; }
+
+/* Keep the HUD clock visible on narrow viewports without overlapping
+   the movement pad (bottom) or the top navigation (above). */
+@media (max-width: 720px) {
+  #hud { padding: 8px 10px; }
+  .hud-left { gap: 10px; min-width: 0; }
+  .hud-title { font-size: 0; gap: 0; }   /* top nav already shows the wordmark */
+  .hud-title img { width: 18px; height: 18px; }
+  .progress-bar { width: 64px; }
+  .hud-timer { font-size: 12px; padding: 3px 9px; }
+}
+
+.results-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-lg);
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.history-row .history-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
 }

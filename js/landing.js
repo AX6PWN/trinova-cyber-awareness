@@ -111,8 +111,8 @@
       }
 
       form.reset();
-      note.textContent = 'Thanks! Your message has been received — we will reply within one business day.';
-      showToast('Message sent — we will be in touch shortly.');
+      note.textContent = 'Thanks! Your message has been received we will reply within one business day.';
+      showToast('Message sent we will be in touch shortly.');
     });
   }
 

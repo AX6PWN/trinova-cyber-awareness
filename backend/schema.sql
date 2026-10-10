@@ -110,6 +110,30 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions (expires_at);
 CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions (user_id);
 
+-- 9. Training Sessions & Duration Tracking
+-- One row per training attempt. started_at / completed_at are persisted
+-- server-side timestamps; duration_seconds is always derived from them so
+-- the elapsed time can never be forged by the client.
+CREATE TABLE IF NOT EXISTS training_sessions (
+    id              VARCHAR(64) PRIMARY KEY,
+    user_id         VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+    org_id          VARCHAR(64) REFERENCES organizations(id) ON DELETE CASCADE,
+    course_id       VARCHAR(100) DEFAULT 'cyber-awareness-360',
+    course_name     VARCHAR(255) DEFAULT 'Trinova Cyber Awareness 360',
+    started_at      TIMESTAMP WITH TIME ZONE NOT NULL,
+    completed_at    TIMESTAMP WITH TIME ZONE,
+    duration_seconds INTEGER,
+    quiz_score      VARCHAR(50),
+    quiz_percentage INTEGER,
+    status          VARCHAR(50) DEFAULT 'in_progress', -- 'in_progress', 'completed'
+    certificate_id  VARCHAR(64),
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS training_sessions_user_idx ON training_sessions (user_id);
+CREATE INDEX IF NOT EXISTS training_sessions_status_idx ON training_sessions (status);
+
 -- Initial B2B Seed Data
 INSERT INTO organizations (id, name, domain, plan, industry, security_score)
 VALUES 

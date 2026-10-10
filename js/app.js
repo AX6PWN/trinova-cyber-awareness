@@ -9,6 +9,7 @@ import { startQuiz, closeQuiz, getLastTrainingResult, downloadTrainingResults } 
 import { initDebug } from './debug.js';
 import { initB2B, openB2BDashboard, openCertificateModal } from './b2b.js';
 import { initThreatIntel, initInviteEmployee } from './features.js';
+import { startTraining, resumeTraining, bindTimer } from './training-timer.js';
 
 // --- App State ---
 let appState = 'welcome'; // 'welcome' | 'training' | 'quiz' | 'results'
@@ -82,6 +83,10 @@ function init() {
   // Init debug mode
   initDebug();
 
+  // Training duration timer: bind the HUD clock and recover any running session
+  bindTimer('training-timer');
+  resumeTraining();
+
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeydown);
 }
@@ -102,6 +107,9 @@ function onSceneReady(scene) {
 function enterTraining() {
   appState = 'training';
 
+  // Start the duration timer (resumes if the learner already has a live session)
+  startTraining();
+
   // Hide welcome screen
   const welcome = document.getElementById('welcome-screen');
   welcome.classList.add('hidden');
@@ -113,6 +121,10 @@ function enterTraining() {
   // Show explore hint
   const hint = document.getElementById('explore-hint');
   hint.classList.add('visible');
+
+  // Show on-screen movement pad
+  const movePad = document.getElementById('move-pad');
+  if (movePad) movePad.classList.add('visible');
 
   // We check if B2B user is logged in
   if (window.currentUser) {
@@ -141,6 +153,10 @@ function exitTraining() {
   // Hide explore hint
   const hint = document.getElementById('explore-hint');
   if (hint) hint.classList.remove('visible');
+
+  // Hide on-screen movement pad
+  const movePad = document.getElementById('move-pad');
+  if (movePad) movePad.classList.remove('visible');
 }
 
 // --- Hotspot Click Handler ---

@@ -256,7 +256,7 @@ async function handleApi(req, res, parsedUrl) {
         console.error('[Auth] createSession failed during register:', sessionErr && sessionErr.name, sessionErr && sessionErr.message);
         return sendJson(res, 503, {
           success: false,
-          error: 'Session service is temporarily unavailable. Your account was created — please try signing in again in a moment.',
+          error: 'Session service is temporarily unavailable. Your account was created please try signing in again in a moment.',
           retryable: true
         });
       }
@@ -418,6 +418,51 @@ async function handleApi(req, res, parsedUrl) {
       if (!topicId) return sendJson(res, 400, { error: 'topicId is required' });
       const result = db.saveProgress(actor.id, topicId, body.topicTitle);
       return sendJson(res, 200, result);
+    }
+
+    /* ---------- Training duration sessions ---------- */
+
+    // Start a session (or resume the caller's active one). Returns a
+    // server-anchored startedAt so elapsed time is authoritative.
+    if (pathname === '/api/training/start' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const result = db.startTrainingSession(actor.id, {
+        courseId: body.courseId,
+        courseName: body.courseName
+      });
+      if (!result.success) return sendJson(res, 400, result);
+      return sendJson(res, 200, result);
+    }
+
+    // Current active session for the caller (refresh / reconnect recovery)
+    if (pathname === '/api/training/session' && method === 'GET') {
+      const requested = parsedUrl.searchParams.get('userId');
+      const userId = canManage(req) && requested ? requested : actor.id;
+      const session = db.getActiveTrainingSession(userId, parsedUrl.searchParams.get('courseId'));
+      return sendJson(res, 200, { session, userId });
+    }
+
+    // Complete a session: duration is derived server-side from persisted
+    // timestamps; the quiz attempt is recorded and a certificate is issued
+    // at most once. Safe to call twice (idempotent).
+    if (pathname === '/api/training/complete' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      if (!body.sessionId) return sendJson(res, 400, { error: 'sessionId is required' });
+      const result = db.completeTrainingSession(actor.id, body.sessionId, {
+        score: body.score,
+        percentage: body.percentage,
+        status: body.status,
+        breakdown: body.breakdown
+      });
+      if (!result.success) return sendJson(res, 400, result);
+      return sendJson(res, 200, result);
+    }
+
+    // Training history (course, status, time spent, quiz score, dates, cert)
+    if (pathname === '/api/training/history' && method === 'GET') {
+      const requested = parsedUrl.searchParams.get('userId');
+      const userId = canManage(req) && requested ? requested : actor.id;
+      return sendJson(res, 200, { history: db.getTrainingSessions(userId), userId });
     }
 
     // Quiz: Submit Attempt & Auto-Issue Certificate (always for the session user)

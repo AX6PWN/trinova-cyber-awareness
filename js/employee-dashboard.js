@@ -29,7 +29,7 @@
     user = u;
     renderProfile(user);
     document.getElementById('btn-logout')?.addEventListener('click', () => window.CyberSafeAuth.logout());
-    await Promise.all([loadProgress(), loadResults(), loadCertificates()]);
+    await Promise.all([loadProgress(), loadResults(), loadCertificates(), loadTrainingHistory()]);
     renderPath();
   });
 
@@ -127,7 +127,7 @@
 
     const list = document.getElementById('results-list');
     if (!history.length) {
-      list.innerHTML = '<div class="empty-state">No quiz attempts yet — finish the training to unlock the quiz.</div>';
+      list.innerHTML = '<div class="empty-state">No quiz attempts yet finish the training to unlock the quiz.</div>';
       return;
     }
     list.innerHTML = history.map(h => {
@@ -163,7 +163,7 @@
       <div class="result-row">
         <div>
           <div class="r-score">🎓 ${c.certificateNumber}</div>
-          <div class="r-date">Issued ${c.issueDate} · Expires ${c.expiryDate} · Score ${c.score}%</div>
+          <div class="r-date">Issued ${c.issueDate} · Expires ${c.expiryDate} · Score ${c.score}%${c.durationSeconds != null ? ` · Time ${formatDuration(c.durationSeconds)}` : ''}</div>
         </div>
         <div class="cert-row-actions">
           <a class="btn-xs" href="/certificate?id=${encodeURIComponent(c.id || c.certificateNumber)}">View</a>
@@ -174,5 +174,56 @@
 
     const certLink = document.getElementById('path-cert-link');
     if (certLink) certLink.href = `/certificate?id=${encodeURIComponent(newest.id || newest.certificateNumber)}`;
+  }
+
+  function formatDuration(totalSeconds) {
+    if (totalSeconds == null) return '—';
+    const s = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const sec = String(s % 60).padStart(2, '0');
+    return `${h}:${m}:${sec}`;
+  }
+
+  async function loadTrainingHistory() {
+    const data = await guardedJson('/api/training/history');
+    if (!data) return;
+    const history = data.history || [];
+
+    const badge = document.getElementById('history-badge');
+    if (badge) badge.textContent = `${history.length} session${history.length === 1 ? '' : 's'}`;
+
+    const list = document.getElementById('training-history-list');
+    if (!list) return;
+    if (!history.length) {
+      list.innerHTML = '<div class="empty-state">Start the 360° training to begin tracking your study time.</div>';
+      return;
+    }
+
+    list.innerHTML = history.map(s => {
+      const completed = s.status === 'completed';
+      const startDate = s.startedAt ? new Date(s.startedAt).toLocaleString() : '—';
+      const endDate = s.completedAt ? new Date(s.completedAt).toLocaleString() : '—';
+      const cert = s.certificate;
+      const actions = cert
+        ? `<div class="cert-row-actions">
+             <a class="btn-xs" href="/certificate?id=${encodeURIComponent(cert.id || cert.certificateNumber)}">View</a>
+             <a class="btn-xs" href="/certificate?id=${encodeURIComponent(cert.id || cert.certificateNumber)}&print=1">Download</a>
+           </div>`
+        : '';
+      return `
+        <div class="result-row history-row">
+          <div>
+            <div class="r-score">${s.courseName || 'Trinova Cyber Awareness 360'}</div>
+            <div class="r-date">Started ${startDate}${completed ? ` · Completed ${endDate}` : ''}</div>
+            <div class="r-date">Time spent ${formatDuration(s.durationSeconds)}${s.quizPercentage != null ? ` · Quiz ${s.quizPercentage}%` : ''}</div>
+          </div>
+          <div class="history-status">
+            <span class="badge ${completed ? 'badge-ok' : 'badge-warn'}">${completed ? 'Completed' : 'In Progress'}</span>
+            ${actions}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 })();

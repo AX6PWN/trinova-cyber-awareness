@@ -2,6 +2,8 @@
    QUIZ MODULE — 12-question multiple-choice quiz engine
    ============================================================ */
 
+import { completeTraining, elapsedSeconds, formatDuration } from './training-timer.js';
+
 // --- Question Bank (2 per topic) ---
 const QUESTIONS = [
   // Phishing (2)
@@ -329,22 +331,25 @@ export function showResults() {
       .catch(() => {});
   };
 
-  // Sync with Backend API & Issue Certificate
-  if (pass) {
-    try {
-      const authUser = localStorage.getItem('cybersafe_auth_user');
-      const user = authUser ? JSON.parse(authUser) : { id: 'usr-emp-eng', fullName: 'Sarah Chen' };
-      fetch('/api/quiz/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          score: `${score} / ${total} correct`,
-          percentage: percent,
-          status,
-          breakdown: breakdownData
-        })
+  // Show the locally-measured elapsed time immediately (server confirms on save)
+  const durationEl = document.getElementById('results-duration');
+  if (durationEl) durationEl.textContent = `Total time: ${formatDuration(elapsedSeconds())}`;
+
+  // Completing the training session records the quiz attempt, derives the
+  // authoritative duration server-side, and issues a certificate (once) on pass.
+  const legacySubmit = (user) => {
+    if (!pass) return;
+    fetch('/api/quiz/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id,
+        score: `${score} / ${total} correct`,
+        percentage: percent,
+        status,
+        breakdown: breakdownData
       })
+    })
       .then(res => res.json())
       .then(data => {
         if (data && data.certificate) {
@@ -359,9 +364,34 @@ export function showResults() {
         cacheLatestCert(user.id);
         revealCertActions();
       });
-    } catch (err) {
-      revealCertActions();
-    }
+  };
+
+  try {
+    const authUser = localStorage.getItem('cybersafe_auth_user');
+    const user = authUser ? JSON.parse(authUser) : { id: 'usr-emp-eng', fullName: 'Sarah Chen' };
+
+    completeTraining({
+      score: `${score} / ${total} correct`,
+      percentage: percent,
+      status,
+      breakdown: breakdownData
+    })
+      .then(data => {
+        if (!data) { legacySubmit(user); return; }
+        if (data.session && data.session.durationSeconds != null && durationEl) {
+          durationEl.textContent = `Total time: ${formatDuration(data.session.durationSeconds)}`;
+        }
+        if (data.certificate) {
+          localStorage.setItem('cybersafe_latest_certificate', JSON.stringify(data.certificate));
+          if (pass) revealCertActions();
+        } else if (pass) {
+          cacheLatestCert(user.id);
+          revealCertActions();
+        }
+      })
+      .catch(() => { legacySubmit(user); });
+  } catch (err) {
+    if (pass) revealCertActions();
   }
 
   // Action buttons

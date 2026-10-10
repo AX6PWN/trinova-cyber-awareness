@@ -37,6 +37,10 @@ const DATABASE_URL = process.env.DATABASE_URL || '';
 let neonSql = null;
 let isNeonActive = false;
 
+// Single course offered by the platform (used for duration-tracking sessions)
+const COURSE_ID = 'cyber-awareness-360';
+const COURSE_NAME = 'Trinova Cyber Awareness 360';
+
 if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
   try {
     const { neon } = require('@neondatabase/serverless');
@@ -268,7 +272,7 @@ function getInitialData() {
     }
   ];
 
-  return { orgs, users, progress, quizAttempts, certificates, campaigns, auditLogs, passwordResets: [] };
+  return { orgs, users, progress, quizAttempts, certificates, campaigns, auditLogs, passwordResets: [], trainingSessions: [] };
 }
 
 // Persistent Storage Read / Write
@@ -311,7 +315,7 @@ function readDb() {
 
   // Backfill collections / built-in accounts missing from older data files
   let changed = false;
-  ['orgs', 'users', 'progress', 'quizAttempts', 'certificates', 'campaigns', 'auditLogs'].forEach(key => {
+  ['orgs', 'users', 'progress', 'quizAttempts', 'certificates', 'campaigns', 'auditLogs', 'trainingSessions'].forEach(key => {
     if (!Array.isArray(data[key])) { data[key] = []; changed = true; }
   });
   if (!Array.isArray(data.passwordResets)) { data.passwordResets = []; changed = true; }
@@ -553,7 +557,49 @@ const db = {
     return data.progress.filter(p => p.userId === userId && p.completed);
   },
 
-  // Quiz Results & Certificate Issuance
+  // Issue one certificate per user per course (idempotent — prevents duplicates)
+  _issueCertificate(data, { user, org, orgId, percentage, durationSeconds = 0, sessionId = null, scoreLabel = null }) {
+    const existing = data.certificates.find(
+      c => c.userId === user.id && (c.courseId || COURSE_ID) === COURSE_ID
+    );
+    if (existing) {
+      if (!existing.courseId) existing.courseId = COURSE_ID;
+      if (!existing.courseName) existing.courseName = COURSE_NAME;
+      if (durationSeconds && !existing.durationSeconds) existing.durationSeconds = durationSeconds;
+      if (scoreLabel && !existing.quizScore) existing.quizScore = scoreLabel;
+      writeDb(data);
+      return existing;
+    }
+
+    const certNum = `TRIN-2026-${(org ? org.name.substring(0, 4) : 'ACME').toUpperCase().replace(/[^A-Z]/g, 'X')}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const issueDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const expiryDate = new Date(Date.now() + 86400000 * 365).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const cert = {
+      id: `cert_${Date.now()}`,
+      certificateNumber: certNum,
+      userId: user.id,
+      orgId,
+      courseId: COURSE_ID,
+      courseName: COURSE_NAME,
+      userName: user.fullName,
+      orgName: org ? org.name : 'Enterprise Cybersecurity',
+      issueDate,
+      expiryDate,
+      score: percentage,
+      quizScore: scoreLabel || null,
+      durationSeconds: Math.max(0, Number(durationSeconds) || 0),
+      sessionId: sessionId || null,
+      verificationHash: crypto.createHash('sha1').update(`${certNum}_${user.fullName}`).digest('hex').substring(0, 16).toUpperCase(),
+      status: 'verified'
+    };
+
+    data.certificates.push(cert);
+    this.logAudit(orgId, user.id, user.email, 'Certificate Issued', `Issued compliance certificate ${certNum} with score ${percentage}%`, 'info');
+    return cert;
+  },
+
+  // Quiz Results & Certificate Issuance (legacy direct-submit path)
   saveQuizAttempt(userId, { score, percentage, status, breakdown }) {
     const data = readDb();
     const user = data.users.find(u => u.id === userId);
@@ -575,31 +621,147 @@ const db = {
 
     // Auto issue certificate if passed with >= 70%
     let cert = null;
-    if (percentage >= 70) {
-      const certNum = `TRIN-2026-${(org ? org.name.substring(0, 4) : 'ACME').toUpperCase().replace(/[^A-Z]/g, 'X')}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const issueDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      const expiryDate = new Date(Date.now() + 86400000 * 365).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-      cert = {
-        id: `cert_${Date.now()}`,
-        certificateNumber: certNum,
-        userId,
-        orgId,
-        userName: user ? user.fullName : 'Certified Employee',
-        orgName: org ? org.name : 'Enterprise Cybersecurity',
-        issueDate,
-        expiryDate,
-        score: percentage,
-        verificationHash: crypto.createHash('sha1').update(`${certNum}_${user ? user.fullName : ''}`).digest('hex').substring(0, 16).toUpperCase(),
-        status: 'verified'
-      };
-
-      data.certificates.push(cert);
-      this.logAudit(orgId, userId, user ? user.email : '', 'Certificate Issued', `Issued compliance certificate ${certNum} with score ${percentage}%`, 'info');
+    if (percentage >= 70 && user) {
+      cert = this._issueCertificate(data, { user, org, orgId, percentage, scoreLabel: score });
     }
 
     writeDb(data);
     return { success: true, attempt, certificate: cert };
+  },
+
+  /* ----------------------------------------------------------
+     TRAINING DURATION TRACKING
+     Sessions are anchored to a server timestamp so elapsed time
+     is authoritative and survives refreshes / disconnects.
+     ---------------------------------------------------------- */
+
+  // Start a new training session, or resume the caller's active one.
+  startTrainingSession(userId, { courseId, courseName } = {}) {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User not found.' };
+    const orgId = user.orgId || 'org-acme';
+    const cid = courseId || COURSE_ID;
+
+    let session = (data.trainingSessions || []).find(
+      s => s.userId === userId && s.courseId === cid && s.status === 'in_progress'
+    );
+
+    if (!session) {
+      const nowIso = new Date().toISOString();
+      session = {
+        id: `train_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        userId,
+        orgId,
+        courseId: cid,
+        courseName: courseName || COURSE_NAME,
+        startedAt: nowIso,
+        completedAt: null,
+        durationSeconds: null,
+        quizScore: null,
+        quizPercentage: null,
+        status: 'in_progress',
+        certificateId: null,
+        createdAt: nowIso,
+        updatedAt: nowIso
+      };
+      data.trainingSessions.push(session);
+      writeDb(data);
+      this.logAudit(orgId, userId, user.email, 'Training Started', `Started "${session.courseName}"`, 'info');
+    }
+
+    return { success: true, session: { ...session }, serverNow: Date.now() };
+  },
+
+  // Most recent in-progress session for a user (refresh / reconnect recovery)
+  getActiveTrainingSession(userId, courseId) {
+    const data = readDb();
+    const cid = courseId || COURSE_ID;
+    const session = (data.trainingSessions || [])
+      .filter(s => s.userId === userId && s.courseId === cid && s.status === 'in_progress')
+      .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
+    return session ? { ...session, serverNow: Date.now() } : null;
+  },
+
+  // Full duration-tracking history for a user (newest first)
+  getTrainingSessions(userId) {
+    const data = readDb();
+    return (data.trainingSessions || [])
+      .filter(s => s.userId === userId)
+      .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
+      .map(s => ({
+        ...s,
+        certificate: s.certificateId
+          ? data.certificates.find(c => c.id === s.certificateId) || null
+          : null
+      }));
+  },
+
+  // Finish a training session: derive duration from persisted timestamps,
+  // record the quiz, and issue at most one certificate per session.
+  completeTrainingSession(userId, sessionId, quiz = {}) {
+    const data = readDb();
+    const user = data.users.find(u => u.id === userId);
+    if (!user) return { success: false, error: 'User not found.' };
+    const org = data.orgs.find(o => o.id === user.orgId);
+    const orgId = user.orgId || 'org-acme';
+
+    const session = (data.trainingSessions || []).find(s => s.id === sessionId && s.userId === userId);
+    if (!session) return { success: false, error: 'Training session not found.' };
+
+    // Idempotent: a session completes only once (no duplicate submissions/certs)
+    if (session.status === 'completed') {
+      const existingCert = session.certificateId
+        ? data.certificates.find(c => c.id === session.certificateId) || null
+        : null;
+      const existingAttempt = data.quizAttempts.find(a => a.sessionId === session.id) || null;
+      return { success: true, alreadyCompleted: true, session: { ...session }, certificate: existingCert, attempt: existingAttempt };
+    }
+
+    const completedAt = new Date();
+    const startedMs = new Date(session.startedAt).getTime();
+    // Duration is always derived server-side from persisted timestamps.
+    const durationSeconds = Math.max(0, Math.round((completedAt.getTime() - startedMs) / 1000));
+
+    const percentage = Math.max(0, Math.min(100, Number(quiz.percentage) || 0));
+    const pass = percentage >= 70;
+    const status = quiz.status || (pass ? 'Pass' : 'Fail');
+
+    const attempt = {
+      id: `quiz_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      userId,
+      orgId,
+      sessionId: session.id,
+      score: quiz.score || `${percentage}%`,
+      percentage,
+      status,
+      breakdown: quiz.breakdown || {},
+      durationSeconds,
+      createdAt: completedAt.toISOString()
+    };
+    data.quizAttempts.push(attempt);
+
+    let cert = null;
+    if (pass) {
+      cert = this._issueCertificate(data, {
+        user, org, orgId, percentage, durationSeconds, sessionId: session.id, scoreLabel: attempt.score
+      });
+    }
+
+    session.status = 'completed';
+    session.completedAt = completedAt.toISOString();
+    session.durationSeconds = durationSeconds;
+    session.quizScore = attempt.score;
+    session.quizPercentage = percentage;
+    session.certificateId = cert ? cert.id : null;
+    session.updatedAt = completedAt.toISOString();
+
+    writeDb(data);
+
+    this.logAudit(orgId, userId, user.email, 'Training Completed',
+      `Completed "${session.courseName}" in ${durationSeconds}s with ${percentage}% (${status})`, 'info');
+
+    return { success: true, session: { ...session }, certificate: cert, attempt };
   },
 
   getUserQuizHistory(userId) {
@@ -642,7 +804,7 @@ const db = {
         return {
           ...this.toSafeUser(u, org),
           topicsCompleted: progress.length,
-          totalTopics: 8,
+          totalTopics: 6,
           lastScore: last ? `${last.percentage}%` : 'Not Taken',
           certificateNumber: cert ? cert.certificateNumber : null,
           certified: Boolean(cert)
@@ -791,6 +953,7 @@ const db = {
     data.quizAttempts = data.quizAttempts.filter(q => q.userId !== userId);
     data.certificates = data.certificates.filter(c => c.userId !== userId);
     data.passwordResets = (data.passwordResets || []).filter(r => r.userId !== userId);
+    data.trainingSessions = (data.trainingSessions || []).filter(t => t.userId !== userId);
     writeDb(data);
     await auth.destroyUserSessions(userId);
     this.logAudit(user.orgId, actor.id, actor.email, 'Account Deleted',
@@ -920,9 +1083,9 @@ const db = {
         department: user.department,
         avatar: user.avatar,
         topicsCompleted: userProgress.length,
-        totalTopics: 8,
+        totalTopics: 6,
         lastScore: lastAttempt ? `${lastAttempt.percentage}%` : 'Not Taken',
-        status: cert ? 'Certified' : userProgress.length >= 8 ? 'Quiz Ready' : `${userProgress.length}/8 In Progress`,
+        status: cert ? 'Certified' : userProgress.length >= 6 ? 'Quiz Ready' : `${userProgress.length}/6 In Progress`,
         certificateNumber: cert ? cert.certificateNumber : null
       };
     });

@@ -110,7 +110,7 @@
         <div class="activity-row">
           <span class="act-time">${t.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
           <span class="act-badge ${l.severity === 'warning' ? 'warning' : l.severity === 'error' ? 'error' : 'info'}">${esc(l.severity)}</span>
-          <span><strong>${esc(l.action)}</strong> — ${esc(l.details)} <span class="muted">(${esc(l.userEmail)} · ${esc(l.orgName)})</span></span>
+          <span><strong>${esc(l.action)}</strong> ${esc(l.details)} <span class="muted">(${esc(l.userEmail)} · ${esc(l.orgName)})</span></span>
         </div>
       `;
     }).join('') : '<div class="empty-state">No recent activity.</div>';
@@ -157,8 +157,8 @@
             `}
           </td>
           <td style="min-width:110px;">
-            <div class="mini-bar" style="margin-bottom:4px;"><span style="width:${Math.round((u.topicsCompleted / (u.totalTopics || 8)) * 100)}%"></span></div>
-            <span class="muted" style="font-size:11.5px;">${u.topicsCompleted}/${u.totalTopics || 8} topics</span>
+            <div class="mini-bar" style="margin-bottom:4px;"><span style="width:${Math.round((u.topicsCompleted / (u.totalTopics || 6)) * 100)}%"></span></div>
+            <span class="muted" style="font-size:11.5px;">${u.topicsCompleted}/${u.totalTopics || 6} topics</span>
           </td>
           <td><strong>${u.lastScore === 'Not Taken' ? '—' : esc(u.lastScore)}</strong>${u.certified ? ' 🎓' : ''}</td>
           <td><span class="badge ${statusBadge}">${statusLabel}</span></td>

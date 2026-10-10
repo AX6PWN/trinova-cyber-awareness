@@ -35,6 +35,15 @@
       "industry": "Enterprise Technology",
       "securityScore": 75,
       "createdAt": "2026-10-08T15:51:34.559Z"
+    },
+    {
+      "id": "org_1791566649493_t2wuo",
+      "name": "TestCorp",
+      "domain": "testcorp.com",
+      "plan": "Enterprise Trial (Neon DB)",
+      "industry": "Enterprise Technology",
+      "securityScore": 75,
+      "createdAt": "2026-10-09T17:24:09.493Z"
     }
   ],
   "users": [
@@ -121,6 +130,30 @@
       "avatar": "👤",
       "status": "active",
       "createdAt": "2026-10-08T15:51:34.757Z"
+    },
+    {
+      "id": "usr_1791566649493_ytlg5",
+      "orgId": "org_1791566649493_t2wuo",
+      "email": "testuser@testcorp.com",
+      "passwordHash": "scrypt$8f775a4b434dba66fc8aa724951b8a86$57b8c2109f335af52ab9f3d1beee132771b0467efedb5c821080f4261c8fd5bb619abc242e6b6258a2cbced37fb7378fce7747ee5c65be8a59c2a0b24b533d8b",
+      "fullName": "Test User",
+      "role": "employee",
+      "department": "Engineering",
+      "avatar": "👤",
+      "status": "active",
+      "createdAt": "2026-10-09T17:24:09.553Z"
+    },
+    {
+      "id": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "email": "paswan123@gmail.com",
+      "passwordHash": "scrypt$b6efcd40507cf374a70373799f9cdccd$38be74123ffbfd91b05953c8b34b4000bc0393ae2a367d4ab90517e49e4ecd6856d2fbb31da7765d20905c15f1f7f3bc4a03937b2e0ad9e9104296e74e724420",
+      "fullName": "pradeep paswan",
+      "role": "employee",
+      "department": "Engineering",
+      "avatar": "👤",
+      "status": "active",
+      "createdAt": "2026-10-10T15:04:48.736Z"
     }
   ],
   "progress": [
@@ -162,7 +195,7 @@
       "orgId": "org-acme",
       "topicId": "safe-browsing",
       "completed": true,
-      "completedAt": "2026-10-08T15:46:34.539Z"
+      "completedAt": "2026-10-10T16:59:13.424Z"
     },
     {
       "id": "prog-6",
@@ -170,7 +203,7 @@
       "orgId": "org-acme",
       "topicId": "usb-security",
       "completed": true,
-      "completedAt": "2026-10-08T15:46:41.613Z"
+      "completedAt": "2026-10-10T16:59:20.547Z"
     },
     {
       "id": "prog-7",
@@ -259,6 +292,60 @@
       "topicTitle": "Physical & Access Security",
       "completed": true,
       "completedAt": "2026-10-05T14:56:46.964Z"
+    },
+    {
+      "id": "prog_1791651687882_vm5x",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "topicId": "safe-browsing",
+      "topicTitle": "Safe Browsing",
+      "completed": true,
+      "completedAt": "2026-10-10T17:25:09.320Z"
+    },
+    {
+      "id": "prog_1791651692898_6y6t",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "topicId": "usb-security",
+      "topicTitle": "USB & Device Security",
+      "completed": true,
+      "completedAt": "2026-10-10T17:24:57.426Z"
+    },
+    {
+      "id": "prog_1791651700832_iszj",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "topicId": "passwords",
+      "topicTitle": "Passwords",
+      "completed": true,
+      "completedAt": "2026-10-10T17:25:14.897Z"
+    },
+    {
+      "id": "prog_1791651706919_ocyb",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "topicId": "phishing",
+      "topicTitle": "Phishing",
+      "completed": true,
+      "completedAt": "2026-10-10T17:25:19.157Z"
+    },
+    {
+      "id": "prog_1791651712686_g6g7",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "topicId": "mfa",
+      "topicTitle": "Multi-Factor Authentication",
+      "completed": true,
+      "completedAt": "2026-10-10T17:25:24.263Z"
+    },
+    {
+      "id": "prog_1791651718111_byw5",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "topicId": "social-engineering",
+      "topicTitle": "Social Engineering",
+      "completed": true,
+      "completedAt": "2026-10-10T17:25:30.271Z"
     }
   ],
   "quizAttempts": [
@@ -318,6 +405,236 @@
         "physical-security": "2/2"
       },
       "createdAt": "2026-10-08T11:43:02.725Z"
+    },
+    {
+      "id": "quiz_1791651004626_z33k0",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791650998885_t55me",
+      "score": "11 / 12 correct",
+      "percentage": 92,
+      "status": "Pass",
+      "breakdown": {
+        "phishing": "2/2"
+      },
+      "durationSeconds": 6,
+      "createdAt": "2026-10-10T16:50:04.626Z"
+    },
+    {
+      "id": "quiz_1791651009452_425xo",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791651008325_yh3my",
+      "score": "40%",
+      "percentage": 40,
+      "status": "Fail",
+      "breakdown": {},
+      "durationSeconds": 1,
+      "createdAt": "2026-10-10T16:50:09.452Z"
+    },
+    {
+      "id": "quiz_1791651054754_2ga2u",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791651049023_yki1f",
+      "score": "11 / 12 correct",
+      "percentage": 92,
+      "status": "Pass",
+      "breakdown": {
+        "phishing": "2/2"
+      },
+      "durationSeconds": 6,
+      "createdAt": "2026-10-10T16:50:54.754Z"
+    },
+    {
+      "id": "quiz_1791651059459_w4gbz",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791651058297_5m7sj",
+      "score": "40%",
+      "percentage": 40,
+      "status": "Fail",
+      "breakdown": {},
+      "durationSeconds": 1,
+      "createdAt": "2026-10-10T16:50:59.459Z"
+    },
+    {
+      "id": "quiz_1791651161793_zg8ai",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791651150433_y8xam",
+      "score": "10 / 12 correct",
+      "percentage": 88,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 11,
+      "createdAt": "2026-10-10T16:52:41.793Z"
+    },
+    {
+      "id": "quiz_1791651217169_7cb6a",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791651206429_4mew2",
+      "score": "10 / 12 correct",
+      "percentage": 88,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 11,
+      "createdAt": "2026-10-10T16:53:37.169Z"
+    },
+    {
+      "id": "quiz_1791651762077_sww2n",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "sessionId": "train_1791651668324_suq2l",
+      "score": "9 / 16 correct",
+      "percentage": 56,
+      "status": "Needs Review",
+      "breakdown": {
+        "phishing": "2/2",
+        "passwords": "0/2",
+        "mfa": "1/2",
+        "social-engineering": "1/2",
+        "safe-browsing": "1/2",
+        "usb-security": "1/2",
+        "ransomware": "1/2",
+        "physical-security": "2/2"
+      },
+      "durationSeconds": 94,
+      "createdAt": "2026-10-10T17:02:42.077Z"
+    },
+    {
+      "id": "quiz_1791652235130_w710l",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652215598_4hz8d",
+      "score": "11 / 12 correct",
+      "percentage": 91,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 20,
+      "createdAt": "2026-10-10T17:10:35.130Z"
+    },
+    {
+      "id": "quiz_1791652315554_g7lp4",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652295877_mapps",
+      "score": "11 / 12 correct",
+      "percentage": 91,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 20,
+      "createdAt": "2026-10-10T17:11:55.554Z"
+    },
+    {
+      "id": "quiz_1791652450633_4z8zg",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652430343_0iikw",
+      "score": "11 / 12 correct",
+      "percentage": 91,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 20,
+      "createdAt": "2026-10-10T17:14:10.633Z"
+    },
+    {
+      "id": "quiz_1791652473672_7ktkw",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652453827_3vpbk",
+      "score": "11 / 12 correct",
+      "percentage": 92,
+      "status": "Pass",
+      "breakdown": {
+        "phishing": "2/2"
+      },
+      "durationSeconds": 20,
+      "createdAt": "2026-10-10T17:14:33.672Z"
+    },
+    {
+      "id": "quiz_1791652478434_er9do",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652477266_btgjl",
+      "score": "40%",
+      "percentage": 40,
+      "status": "Fail",
+      "breakdown": {},
+      "durationSeconds": 1,
+      "createdAt": "2026-10-10T17:14:38.434Z"
+    },
+    {
+      "id": "quiz_1791652494436_uy6xi",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652483339_atslj",
+      "score": "10 / 12 correct",
+      "percentage": 88,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 11,
+      "createdAt": "2026-10-10T17:14:54.436Z"
+    },
+    {
+      "id": "quiz_1791652520717_0agq1",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652514929_uqm0o",
+      "score": "11 / 12 correct",
+      "percentage": 92,
+      "status": "Pass",
+      "breakdown": {
+        "phishing": "2/2"
+      },
+      "durationSeconds": 6,
+      "createdAt": "2026-10-10T17:15:20.717Z"
+    },
+    {
+      "id": "quiz_1791652525716_4k22t",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652524597_h2l9m",
+      "score": "40%",
+      "percentage": 40,
+      "status": "Fail",
+      "breakdown": {},
+      "durationSeconds": 1,
+      "createdAt": "2026-10-10T17:15:25.716Z"
+    },
+    {
+      "id": "quiz_1791652664705_57dj0",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "sessionId": "train_1791652644237_5p1z6",
+      "score": "11 / 12 correct",
+      "percentage": 91,
+      "status": "Pass",
+      "breakdown": {},
+      "durationSeconds": 20,
+      "createdAt": "2026-10-10T17:17:44.705Z"
+    },
+    {
+      "id": "quiz_1791653177648_gobz3",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "sessionId": "train_1791653074386_pshng",
+      "score": "11 / 16 correct",
+      "percentage": 69,
+      "status": "Needs Review",
+      "breakdown": {
+        "phishing": "1/2",
+        "passwords": "1/2",
+        "mfa": "1/2",
+        "social-engineering": "2/2",
+        "safe-browsing": "1/2",
+        "usb-security": "1/2",
+        "ransomware": "2/2",
+        "physical-security": "2/2"
+      },
+      "durationSeconds": 103,
+      "createdAt": "2026-10-10T17:26:17.648Z"
     }
   ],
   "certificates": [
@@ -374,6 +691,906 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "log_1791653178455_q5c6",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 103s with 69% (Needs Review)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:26:18.455Z"
+    },
+    {
+      "id": "log_1791653131061_zwoo",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Social Engineering\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:25:31.061Z"
+    },
+    {
+      "id": "log_1791653125028_bonr",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Multi-Factor Authentication\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:25:25.028Z"
+    },
+    {
+      "id": "log_1791653119791_m1ox",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Phishing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:25:19.791Z"
+    },
+    {
+      "id": "log_1791653115593_217z",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Passwords\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:25:15.593Z"
+    },
+    {
+      "id": "log_1791653110085_40hd",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Safe Browsing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:25:10.085Z"
+    },
+    {
+      "id": "log_1791653098124_jzp6",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"USB & Device Security\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:24:58.124Z"
+    },
+    {
+      "id": "log_1791653075223_84zt",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:24:35.223Z"
+    },
+    {
+      "id": "log_1791652669237_n4va",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:17:49.237Z"
+    },
+    {
+      "id": "log_1791652665676_sy01",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 20s with 91% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:17:45.676Z"
+    },
+    {
+      "id": "log_1791652645017_nws2",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:17:25.017Z"
+    },
+    {
+      "id": "log_1791652638581_led7",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:17:18.581Z"
+    },
+    {
+      "id": "log_1791652556114_3zej",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:15:56.114Z"
+    },
+    {
+      "id": "log_1791652526056_so2t",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 1s with 40% (Fail)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:15:26.056Z"
+    },
+    {
+      "id": "log_1791652524966_9yik",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:15:24.966Z"
+    },
+    {
+      "id": "log_1791652521498_yx6i",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 6s with 92% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:15:21.498Z"
+    },
+    {
+      "id": "log_1791652515271_3uw7",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:15:15.271Z"
+    },
+    {
+      "id": "log_1791652514154_7ucv",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:15:14.155Z"
+    },
+    {
+      "id": "log_1791652494820_vu63",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 11s with 88% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:54.820Z"
+    },
+    {
+      "id": "log_1791652484247_r0ws",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:44.247Z"
+    },
+    {
+      "id": "log_1791652482323_teb4",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:42.323Z"
+    },
+    {
+      "id": "log_1791652478781_hlpk",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 1s with 40% (Fail)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:38.781Z"
+    },
+    {
+      "id": "log_1791652477651_ou06",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:37.651Z"
+    },
+    {
+      "id": "log_1791652474047_43s6",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 20s with 92% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:34.047Z"
+    },
+    {
+      "id": "log_1791652467553_vrit",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:27.553Z"
+    },
+    {
+      "id": "log_1791652454643_bgn3",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:14.643Z"
+    },
+    {
+      "id": "log_1791652451764_x2bx",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 20s with 91% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:14:11.764Z"
+    },
+    {
+      "id": "log_1791652431058_3hlb",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:13:51.058Z"
+    },
+    {
+      "id": "log_1791652422275_6tmy",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:13:42.275Z"
+    },
+    {
+      "id": "log_1791652364327_1isg",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:12:44.327Z"
+    },
+    {
+      "id": "log_1791652320012_tcyx",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:12:00.012Z"
+    },
+    {
+      "id": "log_1791652316757_jiuc",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 20s with 91% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:11:56.757Z"
+    },
+    {
+      "id": "log_1791652296774_no8r",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:11:36.774Z"
+    },
+    {
+      "id": "log_1791652290275_o3hi",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:11:30.275Z"
+    },
+    {
+      "id": "log_1791652236073_z605",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 20s with 91% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:10:36.073Z"
+    },
+    {
+      "id": "log_1791652216337_vr3n",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:10:16.337Z"
+    },
+    {
+      "id": "log_1791652209748_419r",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:10:09.748Z"
+    },
+    {
+      "id": "log_1791652074895_8r7a",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:07:54.895Z"
+    },
+    {
+      "id": "log_1791652048220_k825",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:07:28.220Z"
+    },
+    {
+      "id": "log_1791652009722_cqxu",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:06:49.722Z"
+    },
+    {
+      "id": "log_1791651938370_3vs9",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:05:38.370Z"
+    },
+    {
+      "id": "log_1791651762945_ox0e",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 94s with 56% (Needs Review)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:02:42.945Z"
+    },
+    {
+      "id": "log_1791651718888_635e",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Social Engineering\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:58.888Z"
+    },
+    {
+      "id": "log_1791651713398_o71l",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Multi-Factor Authentication\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:53.398Z"
+    },
+    {
+      "id": "log_1791651707737_peyw",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Phishing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:47.737Z"
+    },
+    {
+      "id": "log_1791651701599_kxoq",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Passwords\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:41.599Z"
+    },
+    {
+      "id": "log_1791651693704_3yqe",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"USB & Device Security\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:33.704Z"
+    },
+    {
+      "id": "log_1791651688676_z55b",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Safe Browsing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:28.676Z"
+    },
+    {
+      "id": "log_1791651669118_6oee",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:01:09.118Z"
+    },
+    {
+      "id": "log_1791651615016_aawt",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "User Authentication",
+      "details": "Successful login for pradeep paswan (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T17:00:15.016Z"
+    },
+    {
+      "id": "log_1791651561155_tz27",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"USB & Device Security\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:59:21.155Z"
+    },
+    {
+      "id": "log_1791651554113_dkdk",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Topic Completed",
+      "details": "Marked topic \"Safe Browsing\" complete",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:59:14.113Z"
+    },
+    {
+      "id": "log_1791651481019_ksrf",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:58:01.019Z"
+    },
+    {
+      "id": "log_1791651424540_8vi5",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:57:04.540Z"
+    },
+    {
+      "id": "log_1791651217508_d3uq",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 11s with 88% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:53:37.508Z"
+    },
+    {
+      "id": "log_1791651206848_u6rd",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:53:26.848Z"
+    },
+    {
+      "id": "log_1791651204805_79nn",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:53:24.805Z"
+    },
+    {
+      "id": "log_1791651162182_3et0",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 11s with 88% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:52:42.182Z"
+    },
+    {
+      "id": "log_1791651150855_480l",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:52:30.855Z"
+    },
+    {
+      "id": "log_1791651148914_l610",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:52:28.914Z"
+    },
+    {
+      "id": "log_1791651059849_9cn2",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 1s with 40% (Fail)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:59.849Z"
+    },
+    {
+      "id": "log_1791651058685_2sef",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:58.685Z"
+    },
+    {
+      "id": "log_1791651055145_w8tn",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 6s with 92% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:55.145Z"
+    },
+    {
+      "id": "log_1791651049435_y385",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:49.435Z"
+    },
+    {
+      "id": "log_1791651048247_phj2",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:48.247Z"
+    },
+    {
+      "id": "log_1791651009840_0ke5",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 1s with 40% (Fail)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:09.840Z"
+    },
+    {
+      "id": "log_1791651008685_ycel",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:08.685Z"
+    },
+    {
+      "id": "log_1791651005010_3myj",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Completed",
+      "details": "Completed \"Trinova Cyber Awareness 360\" in 6s with 92% (Pass)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:50:05.011Z"
+    },
+    {
+      "id": "log_1791650999258_niou",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:49:59.258Z"
+    },
+    {
+      "id": "log_1791650998213_0bn0",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:49:58.213Z"
+    },
+    {
+      "id": "log_1791648190626_5621",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T16:03:10.626Z"
+    },
+    {
+      "id": "log_1791646825598_s1gb",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T15:40:25.598Z"
+    },
+    {
+      "id": "log_1791644689900_z5ov",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Account Created",
+      "details": "New employee self-registered: pradeep paswan (Engineering)",
+      "severity": "info",
+      "timestamp": "2026-10-10T15:04:49.900Z"
+    },
+    {
+      "id": "log_1791644304897_ifsp",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-10T14:58:24.898Z"
+    },
+    {
+      "id": "log_1791567437637_8agc",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:37:17.637Z"
+    },
+    {
+      "id": "log_1791566935105_zbgd",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "Failed Authentication",
+      "details": "Rejected sign-in attempt (invalid password)",
+      "severity": "warning",
+      "timestamp": "2026-10-09T17:28:55.105Z"
+    },
+    {
+      "id": "log_1791566934370_3da7",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:28:54.370Z"
+    },
+    {
+      "id": "log_1791566933661_mey9",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:28:53.661Z"
+    },
+    {
+      "id": "log_1791566933021_aiq0",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "User Authentication",
+      "details": "Successful login for Raj Mehta (superadmin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:28:53.021Z"
+    },
+    {
+      "id": "log_1791566909292_dsgv",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:28:29.292Z"
+    },
+    {
+      "id": "log_1791566845053_8t0o",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:27:25.053Z"
+    },
+    {
+      "id": "log_1791566649905_oh7m",
+      "orgId": "org_1791566649493_t2wuo",
+      "userId": "usr_1791566649493_ytlg5",
+      "userEmail": "testuser@testcorp.com",
+      "action": "Account Created",
+      "details": "New employee self-registered: Test User (Engineering)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:24:09.905Z"
+    },
+    {
+      "id": "log_1791566648953_ije3",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:24:08.953Z"
+    },
+    {
+      "id": "log_1791566614695_njvu",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:23:34.695Z"
+    },
+    {
+      "id": "log_1791566614013_4k7x",
+      "orgId": "org-acme",
+      "userId": "usr-admin-ciso",
+      "userEmail": "ciso@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Elena Rostova, CISO (admin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:23:34.013Z"
+    },
+    {
+      "id": "log_1791566613363_8uox",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "Failed Authentication",
+      "details": "Rejected sign-in attempt (invalid password)",
+      "severity": "warning",
+      "timestamp": "2026-10-09T17:23:33.363Z"
+    },
+    {
+      "id": "log_1791566612505_zv1h",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "User Authentication",
+      "details": "Successful login for Raj Mehta (superadmin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:23:32.505Z"
+    },
+    {
+      "id": "log_1791566252903_06wh",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "User Authentication",
+      "details": "Successful login for Raj Mehta (superadmin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:17:32.903Z"
+    },
+    {
+      "id": "log_1791566171519_c1k8",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "Failed Authentication",
+      "details": "Rejected sign-in attempt (invalid password)",
+      "severity": "warning",
+      "timestamp": "2026-10-09T17:16:11.519Z"
+    },
+    {
+      "id": "log_1791566170942_cn0z",
+      "orgId": "org-platform",
+      "userId": "usr-superadmin",
+      "userEmail": "superadmin@trinova.io",
+      "action": "User Authentication",
+      "details": "Successful login for Raj Mehta (superadmin)",
+      "severity": "info",
+      "timestamp": "2026-10-09T17:16:10.942Z"
+    },
     {
       "id": "log_1791555920518_luri",
       "orgId": "org-platform",
@@ -1445,5 +2662,23 @@
       "timestamp": "2026-10-01T04:35:50.519Z"
     }
   ],
-  "passwordResets": []
+  "passwordResets": [],
+  "trainingSessions": [
+    {
+      "id": "train_1791653074386_pshng",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "courseId": "cyber-awareness-360",
+      "courseName": "Trinova Cyber Awareness 360",
+      "startedAt": "2026-10-10T17:24:34.386Z",
+      "completedAt": "2026-10-10T17:26:17.648Z",
+      "durationSeconds": 103,
+      "quizScore": "11 / 16 correct",
+      "quizPercentage": 69,
+      "status": "completed",
+      "certificateId": null,
+      "createdAt": "2026-10-10T17:24:34.386Z",
+      "updatedAt": "2026-10-10T17:26:17.648Z"
+    }
+  ]
 }

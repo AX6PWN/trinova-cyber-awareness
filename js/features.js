@@ -23,13 +23,13 @@ const THREAT_FEED_DATA = [
   {
     severity: 'critical',
     title: 'Active Credential Stuffing Attack Detected',
-    detail: 'Automated login attempts from 47 IPs targeting corporate SSO — 1,247 attempts in 8 minutes. IPs sourced from Shodan-indexed botnet infrastructure.',
+    detail: 'Automated login attempts from 47 IPs targeting corporate SSO 1,247 attempts in 8 minutes. IPs sourced from Shodan-indexed botnet infrastructure.',
     time: '2 min ago',
     type: 'attack'
   },
   {
     severity: 'critical',
-    title: 'Ransomware Variant "BlackCat v3" — New Signature',
+    title: 'Ransomware Variant "BlackCat v3" New Signature',
     detail: 'New ALPHV/BlackCat ransomware variant targeting Windows Server 2019 via unpatched SMB relay. MITRE ATT&CK: T1486 Data Encrypted for Impact.',
     time: '11 min ago',
     type: 'malware'
@@ -43,14 +43,14 @@ const THREAT_FEED_DATA = [
   },
   {
     severity: 'warning',
-    title: 'SIM Swap Fraud Attempt — Executive Mobile Numbers',
+    title: 'SIM Swap Fraud Attempt Executive Mobile Numbers',
     detail: 'Social engineering attempt on telecom carrier to hijack MFA-registered mobile numbers. Affected: 2 executive accounts, status: blocked.',
     time: '34 min ago',
     type: 'social_eng'
   },
   {
     severity: 'info',
-    title: 'CVE-2026-41234 — Critical Log4j Variant Disclosed',
+    title: 'CVE-2026-41234 Critical Log4j Variant Disclosed',
     detail: 'New critical RCE vulnerability in Apache Log4j 3.x affecting Java applications. CVSS Score: 9.8 CRITICAL. Patch: upgrade to 3.0.1 immediately.',
     time: '1 hr ago',
     type: 'vuln'
@@ -72,13 +72,13 @@ const THREAT_FEED_DATA = [
   {
     severity: 'info',
     title: 'CISA Alert: Volt Typhoon APT Campaign Update',
-    detail: 'CISA advisory AA24-038A update — Volt Typhoon targeting critical infrastructure using living-off-the-land techniques. Review your PowerShell execution policies.',
+    detail: 'CISA advisory AA24-038A update Volt Typhoon targeting critical infrastructure using living-off-the-land techniques. Review your PowerShell execution policies.',
     time: '5 hrs ago',
     type: 'apt'
   },
   {
     severity: 'warning',
-    title: 'Insider Threat Indicator — Unusual Data Transfer',
+    title: 'Insider Threat Indicator Unusual Data Transfer',
     detail: 'User account "jd@company" transferred 4.2 GB to personal cloud storage outside business hours. DLP policy triggered. Account under review.',
     time: '6 hrs ago',
     type: 'insider'
@@ -327,6 +327,6 @@ async function handleInviteEmployee(e) {
       if (errEl) errEl.textContent = data.error || 'Failed to invite employee.';
     }
   } catch (err) {
-    if (errEl) errEl.textContent = 'Network error — server unreachable. Please try again.';
+    if (errEl) errEl.textContent = 'Network error server unreachable. Please try again.';
   }
 }

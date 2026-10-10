@@ -5,6 +5,7 @@
 
 import { showToast, avatarMarkup, BRAND_LOGO } from './panels.js';
 import { renderLeaderboard } from './features.js';
+import { formatDuration } from './training-timer.js';
 
 // Pre-seeded demo personas for instant frictionless evaluation
 export const DEMO_PERSONAS = [
@@ -463,7 +464,7 @@ async function handleRegister(e) {
       localStorage.setItem('cybersafe_auth_user', JSON.stringify(currentUser));
       updateTopNavUI();
       closeAuthModal();
-      showToast(`Workspace created — welcome ${currentUser.fullName}! You were enrolled as an Employee.`);
+      showToast(`Workspace created welcome ${currentUser.fullName}! You were enrolled as an Employee.`);
     } else {
       if (errorEl) errorEl.textContent = data.error || 'Registration failed.';
     }
@@ -871,6 +872,11 @@ export async function openCertificateModal(certData = null) {
   document.getElementById('cert-expiry-date').textContent = cert.expiryDate;
   document.getElementById('cert-score').textContent = `${cert.score || 94}%`;
   document.getElementById('cert-hash').textContent = cert.verificationHash || 'SHA1-VERIFIED';
+
+  const durationEl = document.getElementById('cert-duration');
+  if (durationEl) {
+    durationEl.textContent = cert.durationSeconds != null ? formatDuration(cert.durationSeconds) : '—';
+  }
 
   modal.classList.add('visible');
   return cert;

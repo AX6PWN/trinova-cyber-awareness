@@ -17,13 +17,13 @@
   <link rel="stylesheet" href="./css/styles.css">
   <link rel="stylesheet" href="./css/features.css">
   <link rel="stylesheet" href="./css/auth.css">
-  <link rel="stylesheet" href="./css/certificate.css?v=4">
+  <link rel="stylesheet" href="./css/certificate.css?v=5">
 
   <script>
     window.PAGE_AUTH = { roles: ['employee', 'admin', 'superadmin'] };
   </script>
   <script src="./js/auth-guard.js" defer></script>
-  <script src="./js/certificate.js?v=4" defer></script>
+  <script src="./js/certificate.js?v=5" defer></script>
 </head>
 
 <body class="dash-page cert-page">
@@ -114,7 +114,7 @@
             <div class="cert-name" id="cert-name">—</div>
             <p class="cert-course">
               for successfully completing the<br>
-              <strong>“Cyber Awareness 360 Training”</strong>
+              <strong>“Trinova Cyber Awareness 360”</strong>
             </p>
 
             <div class="cert-score-row">
@@ -127,44 +127,50 @@
                 <span class="v" id="cert-date">—</span>
               </div>
               <div class="cert-score-item">
+                <span class="k">Total Duration</span>
+                <span class="v" id="cert-duration">—</span>
+              </div>
+              <div class="cert-score-item">
                 <span class="k">Status</span>
                 <span class="v" id="cert-status">Passed</span>
               </div>
-            </div>
 
-            <div class="cert-foot">
-              <div class="cert-sign">
-                <span class="cert-sign-line"></span>
-                <span class="cert-sign-name">Trinova Security</span>
-                <span class="cert-sign-role">Cyber Awareness 360 · Authorized Issuer</span>
+              <div class="cert-foot">
+                <div class="cert-sign">
+                  <span class="cert-sign-line"></span>
+                  <span class="cert-sign-name">Trinova Security</span>
+                  <span class="cert-sign-role">Cyber Awareness 360 · Authorized Issuer</span>
+                </div>
+                <div class="cert-seal" aria-hidden="true">
+                  <span>TRINOVA<br>CERTIFIED</span>
+                </div>
+                <div class="cert-sign right">
+                  <span class="cert-sign-line"></span>
+                  <span class="cert-sign-name" id="cert-org">—</span>
+                  <span class="cert-sign-role">Participant Organization</span>
+                </div>
               </div>
-              <div class="cert-seal" aria-hidden="true">
-                <span>TRINOVA<br>CERTIFIED</span>
-              </div>
-              <div class="cert-sign right">
-                <span class="cert-sign-line"></span>
-                <span class="cert-sign-name" id="cert-org">—</span>
-                <span class="cert-sign-role">Participant Organization</span>
-              </div>
-            </div>
 
-            <div class="cert-verify">
-              <div>
-                <strong>Certificate ID:</strong> <span id="cert-id">—</span>
+              <div class="cert-verify">
+                <div>
+                  <strong>Certificate ID:</strong> <span id="cert-id">—</span>
+                </div>
+                <div>
+                  <strong>Quiz Score:</strong> <span id="cert-quiz-score">—</span>
+                </div>
+                <div>
+                  <strong>Verification code:</strong> <span id="cert-hash">—</span>
+                </div>
+                <div>
+                  Verify authenticity at <strong>trinova.io/verify</strong> using the certificate ID above.
+                  © <span id="cert-year">2026</span> Trinova Security, Inc.
+                </div>
               </div>
-              <div>
-                <strong>Verification code:</strong> <span id="cert-hash">—</span>
-              </div>
-              <div>
-                Verify authenticity at <strong>trinova.io/verify</strong> using the certificate ID above.
-                © <span id="cert-year">2026</span> Trinova Security, Inc.
-              </div>
-            </div>
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
   </main>
 
   <!-- Distraction-free view -->
