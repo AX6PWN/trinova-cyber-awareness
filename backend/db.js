@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const auth = require('./auth');
+const store = require('./store');
 
 // Load environment variables from .env if present
 try {
@@ -53,17 +54,10 @@ if (DATABASE_URL && DATABASE_URL.startsWith('postgres')) {
   }
 }
 
-// Local Persistent Store Directory & Path
-const DATA_DIR = path.join(__dirname, '..', 'data');
-
-// On Vercel (and other read-only serverless hosts), the deployed directory
-// (/var/task) is read-only. We use /tmp for the writable working copy.
-// Note: /tmp is ephemeral per serverless instance — for durable user storage
-// configure DATABASE_URL to use Neon Postgres (see backend/schema.sql).
-const IS_VERCEL = Boolean(process.env.VERCEL);
-const DB_FILE_SEED = path.join(DATA_DIR, 'cybersafe_db.json'); // committed read-only seed
-const DB_FILE_WRITABLE = IS_VERCEL ? '/tmp/cybersafe_db.json' : DB_FILE_SEED;
-const DB_FILE = DB_FILE_SEED; // legacy alias used in readDb() for seed reads
+// Durable storage lives in backend/store.js: a single shared datastore
+// backed by Neon Postgres in production (falling back to the local JSON
+// file in development). This keeps users/progress consistent across every
+// serverless instance instead of a per-instance /tmp copy.
 
 // Password hashing — scrypt with a random per-user salt (see backend/auth.js)
 function hashPassword(password) {
@@ -276,41 +270,15 @@ function getInitialData() {
 }
 
 // Persistent Storage Read / Write
+// The datastore is a single shared object (Neon in production, local JSON
+// file in development). `store` loads it once per request and persists any
+// mutations before the request completes, so every serverless instance
+// sees the same users, sessions and progress.
 function readDb() {
-  // On Vercel: prefer the /tmp working copy (may have user mutations from
-  // this invocation); fall back to the committed seed, then getInitialData().
-  const fileToRead = DB_FILE_WRITABLE;
-
-  // Bootstrap: if the writable copy doesn't exist yet, seed it.
-  if (!fs.existsSync(fileToRead)) {
-    let initial;
-    // Try to read the committed seed (available in /var/task on Vercel)
-    if (IS_VERCEL && fs.existsSync(DB_FILE_SEED)) {
-      try {
-        initial = JSON.parse(fs.readFileSync(DB_FILE_SEED, 'utf8'));
-      } catch (e) {
-        initial = getInitialData();
-      }
-    } else if (!IS_VERCEL) {
-      // Local: ensure data dir exists
-      if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-      initial = getInitialData();
-    } else {
-      initial = getInitialData();
-    }
-    writeDb(initial);
-    return initial;
-  }
-
-  let data;
-  try {
-    const raw = fs.readFileSync(fileToRead, 'utf8');
-    data = JSON.parse(raw);
-  } catch (err) {
-    console.error('[DB] Failed reading db file, resetting to initial data:', err.message);
-    const initial = getInitialData();
-    writeDb(initial);
-    return initial;
+  let data = store.get();
+  if (!data) {
+    data = getInitialData();
+    store.set(data);
   }
 
   // Backfill collections / built-in accounts missing from older data files
@@ -333,15 +301,7 @@ function readDb() {
 }
 
 function writeDb(data) {
-  try {
-    // Ensure the target directory exists (only relevant for local/non-Vercel)
-    if (!IS_VERCEL && !fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-    fs.writeFileSync(DB_FILE_WRITABLE, JSON.stringify(data, null, 2), 'utf8');
-  } catch (err) {
-    console.error('[DB] Failed writing db file:', err.message);
-  }
+  store.set(data);
 }
 
 // In-memory failed-login throttling (per email)

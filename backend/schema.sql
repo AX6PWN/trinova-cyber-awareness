@@ -134,6 +134,18 @@ CREATE TABLE IF NOT EXISTS training_sessions (
 CREATE INDEX IF NOT EXISTS training_sessions_user_idx ON training_sessions (user_id);
 CREATE INDEX IF NOT EXISTS training_sessions_status_idx ON training_sessions (status);
 
+-- 10. Shared Application Datastore
+-- The whole JSON datastore (users, orgs, progress, certificates, ...)
+-- is persisted as a single row so every serverless instance reads and
+-- writes the same data instead of a per-instance /tmp copy. This is what
+-- keeps a freshly registered account (and its login) valid on every
+-- instance. Created automatically on first use.
+CREATE TABLE IF NOT EXISTS app_state (
+    id         TEXT PRIMARY KEY,
+    data       JSONB NOT NULL,
+    updated_at BIGINT NOT NULL
+);
+
 -- Initial B2B Seed Data
 INSERT INTO organizations (id, name, domain, plan, industry, security_score)
 VALUES 

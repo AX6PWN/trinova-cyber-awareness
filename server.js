@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('./backend/db');
 const auth = require('./backend/auth');
+const store = require('./backend/store');
 
 // Warehouse GLB is hosted on Cloudflare R2; proxied through the server to avoid CORS
 const WAREHOUSE_GLB_URL = 'https://pub-e993468365744434bd90a486983e2131.r2.dev/automated_warehouse_-.glb';
@@ -612,13 +613,21 @@ async function requestHandler(req, res) {
     return handleWarehouseProxy(res);
   }
 
+  // API + page routes read/write the shared datastore. Run them inside a
+  // store context so the same data is used throughout the request and any
+  // mutation is durably persisted before the request completes.
   if (pathname.startsWith('/api/')) {
-    return handleApi(req, res, parsedUrl);
+    return store.run(() => handleApi(req, res, parsedUrl));
   }
 
   if (req.method === 'GET' || req.method === 'HEAD') {
-    const handled = handlePage(req, res, pathname);
-    if (handled !== false) return;
+    if (needsSession(pathname)) {
+      return store.run(async () => {
+        const handled = handlePage(req, res, pathname);
+        if (handled !== false) return;
+        return handleStatic(res, pathname);
+      });
+    }
     return handleStatic(res, pathname);
   }
 
