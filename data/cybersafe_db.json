@@ -692,6 +692,86 @@
   ],
   "auditLogs": [
     {
+      "id": "log_1792073420115_ne74",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-15T14:10:20.115Z"
+    },
+    {
+      "id": "log_1792073246719_ms0n",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Test\"",
+      "severity": "info",
+      "timestamp": "2026-10-15T14:07:26.719Z"
+    },
+    {
+      "id": "log_1792073245609_kh5j",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Test\"",
+      "severity": "info",
+      "timestamp": "2026-10-15T14:07:25.609Z"
+    },
+    {
+      "id": "log_1792073244530_0ycb",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-15T14:07:24.530Z"
+    },
+    {
+      "id": "log_1792073202025_7itl",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-15T14:06:42.025Z"
+    },
+    {
+      "id": "log_1792070318529_7nfw",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-15T13:18:38.529Z"
+    },
+    {
+      "id": "log_1792070277450_5kjj",
+      "orgId": "org-acme",
+      "userId": "usr-emp-eng",
+      "userEmail": "sarah.chen@acmesec.com",
+      "action": "User Authentication",
+      "details": "Successful login for Sarah Chen (employee)",
+      "severity": "info",
+      "timestamp": "2026-10-15T13:17:57.450Z"
+    },
+    {
+      "id": "log_1792070265282_77kl",
+      "orgId": "org_1791474694559_zwats",
+      "userId": "usr_1791644688535_ayoek",
+      "userEmail": "paswan123@gmail.com",
+      "action": "Training Started",
+      "details": "Started \"Trinova Cyber Awareness 360\"",
+      "severity": "info",
+      "timestamp": "2026-10-15T13:17:45.282Z"
+    },
+    {
       "id": "log_1791653178455_q5c6",
       "orgId": "org_1791474694559_zwats",
       "userId": "usr_1791644688535_ayoek",
@@ -2610,56 +2690,6 @@
       "details": "Marked topic \"Passwords\" complete",
       "severity": "info",
       "timestamp": "2026-10-01T10:17:19.496Z"
-    },
-    {
-      "id": "log_1790849829850_1cam",
-      "orgId": "org-acme",
-      "userId": "usr-admin-ciso",
-      "userEmail": "ciso@acmesec.com",
-      "action": "Topic Completed",
-      "details": "Marked topic \"USB & Device Security\" complete",
-      "severity": "info",
-      "timestamp": "2026-10-01T10:17:09.850Z"
-    },
-    {
-      "id": "log_1790848200409_vj4c",
-      "orgId": "org-acme",
-      "userId": "usr-emp-eng",
-      "userEmail": "sarah.chen@acmesec.com",
-      "action": "Topic Completed",
-      "details": "Marked topic \"Physical & Access Security\" complete",
-      "severity": "info",
-      "timestamp": "2026-10-01T09:50:00.409Z"
-    },
-    {
-      "id": "log-1",
-      "orgId": "org-acme",
-      "userId": "usr-admin-ciso",
-      "userEmail": "ciso@acmesec.com",
-      "action": "Campaign Launched",
-      "details": "Started Mandatory Q1 2026 Cyber Readiness Drill for all active staff",
-      "severity": "info",
-      "timestamp": "2026-09-21T08:35:50.519Z"
-    },
-    {
-      "id": "log-2",
-      "orgId": "org-acme",
-      "userId": "usr-emp-eng",
-      "userEmail": "sarah.chen@acmesec.com",
-      "action": "Certificate Earned",
-      "details": "Completed 360° Training and passed assessment with 94% score (Cert #TRIN-2026-ACME-8942)",
-      "severity": "info",
-      "timestamp": "2026-09-30T08:35:50.519Z"
-    },
-    {
-      "id": "log-3",
-      "orgId": "org-acme",
-      "userId": "usr-emp-finance",
-      "userEmail": "alex.turner@acmesec.com",
-      "action": "Scenario Risk Warning",
-      "details": "Flagged incorrect decision in USB Security Drop drill; remedial explanation served",
-      "severity": "warning",
-      "timestamp": "2026-10-01T04:35:50.519Z"
     }
   ],
   "passwordResets": [],
@@ -2679,6 +2709,70 @@
       "certificateId": null,
       "createdAt": "2026-10-10T17:24:34.386Z",
       "updatedAt": "2026-10-10T17:26:17.648Z"
+    },
+    {
+      "id": "train_1792070263931_lhxfg",
+      "userId": "usr_1791644688535_ayoek",
+      "orgId": "org_1791474694559_zwats",
+      "courseId": "cyber-awareness-360",
+      "courseName": "Trinova Cyber Awareness 360",
+      "startedAt": "2026-10-15T13:17:43.931Z",
+      "completedAt": null,
+      "durationSeconds": null,
+      "quizScore": null,
+      "quizPercentage": null,
+      "status": "in_progress",
+      "certificateId": null,
+      "createdAt": "2026-10-15T13:17:43.931Z",
+      "updatedAt": "2026-10-15T13:17:43.931Z"
+    },
+    {
+      "id": "train_1792070317253_amm3c",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "courseId": "cyber-awareness-360",
+      "courseName": "Trinova Cyber Awareness 360",
+      "startedAt": "2026-10-15T13:18:37.253Z",
+      "completedAt": null,
+      "durationSeconds": null,
+      "quizScore": null,
+      "quizPercentage": null,
+      "status": "abandoned",
+      "certificateId": null,
+      "createdAt": "2026-10-15T13:18:37.253Z",
+      "updatedAt": "2026-10-15T14:07:25.077Z"
+    },
+    {
+      "id": "train_1792073245077_p114v",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "courseId": "cyber-awareness-360",
+      "courseName": "Test",
+      "startedAt": "2026-10-15T14:07:25.077Z",
+      "completedAt": null,
+      "durationSeconds": null,
+      "quizScore": null,
+      "quizPercentage": null,
+      "status": "abandoned",
+      "certificateId": null,
+      "createdAt": "2026-10-15T14:07:25.077Z",
+      "updatedAt": "2026-10-15T14:07:26.177Z"
+    },
+    {
+      "id": "train_1792073246177_992mq",
+      "userId": "usr-emp-eng",
+      "orgId": "org-acme",
+      "courseId": "cyber-awareness-360",
+      "courseName": "Test",
+      "startedAt": "2026-10-15T14:07:26.177Z",
+      "completedAt": null,
+      "durationSeconds": null,
+      "quizScore": null,
+      "quizPercentage": null,
+      "status": "in_progress",
+      "certificateId": null,
+      "createdAt": "2026-10-15T14:07:26.177Z",
+      "updatedAt": "2026-10-15T14:07:26.177Z"
     }
   ]
 }

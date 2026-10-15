@@ -111,14 +111,30 @@ export function stopTimer() {
   }
 }
 
-/** Start a new training session (or resume the active one on the server). */
-export async function startTraining() {
+/** Reset timer state, clear cached session, and reset HUD display to 00:00:00 */
+export function resetTimer() {
+  stopTimer();
+  session = null;
+  clockOffsetMs = 0;
+  clearLocalSession();
+  if (timerEl) {
+    timerEl.textContent = '00:00:00';
+  }
+}
+
+/** Start a new training session (resets timer so every training visit counts fresh). */
+export async function startTraining(options = { reset: true }) {
+  resetTimer();
   try {
     const res = await fetch('/api/training/start', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ courseId: COURSE_ID, courseName: COURSE_NAME })
+      body: JSON.stringify({
+        courseId: COURSE_ID,
+        courseName: COURSE_NAME,
+        reset: options && options.reset !== false
+      })
     });
     if (!res.ok) return null;
     const data = await res.json();

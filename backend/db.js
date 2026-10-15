@@ -596,16 +596,28 @@ const db = {
      ---------------------------------------------------------- */
 
   // Start a new training session, or resume the caller's active one.
-  startTrainingSession(userId, { courseId, courseName } = {}) {
+  startTrainingSession(userId, { courseId, courseName, reset = true } = {}) {
     const data = readDb();
     const user = data.users.find(u => u.id === userId);
     if (!user) return { success: false, error: 'User not found.' };
     const orgId = user.orgId || 'org-acme';
     const cid = courseId || COURSE_ID;
 
-    let session = (data.trainingSessions || []).find(
-      s => s.userId === userId && s.courseId === cid && s.status === 'in_progress'
-    );
+    if (!data.trainingSessions) data.trainingSessions = [];
+
+    // Reset previous in-progress session so every training visit starts counting fresh from 00:00:00
+    if (reset !== false) {
+      data.trainingSessions.forEach(s => {
+        if (s.userId === userId && s.courseId === cid && s.status === 'in_progress') {
+          s.status = 'abandoned';
+          s.updatedAt = new Date().toISOString();
+        }
+      });
+    }
+
+    let session = reset === false
+      ? data.trainingSessions.find(s => s.userId === userId && s.courseId === cid && s.status === 'in_progress')
+      : null;
 
     if (!session) {
       const nowIso = new Date().toISOString();

@@ -9,7 +9,7 @@ import { startQuiz, closeQuiz, getLastTrainingResult, downloadTrainingResults } 
 import { initDebug } from './debug.js';
 import { initB2B, openB2BDashboard, openCertificateModal } from './b2b.js';
 import { initThreatIntel, initInviteEmployee } from './features.js';
-import { startTraining, resumeTraining, bindTimer } from './training-timer.js';
+import { startTraining, resumeTraining, bindTimer, resetTimer } from './training-timer.js';
 
 // --- App State ---
 let appState = 'welcome'; // 'welcome' | 'training' | 'quiz' | 'results'
@@ -83,9 +83,9 @@ function init() {
   // Init debug mode
   initDebug();
 
-  // Training duration timer: bind the HUD clock and recover any running session
+  // Training duration timer: reset to 00:00:00 on every visit so time starts fresh
+  resetTimer();
   bindTimer('training-timer');
-  resumeTraining();
 
   // Keyboard shortcuts
   document.addEventListener('keydown', handleKeydown);
@@ -107,8 +107,8 @@ function onSceneReady(scene) {
 function enterTraining() {
   appState = 'training';
 
-  // Start the duration timer (resumes if the learner already has a live session)
-  startTraining();
+  // Start the duration timer fresh from 00:00:00 every time the user starts training
+  startTraining({ reset: true });
 
   // Hide welcome screen
   const welcome = document.getElementById('welcome-screen');
@@ -133,6 +133,7 @@ function enterTraining() {
 }
 
 function exitTraining() {
+  resetTimer();
   // "Exit Training" returns the learner to their role dashboard
   if (window.CyberSafeAuth && window.CyberSafeAuth.user) {
     const target = window.CyberSafeAuth.dashboardFor[window.CyberSafeAuth.user.role] || '/employee';

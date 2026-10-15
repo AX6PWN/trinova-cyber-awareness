@@ -429,7 +429,8 @@ async function handleApi(req, res, parsedUrl) {
       const body = await parseJsonBody(req);
       const result = db.startTrainingSession(actor.id, {
         courseId: body.courseId,
-        courseName: body.courseName
+        courseName: body.courseName,
+        reset: body.reset !== false
       });
       if (!result.success) return sendJson(res, 400, result);
       return sendJson(res, 200, result);

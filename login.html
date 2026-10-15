@@ -23,64 +23,120 @@
 <body class="auth-page">
 
   <main class="auth-shell">
-    <a class="auth-home" href="./index.html">&larr; Back to Trinova home</a>
-    <div class="auth-head">
-      <img class="auth-logo" src="./assets/images/logo.png" alt="Trinova">
-      <h1>Welcome back</h1>
-      <p class="auth-sub">Sign in to your Trinova workspace to continue cybersecurity awareness training.</p>
-      <div class="auth-role-pills">
-        <span>👑 Super Admin</span>
-        <span>🛡️ Admin</span>
-        <span>👤 Employee</span>
-      </div>
-    </div>
-
-    <div class="auth-body">
-      <form id="form-login" class="auth-form" novalidate>
-        <div class="form-group">
-          <label for="login-email">Email address</label>
-          <input type="email" id="login-email" name="email" required autocomplete="email"
-                 placeholder="you@company.com">
-        </div>
-
-        <div class="form-group">
-          <label for="login-password">Password</label>
-          <input type="password" id="login-password" name="password" required
-                 autocomplete="current-password" placeholder="••••••••">
-        </div>
-
-        <div class="form-hint" id="login-validation" style="display:none;"></div>
-        <div id="login-error-msg" class="auth-error-msg"></div>
-
-        <button type="submit" class="btn-primary btn-block" id="btn-login-submit">Sign In →</button>
-      </form>
-
-      <div class="auth-foot">
-        <a href="./forgot-password.html">Forgot password?</a>
-        &nbsp;·&nbsp;
-        New here? <a href="./register.html">Create an account</a>
-      </div>
-
-      <div class="demo-box">
-        <div class="demo-title">Demo accounts (local prototype)</div>
-        <div class="demo-account">
-          <span>👑 Super Admin <code>superadmin@trinova.io</code></span>
-          <button type="button" class="demo-fill" data-email="superadmin@trinova.io" data-password="superadmin2026">Use</button>
-        </div>
-        <div class="demo-account">
-          <span>🛡️ Admin <code>ciso@acmesec.com</code></span>
-          <button type="button" class="demo-fill" data-email="ciso@acmesec.com" data-password="admin123">Use</button>
-        </div>
-        <div class="demo-account">
-          <span>👤 Employee <code>sarah.chen@acmesec.com</code></span>
-          <button type="button" class="demo-fill" data-email="sarah.chen@acmesec.com" data-password="user123">Use</button>
+    <!-- Left Showcase Panel (Landscape) -->
+    <aside class="auth-showcase">
+      <div class="showcase-brand">
+        <img class="showcase-logo" src="./assets/images/logo.png" alt="Trinova">
+        <div class="showcase-brand-text">
+          <span class="showcase-brand-name">TRINOVA</span>
+          <span class="showcase-brand-tag">Cyber Awareness 360</span>
         </div>
       </div>
 
-      <div class="auth-protected-note auth-legal">
-        The 360° training, quizzes and results are only available to signed-in users.
+      <div class="showcase-content">
+        <div class="showcase-badge">
+          <span class="badge-pulse"></span>
+          <span>Enterprise Training Suite</span>
+        </div>
+        <h2 class="showcase-title">Next-Gen Cyber Security & Compliance Platform</h2>
+        <p class="showcase-desc">Immersive 3D interactive simulation designed to build real-world cyber resilience across your entire organization.</p>
+
+        <div class="showcase-features">
+          <div class="showcase-feature">
+            <span class="feat-icon">🥽</span>
+            <div>
+              <strong>360° Threat Detection</strong>
+              <p>Realistic 3D workplace simulation with hands-on threat hotspots.</p>
+            </div>
+          </div>
+          <div class="showcase-feature">
+            <span class="feat-icon">🛡️</span>
+            <div>
+              <strong>Role-Based Governance</strong>
+              <p>Dedicated modules and analytics for Super Admins, CISOs & Employees.</p>
+            </div>
+          </div>
+          <div class="showcase-feature">
+            <span class="feat-icon">🎓</span>
+            <div>
+              <strong>Verifiable Certifications</strong>
+              <p>Automated ISO/NIST audit readiness & cryptographically validated certs.</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="showcase-footer">
+        <span>🔒 ISO 27001 & NIST 800-50</span>
+        <span>•</span>
+        <span>99.8% Threat Catch Rate</span>
+      </div>
+    </aside>
+
+    <!-- Right Panel (Interactive Auth Form Area) -->
+    <section class="auth-panel">
+      <div class="auth-panel-header">
+        <a class="auth-home-btn" href="./index.html">&larr; Back to Trinova home</a>
+        <div class="auth-role-pills">
+          <span>👑 Super Admin</span>
+          <span>🛡️ Admin</span>
+          <span>👤 Employee</span>
+        </div>
+      </div>
+
+      <div class="auth-panel-body">
+        <div class="auth-title-group">
+          <h1>Welcome back</h1>
+          <p class="auth-sub">Sign in to your Trinova workspace to continue cybersecurity awareness training.</p>
+        </div>
+
+        <form id="form-login" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="login-email">Email address</label>
+            <input type="email" id="login-email" name="email" required autocomplete="email"
+                   placeholder="you@company.com">
+          </div>
+
+          <div class="form-group">
+            <div class="label-with-link">
+              <label for="login-password">Password</label>
+              <a href="./forgot-password.html" class="forgot-link">Forgot password?</a>
+            </div>
+            <input type="password" id="login-password" name="password" required
+                   autocomplete="current-password" placeholder="••••••••">
+          </div>
+
+          <div class="form-hint" id="login-validation" style="display:none;"></div>
+          <div id="login-error-msg" class="auth-error-msg"></div>
+
+          <button type="submit" class="btn-primary btn-block" id="btn-login-submit">Sign In &rarr;</button>
+        </form>
+
+        <div class="auth-foot">
+          New here? <a href="./register.html">Create an account</a>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-title">Demo accounts (click to autofill)</div>
+          <div class="demo-account">
+            <span>👑 Super Admin <code>superadmin@trinova.io</code></span>
+            <button type="button" class="demo-fill" data-email="superadmin@trinova.io" data-password="superadmin2026">Use</button>
+          </div>
+          <div class="demo-account">
+            <span>🛡️ Admin <code>ciso@acmesec.com</code></span>
+            <button type="button" class="demo-fill" data-email="ciso@acmesec.com" data-password="admin123">Use</button>
+          </div>
+          <div class="demo-account">
+            <span>👤 Employee <code>sarah.chen@acmesec.com</code></span>
+            <button type="button" class="demo-fill" data-email="sarah.chen@acmesec.com" data-password="user123">Use</button>
+          </div>
+        </div>
+
+        <div class="auth-protected-note auth-legal">
+          The 360° training, quizzes and results are only available to signed-in users.
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
